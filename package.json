@@ -27,8 +27,10 @@
   "dependencies": {
     "autoprefixer": "^6.3.6",
     "bcrypt-as-promised": "^1.1.0",
+    "clipboard": "^1.5.12",
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",
+    "express-session": "^1.13.0",
     "fs": "0.0.2",
     "gulp": "^3.9.1",
     "gulp-browserify": "^0.5.1",
@@ -46,6 +48,7 @@
     "nodemon": "^1.9.2",
     "rucksack-css": "^0.8.6",
     "sanitize-filename": "^1.6.0",
+    "session-file-store": "^0.2.0",
     "source-map-support": "^0.4.0"
   }
 }

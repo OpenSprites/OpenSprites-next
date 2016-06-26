@@ -75,7 +75,7 @@ const db = {
       if(exists)
         return false
 
-      data.password = await bcrypt.hash(data.password, 8)
+      data.password = await bcrypt.hash(data.password, 12)
       data.admin = data.admin || false
       data.emailConfirmed = data.emailConfirmed || false
       data.joined = Date.now()

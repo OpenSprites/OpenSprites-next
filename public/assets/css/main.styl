@@ -12,6 +12,7 @@ os-light = #C8DDDB
 
 @require 'font.styl'
 @require 'nav.styl'
+@require 'signup-join.styl'
 
 body {
   color os-grey
@@ -44,5 +45,20 @@ main {
   
   > :last-child {
     margin-bottom 0
+  }
+}
+
+.split {
+  display block
+
+  > * {
+    flex-grow 1
+    flex-shrink 0
+    
+    width 50%
+  }
+  
+  @media (min-width: 1280px) {
+    display flex
   }
 }

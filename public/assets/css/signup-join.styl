@@ -1,0 +1,45 @@
+/**
+ * css/signup-join.styl
+ * --------------------
+ * 
+ * Styles for the Sign In & Join pages.
+ */
+
+table#join {
+  border 0
+  width 100%
+
+  tr {
+    td {
+      padding .5em 0
+    }
+
+    td:first-child {
+      padding-right 1em
+      width 154px
+
+      color #C3C3C3
+      text-align right
+      
+      cursor default
+      user-select none
+    }
+    
+    td:last-child input {
+      border none
+      outline none
+      
+      width auto
+      max-width 100%
+      @extend .body
+      line-height 2
+      
+      color os-grey
+      border-bottom 1px dotted #C3C3C3
+      
+      &:focus {
+        border-bottom 1px solid #AAAAAA
+      }
+    }
+  }
+}

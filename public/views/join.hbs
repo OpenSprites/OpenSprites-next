@@ -1,0 +1,50 @@
+<main>
+  <h1>Join</h1>
+
+  <form method='post'>
+    <div class='split'>
+      <div>
+        <h2>Step One</h2>
+
+        <a href='/privacy'>We promise</a> to not give anyone your details.
+
+        <table id='join'>
+          <tbody>
+            <tr>
+              <td>Email</td>
+              <td><input name='email' type='email' placeholder='john.doe@gmail.com'></td>
+            </tr>
+
+            <tr>
+              <td>Scratch Username</td>
+              <td><input name='username' type='text' placeholder='thisandagain'></td>
+            </tr>
+
+            <tr>
+              <td>Password</td>
+              <td><input name='password' type='password' placeholder='*********'></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h2>Step Two</h2>
+
+        We need to check that you're actually the Scratcher you say you are.
+        
+        <blockquote style='font-size:18px'>
+          Go to <a href='https://scratch.mit.edu/projects/47606468/'>this Scratch project</a> and comment the below code.
+
+          <a href='javascript:copycode'>Copy</a> <code id='code'>{{code}}</code>
+        </blockquote>
+
+        Once you've done that <b>with the same Scratch account as the one you're joining as</b>, click the button below to get started with OpenSprites!
+
+        <br><br>
+
+        <input type='submit' class='btn' value='Join OpenSprites!'>
+      </div>
+    </div>
+  </form>
+</main>

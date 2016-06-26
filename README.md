@@ -4,7 +4,7 @@
 </p>
 
 ## Installation, Usage, & Setup
-Make sure you have [Node.js](https://nodejs.org/).
+Make sure you have [Node.js](https://nodejs.org/) installed.
 In Terminal / Command Prompt:
 
 ```sh
@@ -13,6 +13,6 @@ cd opensprites-next
 npm install
 ```
 
-To **transpile and minify** resources, use `npm run build`.
-To **watch for file changes**, use `npm run watch`. This will watch for file changes and then transpile/minify resources.
-To **run the server**, use `npm start` and open up [localhost:3000](http://localhost:3000/).
+To **transpile and minify** resources, use `npm run build`. 
+To **watch for file changes**, use `npm run watch`. This will watch for file changes and then transpile/minify resources. 
+To **run the server**, use `npm start` and open up [localhost:3000](http://localhost:3000/). 

@@ -32,12 +32,22 @@ b {
   font-kerning normal
 }
 
+blockquote {
+  margin-left 0
+  padding-left 24px
+  border-left 4px solid #eee
+}
+
 .mono, code, pre {
   font-family 'Inconsolata', monospace
 }
 
 .huge {
   font-size responsive 3em 8em
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom .2em
 }
 
 h1 {
@@ -77,4 +87,17 @@ a {
   &:hover, &:active {
     border-bottom 1px solid os
   }
+}
+
+.btn {
+  display inline-block
+
+  padding .5em .75em
+  background os
+  color white
+  border none
+  outline none
+  cursor pointer
+  
+  @extend .body
 }

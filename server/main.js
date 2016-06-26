@@ -20,7 +20,7 @@ require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, {
 require('source-map-support').install()
 
 process.on('unhandledRejection', function(err) {
-  console.log(new Error(err))
+  console.log('Error in Promise:', new Error(err))
 })
 
 /////////////////////////////////////////////////////////
@@ -28,6 +28,8 @@ process.on('unhandledRejection', function(err) {
 const path = require('path')
 
 const express = require('express')
+const session = require('express-session')
+const sessionStore = require('session-file-store')(session)
 const exprhbs = require('express-handlebars')
 
 const db = require('../db')
@@ -46,7 +48,19 @@ app.engine('hbs', exprhbs({
 app.set('views', 'public/views')
 app.set('view engine', 'hbs')
 
+app.set('trust proxy', 1)
 app.set('json spaces', 2)
+
+app.use(session({
+  secret: 'thisandagainplsexplain',
+  cookie: { secure: true },
+  resave: false,
+  saveUninitialized: true,
+  store: new sessionStore({
+    path: 'db/session',
+    logFn: ()=>{}
+  })
+}))
 
 /////////////////////////////////////////////////////////
 
@@ -56,27 +70,35 @@ app.get('/assets/:type/*', function(req, res) {
   )
 })
 
-app.get('/dump/users', async function(req, res) {
-  let users = await db.users.get(true)
+app.get('/join', async function(req, res) {
+  // if already signed in, skip
+  if(req.session.user)
+    res.redirect(req.query.r || '/')
 
-  await db.user.join({
-    username: 'thisandagain',
-    password: 'plsexplain',
-    email: 'satan@scratch.mit.edu'
+  res.render('join', {
+    user: req.session.user
   })
+})
 
-  let signedIn = await db.user.signIn('thisandagain', 'plsexplain')
-  console.log(signedIn)
-
-  res.json(users)
+app.post('/join', async function(req, res) {
+  res.redirect(req.query.r || '/')
 })
 
 app.get('/', function(req, res) {
-  res.render('index')
+  res.render('index', {
+    user: req.session.user
+  })
 })
 
 /////////////////////////////////////////////////////////
 
 app.listen(3000, function() {
   console.log('Listening on http://localhost:3000')
+})
+
+// temp. obviously
+db.user.join({
+  username: 'thisandagain',
+  password: 'plsexplain',
+  email: 'satan@scratch.mit.edu'
 })
