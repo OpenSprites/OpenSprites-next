@@ -4,7 +4,7 @@
 </p>
 
 ## Installation, Usage, & Setup
-Make sure you have both [Node.js](https://nodejs.org/).
+Make sure you have [Node.js](https://nodejs.org/).
 In Terminal / Command Prompt:
 
 ```sh
