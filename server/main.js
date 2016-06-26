@@ -31,9 +31,9 @@ app.set('view engine', 'hbs')
 
 /////////////////////////////////////////////////////////
 
-app.get('/assets/:type/:asset', function(req, res) {
+app.get('/assets/:type/*', function(req, res) {
   res.sendFile(
-    path.join(__dirname, '../../', `public/assets/${req.params.type}/.dist/${req.params.asset}`)
+    path.join(__dirname, '../../', `public/assets/${req.params.type}/.dist/${req.params[0]}`)
   )
 })
 

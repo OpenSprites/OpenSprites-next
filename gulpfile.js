@@ -15,6 +15,7 @@ const autoprefixer = require('autoprefixer')
 const minify = require('gulp-minify')
 const clean = require('gulp-clean')
 const plumber = require('gulp-plumber')
+const rucksack = require('rucksack-css')
 const imagemin = require('gulp-imagemin')
 
 /////////////////////////////////////////////////////////
@@ -23,9 +24,9 @@ gulp.task('build', ['build-server', 'build-js', 'build-css', 'build-img'])
 
 gulp.task('watch', function() {
   gulp.watch('server/**/*.js', ['build-server'])
-  gulp.watch(['public/assets/js/**/*.js', '!public/assets/js/.dist/**/*'], ['build-js'])
-  gulp.watch(['public/assets/css/**/*.js', '!public/assets/css/.dist/**/*'], ['build-css'])
-  gulp.watch(['public/assets/img/**/*.js', '!public/assets/img/.dist/**/*'], ['build-img'])
+  gulp.watch(['public/assets/js/**/*', '!public/assets/js/.dist/**/*'], ['build-js'])
+  gulp.watch(['public/assets/css/**/*', '!public/assets/css/.dist/**/*'], ['build-css'])
+  gulp.watch(['public/assets/img/**/*', '!public/assets/img/.dist/**/*'], ['build-img'])
 })
 
 /////////////////////////////////////////////////////////
@@ -89,7 +90,7 @@ gulp.task('build-css', ['clean-css'], function() {
   .pipe(stylus({
     compress: true
   }))
-  .pipe(postcss([ autoprefixer() ]))
+  .pipe(postcss([ autoprefixer(), rucksack() ]))
   .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest('public/assets/css/.dist'))
 })

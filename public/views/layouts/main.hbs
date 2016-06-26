@@ -1,6 +1,7 @@
 <!doctype html>
 
 <meta charset='utf-8'>
+<meta name='viewport' content='width=device-width'>
 
 <title>
   {{#if title}}
@@ -10,9 +11,47 @@
   {{/if}}
 </title>
 
+<link rel='stylesheet' href='//brick.a.ssl.fastly.net/Raleway:400,600,800/Inconsolata:500/Lato:400,600'>
 <link rel='stylesheet' href='/assets/css/main.css'>
-<script src='/assets/js/main.js'></script>
 
 <body>
+  <nav><div class='c'>
+    <a href='/' class='logo'>
+      <b>Open</b>Sprites
+    </a>
+
+    <div class='nav'>
+      <a href='/share'>
+        Share
+      </a>
+
+      <a href='/search'>
+        Search
+      </a>
+
+      <a href='/search'>
+        Search
+      </a>
+
+      {{#if login}}
+        <a href='/you'>
+          You
+        </a>
+      {{else}}
+        <a href='/join'>
+          Join
+        </a>
+
+        <a href='/signin'>
+          Sign In
+        </a>
+      {{/if}}
+    </div>
+  </div></nav>
+
   {{{body}}}
+
+  <footer>
 </body>
+
+<script src='/assets/js/main.js'></script>

@@ -1,0 +1,80 @@
+/**
+ * css/font.styl
+ * -------------
+ * 
+ * For font styling - what else?
+ */
+ 
+::selection {
+  color white
+  background os
+}
+
+.title, .huge, h1, h2, h3, h4 {
+  font-family 'Raleway', sans-serif
+  font-weight 400
+}
+
+b {
+  font-weight 600
+}
+
+.body, body, h5, h6, blockquote, small {
+  font-family 'Lato', sans-serif
+  font-weight 400
+  
+  font-size 1em
+  font-range 420px 1280px
+  line-height 1.25em
+  
+  font-variant-ligatures common-ligatures
+  font-feature-settings 'kern'
+  font-kerning normal
+}
+
+.mono, code, pre {
+  font-family 'Inconsolata', monospace
+}
+
+.huge {
+  font-size responsive 3em 8em
+}
+
+h1 {
+  font-size responsive 2em 3em
+  line-height 1.25em
+}
+
+h2 {
+  font-size responsive 1.625em 2.25em
+  line-height 1.2em
+}
+
+h3 {
+  font-size responsive 1.375em 1.75em
+  line-height 1.15em
+}
+
+h4 {
+  font-size 1.125em
+  line-height 1.1em
+}
+
+h5, blockquote {
+  font-size responsive 1.25em 1.5em
+  line-height 1.4em
+}
+
+h6, small {
+  font-size responsive 0.8em 0.9em
+  line-height 1.2em
+}
+
+a {
+  color os
+  text-decoration none
+  
+  &:hover, &:active {
+    border-bottom 1px solid os
+  }
+}

@@ -5,7 +5,44 @@
  * The main website style.
  */
 
+os = #659593
+os-grey = #4E5555
+os-dark = #333333
+os-light = #C8DDDB
+
+@require 'font.styl'
+@require 'nav.styl'
+
 body {
-  color #212121
+  color os-grey
+  background os-light
+  
+  margin 0
+  padding 0
+}
+
+.c, .container {
+  width calc(100% - 48px * 2)
+  max-width 1280px
+  
+  margin 0 auto
+}
+
+main {
+  @extend .container
+  
+  margin 2em auto
+
+  color os-dark
   background white
+  
+  padding 48px
+  
+  > :first-child {
+    margin-top 0
+  }
+  
+  > :last-child {
+    margin-bottom 0
+  }
 }

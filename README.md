@@ -1,5 +1,5 @@
 <p align='center'>
-  <img src='https://raw.githubusercontent.com/OpenSprites/OpenSprites/master/Logo%20designs%20and%20mockups/os-logo.svg'>
+  <img src='https://raw.githubusercontent.com/OpenSprites/OpenSprites-next/master/public/assets/img/logo/filled.svg'>
 </p>
 
 ## Installation, Usage, & Setup
