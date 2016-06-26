@@ -1,9 +1,10 @@
 <p align='center'>
-  <img src='https://raw.githubusercontent.com/OpenSprites/OpenSprites-next/master/public/assets/img/logo/filled.svg'>
+  <img src='https://raw.githubusercontent.com/OpenSprites/OpenSprites-next/master/public/assets/img/logo/icon.png'>
+  <h1>OpenSprites Next</h1>
 </p>
 
 ## Installation, Usage, & Setup
-Make sure you have both [Node.js](https://nodejs.org/) and [MySQL](https://mariadb.org/) installed.
+Make sure you have both [Node.js](https://nodejs.org/).
 In Terminal / Command Prompt:
 
 ```sh

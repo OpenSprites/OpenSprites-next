@@ -38,3 +38,6 @@ jspm_packages
 
 # dist folders
 **/.dist
+
+# database
+db/**/*.json

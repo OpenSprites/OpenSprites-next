@@ -57,7 +57,16 @@ gulp.task('build-server', ['clean-server'], function() {
   return gulp.src('server/main.js')
   .pipe(plumber())
   .pipe(sourcemaps.init())
-  .pipe(traceur())
+  .pipe(traceur({
+    experimental: true,
+    properTailCalls: true,
+    symbols: true,
+    arrayComprehension: true,
+    asyncFunctions: true,
+    asyncGenerators: true,
+    forOn: true,
+    generatorComprehension: true
+  }))
   .pipe(minify({
     mangle: false
   }))
