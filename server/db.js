@@ -78,7 +78,7 @@ const db = {
       data.password = await bcrypt.hash(data.password, 8)
       data.admin = data.admin || false
       data.emailConfirmed = data.emailConfirmed || false
-      data.joined = (new Date()).value
+      data.joined = Date.now()
 
       db.user.set(data.username, data)
 
