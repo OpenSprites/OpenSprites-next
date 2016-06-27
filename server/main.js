@@ -100,5 +100,5 @@ app.listen(3000, function() {
 db.user.join({
   username: 'thisandagain',
   password: 'plsexplain',
-  email: 'satan@scratch.mit.edu'
+  email: 'bob@scratch.mit.edu'
 })
