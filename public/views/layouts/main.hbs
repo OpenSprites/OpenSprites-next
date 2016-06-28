@@ -5,7 +5,7 @@
 
 <title>
   {{#if title}}
-    {{title}} &bullet; OpenSprites Resources
+    {{title}} — OpenSprites Resources
   {{else}}
     OpenSprites Resources
   {{/if}}
@@ -38,6 +38,10 @@
       {{#if user}}
         <a href='/you'>
           You
+        </a>
+
+        <a href='/signout'>
+          Sign Out
         </a>
       {{else}}
         <a href='/join'>

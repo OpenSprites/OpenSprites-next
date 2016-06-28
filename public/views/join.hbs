@@ -1,28 +1,43 @@
 <main>
   <h1>Join</h1>
 
+  {{#if fail}}
+    <blockquote>
+      {{{fail}}}
+    </blockquote>
+  {{/if}}
+
+  <p>
+    By joining OpenSprites, you accept our <a href='/tos'>Terms of Service</a>.
+  </p>
+
   <form method='post'>
     <div class='split'>
       <div>
         <h2>Step One</h2>
 
-        <a href='/privacy'>We promise</a> to not give anyone your details.
+        <a href='/privacy'>We promise</a> to not give anyone your details. <br>
 
         <table id='join'>
           <tbody>
             <tr>
               <td>Email</td>
-              <td><input name='email' type='email' placeholder='john.doe@gmail.com'></td>
+              <td><input name='email' required type='email' value='{{already.email}}' placeholder='john.doe@gmail.com'></td>
             </tr>
 
             <tr>
               <td>Scratch Username</td>
-              <td><input name='username' type='text' placeholder='thisandagain'></td>
+              <td><input name='username' required type='text' value='{{already.username}}' placeholder='thisandagain'></td>
             </tr>
 
             <tr>
               <td>Password</td>
-              <td><input name='password' type='password' placeholder='*********'></td>
+              <td><input name='password' pattern='.{3,}' title='3 characters, minimum' required type='password' placeholder='*********'></td>
+            </tr>
+
+            <tr>
+              <td>Retype Password</td>
+              <td><input name='passwordRepeat' required title='Retype the password above' type='password' placeholder='*********'></td>
             </tr>
           </tbody>
         </table>
@@ -34,12 +49,13 @@
         We need to check that you're actually the Scratcher you say you are.
         
         <blockquote style='font-size:18px'>
-          Go to <a href='https://scratch.mit.edu/projects/47606468/'>this Scratch project</a> and comment the below code.
+          Go to <a href='https://scratch.mit.edu/projects/47606468/' target='_blank'>this Scratch project</a> and comment the below code. <br> <br>
 
-          <a href='javascript:copycode'>Copy</a> <code id='code'>{{code}}</code>
+          <code id='code'>{{code}}</code>
+          <div class='btn body' data-clipboard-target='#code' id='copycode'>Copy</div>
         </blockquote>
 
-        Once you've done that <b>with the same Scratch account as the one you're joining as</b>, click the button below to get started with OpenSprites!
+        Once you've done that <b>with the same Scratch account as the one you're joining with</b>, click the button below to get started with OpenSprites!
 
         <br><br>
 

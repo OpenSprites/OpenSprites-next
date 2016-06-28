@@ -6,7 +6,7 @@
  */
 
 const gulp = require('gulp')
-const traceur = require('gulp-traceur')
+const es6ify = require('es6ify')
 const browserify = require('gulp-browserify')
 const sourcemaps = require('gulp-sourcemaps')
 const stylus = require('gulp-stylus')
@@ -15,8 +15,11 @@ const autoprefixer = require('autoprefixer')
 const minify = require('gulp-minify')
 const clean = require('gulp-clean')
 const plumber = require('gulp-plumber')
+const traceur = require('gulp-traceur')
 const rucksack = require('rucksack-css')
 const imagemin = require('gulp-imagemin')
+
+es6ify.traceurOverrides = { asyncFunctions: true }
 
 /////////////////////////////////////////////////////////
 
@@ -56,19 +59,19 @@ gulp.task('clean-img', function() {
 gulp.task('build-server', ['clean-server'], function() {
   return gulp.src('server/main.js')
   .pipe(plumber())
-  .pipe(sourcemaps.init())
-  .pipe(traceur({
-    experimental: true,
-    properTailCalls: true,
-    symbols: true,
-    arrayComprehension: true,
-    asyncFunctions: true,
-    asyncGenerators: true,
-    forOn: true,
-    generatorComprehension: true
+  .pipe(sourcemaps.init()) 
+  .pipe(traceur({ 
+    experimental: true, 
+    properTailCalls: true, 
+    symbols: true, 
+    arrayComprehension: true, 
+    asyncFunctions: true, 
+    asyncGenerators: true, 
+    forOn: true, 
+    generatorComprehension: true 
   }))
-  .pipe(minify({
-    mangle: false
+  .pipe(minify({ 
+    mangle: false 
   }))
   .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest('server/.dist'))
@@ -77,18 +80,18 @@ gulp.task('build-server', ['clean-server'], function() {
 gulp.task('build-js', ['clean-js'], function() {
   return gulp.src('public/assets/js/main.js')
   .pipe(plumber())
-  .pipe(sourcemaps.init())
-  .pipe(traceur({
-    modules: 'commonjs'
-  }))
-  .pipe(browserify({
-    debug: true
-  }))
+  .pipe(
+    browserify({
+      debug: true,
+      add: [es6ify.runtime],
+      transform: [es6ify],
+      loadMaps: true
+    })
+  )
   .pipe(minify({
     mangle: false,
     ext: { min: '.js' }
   }))
-  .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest('public/assets/js/.dist'))
 })
 

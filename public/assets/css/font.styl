@@ -23,7 +23,7 @@ b {
   font-family 'Lato', sans-serif
   font-weight 400
   
-  font-size 1em
+  font-size 1rem
   font-range 420px 1280px
   line-height 1.25em
   
@@ -43,25 +43,38 @@ blockquote {
 }
 
 .huge {
-  font-size responsive 3em 8em
+  font-size responsive 42px 124px
+  text-align center
+  margin 2em 0
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin-bottom .2em
+  margin-top 1em
+  margin-bottom .3em
 }
 
-h1 {
-  font-size responsive 2em 3em
+h1:not(.huge) {
+  font-size responsive 36px 54px
   line-height 1.25em
+  
+  color os
+  font-weight 600
+  
+  b {
+    font-weight 800
+  }
+  
+  user-select none
+  cursor default
 }
 
 h2 {
-  font-size responsive 1.625em 2.25em
+  font-size responsive 32px 38px
   line-height 1.2em
 }
 
 h3 {
-  font-size responsive 1.375em 1.75em
+  font-size responsive 28px 36px
   line-height 1.15em
 }
 
@@ -71,12 +84,12 @@ h4 {
 }
 
 h5, blockquote {
-  font-size responsive 1.25em 1.5em
+  font-size 1.2rem !important
   line-height 1.4em
 }
 
 h6, small {
-  font-size responsive 0.8em 0.9em
+  font-size 0.8rem
   line-height 1.2em
 }
 

@@ -27,7 +27,10 @@
   "dependencies": {
     "autoprefixer": "^6.3.6",
     "bcrypt-as-promised": "^1.1.0",
+    "body-parser": "^1.15.2",
+    "cheerio": "^0.20.0",
     "clipboard": "^1.5.12",
+    "es6ify": "^1.6.0",
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.13.0",
@@ -42,13 +45,15 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-stylus": "^2.5.0",
     "gulp-traceur": "^0.17.2",
-    "jquery": "^3.0.0",
     "json-promise": "^1.1.8",
     "mz": "^2.4.0",
     "nodemon": "^1.9.2",
+    "request-promise": "^3.0.0",
     "rucksack-css": "^0.8.6",
     "sanitize-filename": "^1.6.0",
     "session-file-store": "^0.2.0",
-    "source-map-support": "^0.4.0"
+    "source-map-support": "^0.4.0",
+    "traceur": "0.0.111",
+    "uniqid": "^3.0.0"
   }
 }

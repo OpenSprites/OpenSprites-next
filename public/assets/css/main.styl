@@ -22,6 +22,10 @@ body {
   padding 0
 }
 
+input:-webkit-autofill {
+  -webkit-box-shadow 0 0 0px 1000px white inset
+}
+
 .c, .container {
   width calc(100% - 48px * 2)
   max-width 1280px
@@ -48,6 +52,10 @@ main {
   }
 }
 
+code, pre {
+  word-break break-word
+}
+
 .split {
   display block
 
@@ -55,10 +63,14 @@ main {
     flex-grow 1
     flex-shrink 0
     
-    width 50%
+    width 100%
   }
   
-  @media (min-width: 1280px) {
+  @media (min-width: 1000px) {
     display flex
+    
+    > * {
+      width 50%
+    }
   }
 }

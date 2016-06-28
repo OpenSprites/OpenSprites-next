@@ -1,0 +1,33 @@
+<main>
+  <h1>Sign In</h1>
+
+  {{#if fail}}
+    <blockquote>
+      {{{fail}}}
+    </blockquote>
+  {{/if}}
+
+  <p>
+    Don't have an account? <a href='/join'>Join now</a>!
+  </p>
+
+  <form method='post'>
+    <table id='join'>
+      <tbody>
+        <tr>
+          <td>Username</td>
+          <td><input name='username' required type='text' value='{{already.username}}' placeholder='thisandagain'></td>
+        </tr>
+
+        <tr>
+          <td>Password</td>
+          <td><input name='password' type='password' placeholder='*********'></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <br>
+
+    <input type='submit' class='btn' value='Sign In'>
+  </form>
+</main>
