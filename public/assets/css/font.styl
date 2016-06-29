@@ -10,62 +10,60 @@
   background os
 }
 
-.title, .huge, h1, h2, h3, h4 {
-  font-family 'Raleway', sans-serif
-  font-weight 400
+.title, .huge, h1, h2, h3 {
+  font-family 'Source Sans Pro', sans-serif
+  font-weight 600
+  color os-dark
 }
 
 b {
   font-weight 600
 }
 
-.body, body, h5, h6, blockquote, small {
+.body, body, h4, h5, h6, blockquote, small {
   font-family 'Lato', sans-serif
   font-weight 400
   
-  font-size 1rem
+  font-size responsive .8rem 1.1875rem
   font-range 420px 1280px
-  line-height 1.25em
+  line-height 1.5
   
   font-variant-ligatures common-ligatures
   font-feature-settings 'kern'
   font-kerning normal
+  font-smoothing antialiased
+}
+
+p {
+  font-size responsive .8rem 1.3rem
 }
 
 blockquote {
   margin-left 0
   padding-left 24px
-  border-left 4px solid #eee
+  border-left 4px solid #eee#303c46
 }
 
 .mono, code, pre {
   font-family 'Inconsolata', monospace
 }
 
-.huge {
-  font-size responsive 42px 124px
-  text-align center
-  margin 2em 0
-}
-
 h1, h2, h3, h4, h5, h6 {
+  font-weight 400
+  
   margin-top 1em
   margin-bottom .3em
 }
 
-h1:not(.huge) {
+h1 {
   font-size responsive 36px 54px
   line-height 1.25em
   
-  color os
   font-weight 600
   
   b {
     font-weight 800
   }
-  
-  user-select none
-  cursor default
 }
 
 h2 {
@@ -95,22 +93,8 @@ h6, small {
 
 a {
   color os
+  cursor pointer
   text-decoration none
   
-  &:hover, &:active {
-    border-bottom 1px solid os
-  }
-}
-
-.btn {
-  display inline-block
-
-  padding .5em .75em
-  background os
-  color white
-  border none
-  outline none
-  cursor pointer
-  
-  @extend .body
+  font-weight 600
 }

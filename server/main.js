@@ -195,9 +195,23 @@ app.get('/users/:who', async function(req, res) {
   let exists = await db.user.exists(req.params.who)
 
   if(!exists) {
-    res.status(404).render('404', {
-      user: req.session.user
-    })
+    try {
+      await request(`https://api.scratch.mit.edu/users/${req.params.who}`, { json: true })
+      let who = {
+        username: req.params.who,
+        exists: false
+      }
+
+      res.render('user', {
+        user: req.session.user,
+        who: who,
+        whoJSON: JSON.stringify(who)
+      })
+    } catch(e) {
+      res.status(404).render('404', {
+        user: req.session.user
+      })
+    }
 
     return
   }
@@ -215,21 +229,19 @@ app.get('/users/:who', async function(req, res) {
 })
 
 app.get('/users/:who/avatar', async function(req, res) {
-  let exists = await db.user.get(req.params.who)
   let size = req.query.s || 64
 
-  if(!exists) {
+  try {
+    const usr = await request(`https://api.scratch.mit.edu/users/${req.params.who}`, { json: true })
+
+    const avatar = usr.profile.avatar.substr(0, usr.profile.avatar.length - 4).replace('/', '')
+
+    res.redirect(`https://cdn2.scratch.mit.edu/get_image/user/${avatar}_${size}x${size}.png`)
+  } catch(e) {
     res.status(404).render('404', {
       user: req.session.user
     })
-
-    return
   }
-
-  const usr = await request(`https://api.scratch.mit.edu/users/${req.params.who}`, { json: true })
-  const avatar = usr.profile.avatar.substr(0, usr.profile.avatar.length - 4).replace('/', '')
-
-  res.redirect(`https://cdn2.scratch.mit.edu/get_image/user/${avatar}_${size}x${size}.png`)
 })
 
 app.get('/', function(req, res) {

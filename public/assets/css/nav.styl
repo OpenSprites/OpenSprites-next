@@ -7,12 +7,9 @@
 
 nav {
   width 100%
-  height 64px
+  height 78px
   
   user-select none
-  
-  font-family 'Raleway', sans-serif
-  text-transform uppercase
   font-size 16px
   letter-spacing 0.5px
 
@@ -26,43 +23,53 @@ nav {
   .nav {
     display inline-block
     float right
+    height 78px
   }
   
   // Meh. Needs work.
   .logo {
     float left
-    padding-left 64px
+    display inline-block
+    padding-left 51.2px
     
-    font-size 18px
+    font-size responsive 1.1rem 1.3rem
+
+    height 64px
+    line-height @height
+    color white
     
+    font-family 'Source Sans Pro', sans-serif
+    
+    margin-top 8px
+
     background-image url('/assets/img/logo/icon.png')
-    background-size contain
+    background-size 51.2px
     background-position left center
     background-repeat no-repeat
     
+    font-weight 600
+
     b {
-      font-weight 800
+      font-weight 700
+    }
+  }
+  
+  a:not(.logo) {
+    &.super {
+      @extend .btn.super
+      border 2px solid white
+    }
+    
+    @extend .btn
+    border none
+    
+    &:not(.super) {
+      color white !important
+      background os !important
     }
   }
   
   a {
-    display inline-block
-
-    height 48px
-    line-height 48px
-    
-    padding 8px 16px
-    margin 0
-    border-bottom 0 !important
-    
-    color white
-    
-    &:hover {
-      text-shadow 0 0 8px rgba(white, 0.4)
-      
-      b {
-        text-shadow 0 0 4px rgba(white, 0.4)
-      }
-    }
+    margin-top 12px
   }
 }

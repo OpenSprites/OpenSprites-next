@@ -6,17 +6,15 @@
  */
 
 os = #659593
-os-grey = #4E5555
-os-dark = #333333
+os-grey = #828282
+os-dark = #3C6160
 os-light = #C8DDDB
 
 @require 'font.styl'
-@require 'nav.styl'
-@require 'signup-join.styl'
 
 body {
   color os-grey
-  background os-light
+  background white
   
   margin 0
   padding 0
@@ -31,14 +29,19 @@ input:-webkit-autofill {
   max-width 1280px
   
   margin 0 auto
+  
+  &.slim {
+    max-width 900px
+  }
 }
 
 main {
   @extend .container
   
   margin 2em auto
+  position relative
 
-  color os-dark
+  color os-grey
   background white
   
   padding 48px
@@ -74,3 +77,91 @@ code, pre {
     }
   }
 }
+
+.btn {
+  display inline-block
+
+  border-radius 3px
+  padding .55em 1em
+  
+  color white
+  background os
+  border 2px solid os
+  
+  outline none
+  cursor pointer
+  
+  &.flat {
+    color os
+    background white
+    
+    border 2px solid os
+    
+    &:hover {
+      color white
+      background os
+    }
+  }
+  
+  &.super {
+    color os
+    background white
+    border 2px solid white
+  }
+  
+  @extend .body
+  font-weight 600
+  text-transform lowercase
+}
+
+.icon {
+  font-family 'Material Icons' !important
+  font-weight normal
+  font-style normal
+  letter-spacing normal
+  direction ltr
+  word-wrap normal
+  text-transform none
+}
+
+.center {
+  text-align center
+}
+
+header {
+  background os
+  
+  :first-child {
+    margin-top 0
+    background os
+    
+    color os-light
+    
+    h1, h2, h3 {
+      color white
+    }
+    
+    a {
+      color white
+    }
+  }
+}
+
+.avatar {
+  border-radius 3px
+}
+
+hr {
+  display block
+  width 25%
+  
+  margin .4em auto
+
+  border none
+  border-top 1px solid rgba(os-grey, 0.2)
+}
+
+@require 'nav.styl'
+@require 'signup-join.styl'
+@require 'resources.styl'
+@require 'footer.styl'

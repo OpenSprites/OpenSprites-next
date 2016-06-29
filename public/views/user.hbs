@@ -1,6 +1,25 @@
-<main>
-  <h1>{{who.username}} {{#if who.isYou}} (You) {{/if}}</h1>
-  <img src='/users/{{who.username}}/avatar?s=128'>
+<header><main>
+  <h1>
+    {{who.username}}
+  </h1>
 
-  <code>{{whoJSON}}</code>
+  {{#if who.exists}}
+    <h4>
+      Sample Text
+    </h4>
+  {{else}}
+    <h4>
+      {{who.username}} isn't on OpenSprites yet.
+    </h4>
+
+    <br>
+
+    <a class='super btn' href='https://scratch.mit.edu/users/{{who.username}}/#comment-form'>
+      invite them!
+    </a>
+  {{/if}}
+</main></header>
+
+<main>
+<img src='/users/{{who.username}}/avatar?s=128' width=128 height=128>
 </main>

@@ -1,0 +1,55 @@
+/**
+ * css/footer.styl
+ * ---------------
+ * 
+ * <fooooooooooooooooooooooooter>
+ */
+
+footer {
+  @extend .container
+  
+  display flex
+  flex-wrap wrap
+  
+  color #B4B4B4
+  
+  section {
+    flex 1
+  }
+  
+  section.large {
+    flex 2
+    
+    > a > #on-gh {
+      float left
+      opacity 0.65
+
+      & + span {
+        padding-left .5em
+        display inline-block
+        line-height 70px
+      }
+    }
+  }
+
+  a {
+    color #828282
+    font-weight 400
+    
+    section & {
+      margin .25em 0
+    }
+  }
+  
+  > span {
+    display block
+    padding-top 2em
+    width 100%
+  }
+  
+  .love {
+    color #F44336
+  }
+  
+  padding 2.2em 0
+}

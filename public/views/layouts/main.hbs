@@ -5,13 +5,14 @@
 
 <title>
   {{#if title}}
-    {{title}} — OpenSprites Resources
+    {{title}} — OpenSprites
   {{else}}
-    OpenSprites Resources
+    OpenSprites — Share your Sprites
   {{/if}}
 </title>
 
-<link rel='stylesheet' href='//brick.a.ssl.fastly.net/Raleway:400,600,800/Inconsolata:500/Lato:400,600'>
+<link rel='stylesheet' href='//brick.a.ssl.fastly.net/Source+Sans+Pro:400,600,700/Inconsolata:500/Lato:400,600'>
+<link rel='stylesheet' href='//fonts.googleapis.com/icon?family=Material+Icons'>
 <link rel='stylesheet' href='/assets/css/main.css'>
 
 <link rel='icon' href='/assets/img/logo/icon.png'>
@@ -19,37 +20,33 @@
 <body>
   <nav><div class='c'>
     <a href='/' class='logo'>
-      <b>Open</b>Sprites
+      <b>open</b>sprites
     </a>
 
     <div class='nav'>
-      <a href='/share'>
-        Share
-      </a>
-
       <a href='/search'>
-        Search
-      </a>
-
-      <a href='/search'>
-        Search
+        search
       </a>
 
       {{#if user}}
-        <a href='/you'>
-          You
+        <a href='/signout'>
+          sign out
         </a>
 
-        <a href='/signout'>
-          Sign Out
+        <a href='/you'>
+          you
+        </a>
+
+        <a href='/share' class='super'>
+          share
         </a>
       {{else}}
-        <a href='/join'>
-          Join
+        <a href='/signin'>
+          sign in
         </a>
 
-        <a href='/signin'>
-          Sign In
+        <a href='/join' class='super'>
+          join
         </a>
       {{/if}}
     </div>
@@ -57,7 +54,40 @@
 
   {{{body}}}
 
+  <hr>
+
   <footer>
+    <section>
+      <h5>About</h5>
+      <a href='/about'>About OpenSprites</a> <br>
+      <a href='mailto:contactATopenspritesDOTorg' onclick="this.href=this.href .replace(/AT/,'@') .replace(/DOT/,'.')">Contact Us</a>
+    </section>
+
+    <section>
+      <h5>Meta</h5>
+      <a href='/stats'>Statistics</a>
+    </section>
+
+    <section>
+      <h5>Legal</h5>
+      <a href='/tos'>Terms of Service</a> <br>
+      <a href='/dmca'>DMCA</a> <br>
+      <a href='/privacy'>Privacy</a>
+    </section>
+
+    <section class='large'>
+      <a href='https://github.com/OpenSprites'>
+        <img src='/assets/img/github.png' height='70' id='on-gh'>
+        <span>OpenSprites on GitHub</span>
+      </a>
+    </section>
+
+    <span>
+      <small> OpenSprites is not endorsed by or affiliated with the <a href='https://scratch.mit.edu/'>Scratch Team</a>. </small> <br> <br>
+
+      Made with <span class='love'> &hearts; </span> by the <a href='/team'> OpenSprites Team </a>.
+    </span>
+  </footer>
 </body>
 
 <script src='/assets/js/main.js'></script>

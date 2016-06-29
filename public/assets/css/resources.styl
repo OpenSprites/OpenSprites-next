@@ -1,0 +1,62 @@
+/**
+ * css/resources.styl
+ * ------------------
+ * 
+ * For .resource and .resources elements.
+ */
+
+.resources {
+  display flex
+ 
+  //overflow-x auto
+  //overflow-y hidden
+  align-content center
+  justify-content center
+  flex-flow row wrap
+  align-items center
+  
+  padding 8px 0
+}
+
+.resource {
+  padding 16px
+
+  border-radius 3px
+  border 1px solid #e2e1e0
+  
+  display inline-block
+  
+  flex-grow 0
+  flex-shrink 0
+  overflow hidden
+  
+  margin 16px
+  
+  width 240px
+  
+  a:first-child {
+    display block
+    margin-left -16px
+    margin-top -16px
+    width 240px + 16px + 16px
+
+    img {
+      max-width 100%
+      height 156px
+      
+      margin auto
+      margin-bottom 12px
+      display block
+    }
+  }
+
+  h4 {
+    margin-top 0
+    white-space nowrap
+    overflow: hidden
+    text-overflow ellipsis
+    padding-left 16px
+    
+    color os-grey
+  }
+}
