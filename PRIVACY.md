@@ -1,0 +1,1 @@
+#OpenSprites Revised Privacy Policy
