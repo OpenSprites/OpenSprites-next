@@ -1,0 +1,36 @@
+.file-upload {
+  min-height 84px
+  padding 8px
+  margin-bottom 25px
+
+  border 1px solid os-dark
+  background white
+  box-shadow 0 3px 3px rgba(0, 0, 0, 0.2)
+  border-radius 2px
+
+  .file-upload-name, .file-upload-description {
+    width 100%
+    margin-left 8px
+    overflow-x visible !important
+    outline 0
+  }
+
+  .file-upload-preview {
+    border 1px solid black
+    float left
+    margin 0 5px 5px 0
+    width 107px
+    height 80px
+  }
+}
+
+@media all and (max-width 600px) {
+  .file-upload {
+    .file-upload-preview {
+      float none
+      width 100%
+      height 0
+      padding-bottom 74%
+    }
+  }
+}

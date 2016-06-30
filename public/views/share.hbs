@@ -1,11 +1,16 @@
 <main>
   <h1>Share</h1>
 
-  <form method='post' enctype='multipart/form-data'>
-    <h5> liam, work your magic </h5>
+  <div id='file-uploads'></div>
 
-    <input type='file' multiple name='files[]'>
+  <button id='add-resource' class='flat btn'>Add Resource</button>
+  <input type='submit' class='btn' value='Upload and publish'>
 
-    <input type='submit' class='btn' value='Upload'>
-  </form>
+  <div class='file-upload template' data-template-id='file-upload'>
+    <div class='file-upload-preview'>
+      <!-- Fill preview -->
+    </div>
+    Name: <span contenteditable='true' placeholder='Bob the Cactus' class='file-upload-name'></span><br>
+    Description: <span contenteditable='true' placeholder='Long time no see!' class='file-upload-name'></span>
+  </div>
 </main>

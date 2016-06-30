@@ -162,7 +162,25 @@ hr {
   border-top 1px solid rgba(os-grey, 0.2)
 }
 
+.template {
+  display none !important
+}
+
+input[type=text] {
+  border 0
+  
+  &::placeholder {
+    color os-light
+  }
+}
+
+[contenteditable=true]:empty:before {
+  content attr(placeholder)
+  color os-light
+}
+
 @require 'nav.styl'
 @require 'signup-join.styl'
 @require 'resources.styl'
 @require 'footer.styl'
+@require 'share.styl'
