@@ -1,4 +1,4 @@
-## DMCA Reports and Copyright ##
+# DMCA Reports and Copyright
 We understand that your copyrighted assets and other intellectual property are important to your business. We would like to facilitate any requests you may have, however we would like you keep in mind the following:
  - OpenSprites is mainly used by young children. 
  - OpenSprites was created with the intent of being an educational resource sharing site.

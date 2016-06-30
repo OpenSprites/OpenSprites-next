@@ -26,6 +26,7 @@ process.on('unhandledRejection', function(err) {
 /////////////////////////////////////////////////////////
 
 const path = require('path')
+const fs = require('fs')
 
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -37,18 +38,27 @@ const uniqid = require('uniqid').process
 const cheerio = require('cheerio')
 const request = require('request-promise')
 
+const marked = require('marked')
+
 const db = require('../db')
 
 /////////////////////////////////////////////////////////
 
 let app = express()
 
-app.engine('hbs', exprhbs({
+app.engine('hbs', exprhbs.create({
   defaultLayout: 'main',
   extname: '.hbs',
   layoutsDir: 'public/views/layouts/',
-  partialsDir: 'public/views/partials/'
-}))
+  partialsDir: 'public/views/partials/',
+
+  helpers: {
+    md: markdown => {
+      console.log(marked(markdown))
+      return marked(markdown)
+    }
+  }
+}).engine)
 
 app.set('views', 'public/views')
 app.set('view engine', 'hbs')
@@ -249,6 +259,46 @@ app.get('/', function(req, res) {
     user: req.session.user
   })
 })
+
+/////////////////////////////////////////////////////////
+
+app.get('/dmca', function(req, res) {
+  let f = path.join(__dirname, '../../', 'DMCA.md')
+
+  fs.readFile(f, 'utf8', function(err, file) {
+    res.render('md-page', {
+      user: req.session.user,
+      title: 'DMCA',
+      markdown: file || 'Not found!'
+    })
+  })
+})
+
+app.get('/tos', function(req, res) {
+  let f = path.join(__dirname, '../../', 'ToS.md')
+
+  fs.readFile(f, 'utf8', function(err, file) {
+    res.render('md-page', {
+      user: req.session.user,
+      title: 'Terms of Service',
+      markdown: file || 'Not found!'
+    })
+  })
+})
+
+app.get('/privacy', function(req, res) {
+  let f = path.join(__dirname, '../../', 'PRIVACY.md')
+
+  fs.readFile(f, 'utf8', function(err, file) {
+    res.render('md-page', {
+      user: req.session.user,
+      title: 'Privacy Policy',
+      markdown: file || 'Not found!'
+    })
+  })
+})
+
+/////////////////////////////////////////////////////////
 
 app.use(express.static('public'))
 

@@ -1,4 +1,4 @@
-## OpenSprites Terms of Service ##
+# Terms of Service
 This policy forms an agreement between the end-user (You, User, Your), and OpenSprites (Us, OpenSprites, Our). OpenSprites reserves the right to terminate usage of the site to any User who violates these Terms. By continuing use of this site, you are agreeing to these Terms. If you do not agree with these Terms, discontinue use of the OpenSprites website.
 
 ### Disclaimers ###

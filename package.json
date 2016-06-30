@@ -46,6 +46,7 @@
     "gulp-stylus": "^2.5.0",
     "gulp-traceur": "^0.17.2",
     "json-promise": "^1.1.8",
+    "marked": "^0.3.5",
     "mz": "^2.4.0",
     "nodemon": "^1.9.2",
     "request-promise": "^3.0.0",
