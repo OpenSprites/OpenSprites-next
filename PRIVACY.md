@@ -1,4 +1,4 @@
-#OpenSprites Revised Privacy Policy WIP
+#OpenSprites Privacy Policy (WIP)
 
 ##Information we collect about you
 ###Account Information
