@@ -35,11 +35,13 @@ const session = require('express-session')
 const sessionStore = require('session-file-store')(session)
 const exprhbs = require('express-handlebars')
 
-const uniqid = require('uniqid').process
 const cheerio = require('cheerio')
 const request = require('request-promise')
 
 const marked = require('marked')
+const base32 = require('base32')
+const uniqid = require('uniqid').process
+const shortid = require('shortid').generate
 
 const db = require('../db')
 
@@ -81,7 +83,18 @@ app.use(session({
 }))
 
 const upload = multer({
-  dest: path.join(__dirname, '../../', 'db/resource')
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, path.join(__dirname, '../../', 'db/resource')),
+    filename: (req, file, cb) => {
+      if(!req.session.user) cb(null, false)
+
+      let filename = base32.encode(
+        shortid()
+      )
+
+      cb(null, filename)
+    }
+  })
 })
 
 app.use(bodyParser.json())

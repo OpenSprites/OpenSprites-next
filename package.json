@@ -26,6 +26,7 @@
   "homepage": "https://github.com/OpenSprites/OpenSprites-next#readme",
   "dependencies": {
     "autoprefixer": "^6.3.6",
+    "base32": "0.0.6",
     "bcrypt-as-promised": "^1.1.0",
     "body-parser": "^1.15.2",
     "cheerio": "^0.20.0",
@@ -54,6 +55,7 @@
     "rucksack-css": "^0.8.6",
     "sanitize-filename": "^1.6.0",
     "session-file-store": "^0.2.0",
+    "shortid": "^2.2.6",
     "source-map-support": "^0.4.0",
     "traceur": "0.0.111",
     "uniqid": "^3.0.0"
