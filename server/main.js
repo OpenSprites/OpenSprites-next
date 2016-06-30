@@ -45,7 +45,7 @@ const db = require('../db')
 
 /////////////////////////////////////////////////////
 
-const signupProjectId = null // null to disable check
+const signupProjectId = 115307769 // null to disable check
 const requireEmailConfirmedToShare = false
 
 /////////////////////////////////////////////////////////
