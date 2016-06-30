@@ -7,7 +7,7 @@ This policy forms an agreement between the end-user (You, User, Your), and OpenS
  - OpenSprites reserves the right to revoke or terminate Your use of the site without prior notice.
  - Any content uploaded is licensed under the [Creative Commons Attribution-ShareAlike 2.0 Generic](http://creativecommons.org/licenses/by-sa/2.0/deed.en) license immediately from upload.
  - OpenSprites reserves the right to revoke any electronic content You upload without any prior notice. OpenSprites claims no responsibility for data loss.
- - By using our services, OpenSprites will accept no responsibility for loss, damage, errors or other circumstances.
+ - By using Our services, OpenSprites will accept no responsibility for loss, damage, errors or other circumstances.
 
 ### Prohibited Actions and Violations of Our Services ###
  - Uploading copyrighted content or content the uploader has no permissions to use. We cannot be held responsible for the content posted to OpenSprites.
@@ -24,8 +24,8 @@ This policy forms an agreement between the end-user (You, User, Your), and OpenS
    - The PII describes the user sharing it, and the user fully understands the consequences involved.
    - The PII describes some other user, and the user has given explicit consent for others to share this PII.
  - Under European Union and United States law, the uploading of (but not limited to) Racial Aggravation or Hate Speech, Child Pornography and illegal downloads is a legal violation and OpenSprites shall contact law enforcement if management sees fit.
- - We respect our providers and their customers. Do not mass upload electronic content with the intention of disrupting our providers's services, or OpenSprites and our users.
+ - We respect Our providers and their customers. Do not mass upload electronic content with the intention of disrupting Our providers's services, or OpenSprites and Our users.
  - Bullying, harassment, stalking or any other form of malicious electronic communication towards ANY person is strictly prohibited. 
- - Do not attempt to overload, or otherwise disrupt any OpenSprites infrastructure. Doing so will result in an IP ban, preventing Your access to our servers.
+ - Do not attempt to overload, or otherwise disrupt any OpenSprites infrastructure. Doing so will result in an IP ban, preventing Your access to Our servers.
 
 The OpenSprites  reserves the right to change, modify, remove and add text to this document without prior notice. This policy is subject to change.
