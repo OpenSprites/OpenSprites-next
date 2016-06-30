@@ -20,7 +20,7 @@ require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, {
 require('source-map-support').install()
 
 process.on('unhandledRejection', function(err) {
-  console.log('Error in Promise:', new Error(err))
+  console.log('Error in Promise:', new Error(JSON.stringify(err)))
 })
 
 /////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@ const path = require('path')
 const fs = require('fs')
 
 const express = require('express')
+const multer = require('multer')
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const sessionStore = require('session-file-store')(session)
@@ -42,6 +43,11 @@ const marked = require('marked')
 
 const db = require('../db')
 
+/////////////////////////////////////////////////////
+
+const signupProjectId = null // null to disable check
+const requireEmailConfirmedToShare = false
+
 /////////////////////////////////////////////////////////
 
 let app = express()
@@ -53,10 +59,7 @@ app.engine('hbs', exprhbs.create({
   partialsDir: 'public/views/partials/',
 
   helpers: {
-    md: markdown => {
-      console.log(marked(markdown))
-      return marked(markdown)
-    }
+    md: markdown => marked(markdown)
   }
 }).engine)
 
@@ -77,13 +80,17 @@ app.use(session({
   })
 }))
 
+const upload = multer({
+  dest: path.join(__dirname, '../../', 'db/resource')
+})
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 function mustSignIn(req, res, next) {
-  if(req.session.user)
+  if(req.session.user) {
     next()
-  else {
+  } else {
     req.session.r = req.originalUrl
     res.redirect('/signin')
   }
@@ -92,9 +99,13 @@ function mustSignIn(req, res, next) {
 /////////////////////////////////////////////////////////
 
 app.get('/assets/:type/*', function(req, res) {
-  res.sendFile(
-    path.join(__dirname, '../../', `public/assets/${req.params.type}/.dist/${req.params[0]}`)
-  )
+  let f = path.join(__dirname, '../../', `public/assets/${req.params.type}/.dist/${req.params[0]}`)
+  let f2 = path.join(__dirname, '../../', `public/assets/${req.params.type}/${req.params[0]}`)
+
+  fs.stat(f, function(err) {
+    if(err) res.sendFile(f2)
+    else res.sendFile(f)
+  })
 })
 
 app.get('/join', async function(req, res) {
@@ -120,11 +131,16 @@ app.post('/join', async function(req, res) {
   req.session.join = { email: req.body.email, username: req.body.username }
 
   const code = req.session.joinCode
-  const comments = await request('https://scratch.mit.edu/site-api/comments/project/47606468/')
-  const $ = cheerio.load(comments)
-  let success = false
+  let found = true
 
-  let found = $(`[data-comment-user="${req.body.username}"] + div .content:contains(${code})`).length
+  if(signupProjectId) {
+    const comments = await request(`https://scratch.mit.edu/site-api/comments/project/${signupProjectId}/`)
+    const $ = cheerio.load(comments)
+
+    found = $(`[data-comment-user="${req.body.username}"] + div .content:contains(${code})`).length
+  }
+
+  let success = false
 
   if(found) {
     if(req.body.password === req.body.passwordRepeat) {
@@ -191,6 +207,8 @@ app.post('/signin', async function(req, res) {
   }
 })
 
+// todo: change to POST and modify nav to reflect that
+// atm allows for <img src='/signout'> which is *BAD*
 app.get('/signout', async function(req, res) {
   delete req.session.user
 
@@ -252,6 +270,48 @@ app.get('/users/:who/avatar', async function(req, res) {
       user: req.session.user
     })
   }
+})
+
+app.get('/share', async function(req, res) {
+  if(!req.session.user) {
+    req.session.r = req.originalUrl
+    res.redirect('/signin')
+
+    return
+  }
+
+  let u = await db.users.get(req.session.user)
+
+  if(requireEmailConfirmedToShare && !u.emailConfirmed) {
+    res.render('md-page', {
+      user: req.session.user,
+      title: 'Share',
+      markdown: `
+# Share
+We need you to [verify your email address](/verify) before you can share resources with others. Sorry about that!
+      `
+    })
+
+    return
+  }
+
+  res.render('share', {
+    user: req.session.user,
+    title: 'Share'
+  })
+})
+
+app.post('/share', upload.any(), async function(req, res) {
+  if(!req.session.user) {
+    req.session.r = req.originalUrl
+    res.redirect('/signin')
+
+    return
+  }
+
+  let u = await db.users.get(req.session.user)
+
+  res.json(req.files)
 })
 
 app.get('/', function(req, res) {

@@ -18,16 +18,30 @@ footer {
   }
   
   section.large {
-    flex 2
+    clear both
+    margin-left 24px
     
-    > a > #on-gh {
-      float left
-      opacity 0.65
+    > a {
+      display block
 
-      & + span {
-        padding-left .5em
-        display inline-block
-        line-height 70px
+      img, div {
+        float left
+        opacity 0.65
+        
+        &#gh-issues, &#gh-help, &#gh-feat {
+          color #101010
+          line-height 70px
+          font-size 56px
+          display inline-block
+          width 70px
+          text-align center
+        }
+
+        & + span {
+          padding-left .5em
+          display inline-block
+          line-height 70px
+        }
       }
     }
   }

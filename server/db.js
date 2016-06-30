@@ -33,7 +33,8 @@ const db = {
 
   user: {
     get: async function(who) {
-      if(!db.user.exists(who))
+      let exists = await db.user.exists(who)
+      if(!exists)
         return { exists: false }
 
       let user = await fsp.readFile(`db/user/${sanitize(who)}.json`, 'utf8')

@@ -40,4 +40,5 @@ jspm_packages
 **/.dist
 
 # database
-db/**/*.json
+db/**/*
+!db/**/.keep
