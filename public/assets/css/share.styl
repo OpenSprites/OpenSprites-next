@@ -21,6 +21,57 @@
     margin 0 5px 5px 0
     width 107px
     height 80px
+    position relative
+    background linear-gradient(#EEEEEE, #E4E4E4)
+    box-shadow inset 0 0 3px rgba(0, 0, 0, 0.2)
+    
+    .file-preview {
+      position absolute
+      top 0
+      left 0
+      width 100%
+      height 100%
+    }
+    
+    .file-select-button {
+      display block
+      width 100%
+      height 100%
+      opacity 0
+      cursor pointer
+    }
+    
+    .file-select-text,
+    .file-selected-text {
+      position absolute
+      top calc(50% - 7px)
+      left 0
+      width 100%
+      height 100%
+      line-height 100%
+      font-size 14px
+      text-align center
+    }
+  }
+  
+  &:not(.has-file) {
+    .file-select-text {
+      display block
+    }
+    
+    .file-selected-text {
+      display none
+    }
+  }
+  
+  &.has-file {
+    .file-select-text {
+      display none
+    }
+    
+    .file-selected-text {
+      display block
+    }
   }
 }
 
