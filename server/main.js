@@ -20,7 +20,7 @@ require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, {
 require('source-map-support').install()
 
 process.on('unhandledRejection', function(err) {
-  console.log('Error in Promise:', new Error(JSON.stringify(err)))
+  console.error(err)
 })
 
 /////////////////////////////////////////////////////////
@@ -99,6 +99,16 @@ const upload = multer({
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
+app.use(function(req, res, next) {
+  req.session.udata = db.user.get(req.session.user || '')
+
+  if(req.session.user && !db.user.exists(req.session.user)) {
+    delete req.session.user
+  }
+
+  next()
+})
 
 function mustSignIn(req, res, next) {
   if(req.session.user) {
@@ -206,6 +216,13 @@ app.get('/signin', async function(req, res) {
 app.post('/signin', async function(req, res) {
   req.session.signIn = { username: req.body.username }
 
+  if(!db.user.exists(req.body.username)) {
+    req.session.signInFailWhy = `Sorry! That username and password doesn't match.`
+    res.redirect('/signin')
+
+    return
+  }
+
   let yay = await db.user.signIn(req.body.username, req.body.password)
 
   if(yay) {
@@ -221,8 +238,8 @@ app.post('/signin', async function(req, res) {
   }
 })
 
-// todo: change to POST and modify nav to reflect that
-// atm allows for <img src='/signout'> which is *BAD*
+// allows for <img src='/signout'> which is *BAD*
+// perhaps use PUT and check the Referrer header?
 app.get('/signout', async function(req, res) {
   delete req.session.user
 
@@ -234,40 +251,50 @@ app.get('/you', mustSignIn, function(req, res) {
 })
 
 app.get('/users/:who', async function(req, res) {
-  let exists = await db.user.exists(req.params.who)
+  let who = db.user.get(req.params.who)
 
-  if(!exists) {
+  if(db.user.exists(req.params.who)) {
+    who.exists = true
+    if(who.username === req.session.user) {
+      who.isYou = true
+    }
+
+    res.render('user', {
+      user: req.session.user,
+      who: who
+    })
+  } else {
     try {
-      await request(`https://api.scratch.mit.edu/users/${req.params.who}`, { json: true })
-      let who = {
-        username: req.params.who,
+      let udata = await request(`https://api.scratch.mit.edu/users/${req.params.who}`, { json: true })
+
+      who = {
+        username: udata.username,
         exists: false
       }
 
       res.render('user', {
         user: req.session.user,
-        who: who,
-        whoJSON: JSON.stringify(who)
+        who: who
       })
     } catch(e) {
       res.status(404).render('404', {
         user: req.session.user
       })
     }
-
-    return
   }
+})
 
-  let who = await db.user.get(req.params.who)
+app.put('/users/:who/about', async function(req, res) {
+  if(req.params.who !== req.session.user) {
+    res.status(403).json(false)
+  } else {
+    let u = req.session.udata
+    u.about = req.body.params.md
 
-  if(who.username === req.session.user)
-    who.isYou = true
+    await db.user.set(req.params.who, u)
 
-  res.render('user', {
-    user: req.session.user,
-    who: who,
-    whoJSON: JSON.stringify(who)
-  })
+    res.status(200).json(true)
+  }
 })
 
 app.get('/users/:who/avatar', async function(req, res) {
@@ -294,9 +321,7 @@ app.get('/share', async function(req, res) {
     return
   }
 
-  let u = await db.users.get(req.session.user)
-
-  if(requireEmailConfirmedToShare && !u.emailConfirmed) {
+  if(requireEmailConfirmedToShare && !req.session.udata.emailConfirmed) {
     res.render('md-page', {
       user: req.session.user,
       title: 'Share',
@@ -323,7 +348,7 @@ app.post('/share', upload.any(), async function(req, res) {
     return
   }
 
-  let u = await db.users.get(req.session.user)
+  let u = db.user.get(req.session.user)
 
   res.json(req.files)
 })
@@ -384,6 +409,8 @@ app.get('*', function(req, res) {
 
 /////////////////////////////////////////////////////////
 
-app.listen(3000, function() {
-  console.log('Listening on http://localhost:3000')
+db.load.users().then(function() {
+  app.listen(3000, function() {
+    console.log('Listening on http://localhost:3000')
+  })
 })

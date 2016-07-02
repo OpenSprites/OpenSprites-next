@@ -5,62 +5,49 @@
  * Reading 200 JSON files at once since 1999
  */
 
-const fsp = require('mz/fs')
-const jsonp = require('json-promise')
 const sanitize = require('sanitize-filename')
 const bcrypt = require('bcrypt-as-promised')
+const ndjson = require('ndjson')
+const request = require('request-promise')
+const fs = require('fs')
 
-const db = {
-  users: { get: async function(gibAllDaData) {
-    let users = await fsp.readdir('db/user')
-    users = users.map(name => name.substr(0, name.length - 5))
+// for(let [key, value] of entries(obj)) { ... }
+function* entries(obj) {
+  for(let key of Object.keys(obj)) {
+    yield [key, obj[key]]
+  }
+}
 
-    // eventually this'll get quite slow, so only use it for
-    // debugging/admin pl0x.
-    if(gibAllDaData) {
-      let us = []
+// users.json is append-only! :tada:
+let userStream = fs.createWriteStream('db/users.json', { flags: 'a' })
 
-      for(let i = 0; i < users.length; i++) {
-        let u = await db.user.get(users[i])
-        us.push(u)
-      }
-
-      users = us
-    }
-
-    return users
-  }},
+let db = {
+  // use `db.user.get` and `db.user.set` rather
+  // than editing/reading this object directly.
+  users: {},
 
   user: {
-    get: async function(who) {
-      let exists = await db.user.exists(who)
-      if(!exists)
-        return { exists: false }
-
-      let user = await fsp.readFile(`db/user/${sanitize(who)}.json`, 'utf8')
-      user = await jsonp.parse(user)
-      user.exists = true
-
-      return user
+    get: function(who) {
+      return db.users[who] || {}
     },
 
-    exists: async function(who) {
-      let exists = await fsp.exists(`db/user/${sanitize(who)}.json`)
-      return exists
+    exists: function(who) {
+      return typeof db.users[who] !== 'undefined'
     },
 
-    set: async function(who, data) {
-      let k = await jsonp.stringify(data)
-      await fsp.writeFile(`db/user/${sanitize(who)}.json`, k, 'utf8')
+    set: function(who, data) {
+      db.users[who] = data
+      userStream.write(JSON.stringify(data) + '\n')
     },
 
     // auth //
 
     signIn: async function(who, password) {
-      let user = await db.user.get(who)
+      let user = db.user.get(who)
 
-      if(!user.exists)
+      if(!user) {
         return false
+      }
 
       try {
         await bcrypt.compare(password, user.password)
@@ -71,21 +58,55 @@ const db = {
     },
 
     join: async function(data) {
-      let exists = await db.user.exists(data.username)
-
-      if(exists)
+      if(db.user.exists(data.username)) {
         return false
+      }
+
+      let udata = await request(`https://api.scratch.mit.edu/users/${data.username}`, { json: true })
 
       data.password = await bcrypt.hash(data.password, 12)
       data.admin = data.admin || false
       data.emailConfirmed = data.emailConfirmed || false
       data.joined = Date.now()
+      data.country = udata.country
+      data.about = udata.bio || 'Hello, World!'
+      data.username = udata.username
 
       db.user.set(data.username, data)
 
       return true
     }
-  } 
+  },
+
+  load: {
+    users: function() {
+      return new Promise(function(done) {
+        fs.createReadStream('db/users.json')
+          .pipe(ndjson.parse({ strict: false }))
+          .on('data', function(user) {
+            db.users[user.username] = user
+          })
+          .on('end', async function() {
+            await db.compact.users()
+            done()
+          })
+      })
+    }
+  },
+
+  compact: {
+    users: function() {
+      return new Promise(function(done) {
+        let squish = fs.createWriteStream('db/users.json')
+        for(let [username, user] of entries(db.users)) {
+          squish.write(JSON.stringify(user) + '\n')
+        }
+
+        done()
+      })
+    }
+  }
 }
 
 module.exports = db
+
