@@ -56,7 +56,7 @@ const requireEmailConfirmedToShare = false
 
 const badWordsRegex = new RegExp(rot(badWords, -13), 'gi')
 const hasBadWords = text => text.match(badWordsRegex)
-const replaceBadWords = (text, w='****') => text.replace(badWordsRegex, w)
+const replaceBadWords = (text, w='⋆⋆⋆⋆') => text.replace(badWordsRegex, w)
 
 /////////////////////////////////////////////////////////
 

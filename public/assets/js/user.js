@@ -31,7 +31,5 @@ module.exports = function() {
     bio.innerHTML = marked(bio_raw, {
       sanitize: true
     })
-
-    
   })
 }
