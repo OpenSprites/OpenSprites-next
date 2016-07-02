@@ -12,7 +12,7 @@ When you submit a resource to OpenSprites, we remember the date and time it was 
 
 ###Information we collect automatically
 
-####IP addresses
+####IP address and user agent
 Requests sent from your browser to the OpenSprites website are sent along with a set of numbers which uniquely identify your network. This is standard practice for the whole internet; the inclusion of your IP address allows the web server to respond and return the requested information to the correct location. We record all requests made to OpenSprites in a log. Information such as your IP address, browser and operating system version (user agent), and requested webpage are all saved to the log. This allows us to investigate and prevent abuse of our services by blocking access from specific networks.
 
 ###Information we place on your system
