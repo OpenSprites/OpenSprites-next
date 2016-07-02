@@ -42,13 +42,21 @@ const marked = require('marked')
 const base32 = require('base32')
 const uniqid = require('uniqid').process
 const shortid = require('shortid').generate
+const rot = require('rot')
 
 const db = require('../db')
 
 /////////////////////////////////////////////////////
 
+const badWords = '\\o(shtyl|(\\j*?)shpx(\\j*?)|s(h|i|\\*)?p?x(vat?)?|(\\j*?)fu(v|1|y)g(\\j*?)|pe(n|@|\\*)c(cre|crq|l)?|(onq|qhzo|wnpx)?(n|@)ff(u(b|0)yr|jvcr)?|(onq|qhzo|wnpx)?(n|@)efr(u(b|0)yr|jvcr)?|onfgneq|o(v|1|y|\\*)?g?pu(r?f)?|phag|phz|(tbq?)?qnz(a|z)(vg)?|qbhpur(\\j*?)|(arj)?snt(tbg|tng)?|sevt(tra|tva|tvat)?|bzst|cvff(\\j*?)|cbea|encr|ergneq|frk|f r k|fung|fyhg|gvg|ju(b|0)er(\\j*?)|jg(s|su|u))(f|rq)?\\o' // rot13
 const signupProjectId = 115307769 // null to disable check
 const requireEmailConfirmedToShare = false
+
+/////////////////////////////////////////////////////////
+
+const badWordsRegex = new RegExp(rot(badWords, -13), 'gi')
+const hasBadWords = text => text.match(badWordsRegex)
+const replaceBadWords = (text, w='****') => text.replace(badWordsRegex, w)
 
 /////////////////////////////////////////////////////////
 
@@ -61,7 +69,8 @@ app.engine('hbs', exprhbs.create({
   partialsDir: 'public/views/partials/',
 
   helpers: {
-    md: markdown => marked(markdown)
+    md: raw => marked(raw, { sanitize: true }),
+    json: raw => JSON.stringify(raw)
   }
 }).engine)
 
@@ -255,10 +264,8 @@ app.get('/users/:who', async function(req, res) {
 
   if(db.user.exists(req.params.who)) {
     who.exists = true
-    if(who.username === req.session.user) {
-      who.isYou = true
-    }
-
+    who.isYou = who.username === req.session.user
+    
     res.render('user', {
       user: req.session.user,
       who: who
@@ -289,11 +296,11 @@ app.put('/users/:who/about', async function(req, res) {
     res.status(403).json(false)
   } else {
     let u = req.session.udata
-    u.about = req.body.params.md
+    u.about = replaceBadWords(req.body.md)
 
     await db.user.set(req.params.who, u)
 
-    res.status(200).json(true)
+    res.status(200).json(u.about)
   }
 })
 
