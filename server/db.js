@@ -72,7 +72,6 @@ let db = {
       data.country = udata.profile.country
       data.about = '# About Me\n' + (udata.profile.bio || `Hi there! I'm *${data.username}*.`)
 
-      console.log(udata)
       console.log(data.username + ' joined! 🎉')
 
       db.user.set(data.username, data)
