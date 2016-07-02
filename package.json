@@ -53,6 +53,7 @@
     "nodemon": "^1.9.2",
     "request-promise": "^3.0.0",
     "rucksack-css": "^0.8.6",
+    "rupture": "^0.6.1",
     "sanitize-filename": "^1.6.0",
     "session-file-store": "^0.2.0",
     "shortid": "^2.2.6",

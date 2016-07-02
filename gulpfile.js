@@ -11,12 +11,10 @@ const browserify = require('gulp-browserify')
 const sourcemaps = require('gulp-sourcemaps')
 const stylus = require('gulp-stylus')
 const postcss = require('gulp-postcss')
-const autoprefixer = require('autoprefixer')
 const minify = require('gulp-minify')
 const clean = require('gulp-clean')
 const plumber = require('gulp-plumber')
 const traceur = require('gulp-traceur')
-const rucksack = require('rucksack-css')
 const imagemin = require('gulp-imagemin')
 
 es6ify.traceurOverrides = { asyncFunctions: true }
@@ -100,9 +98,12 @@ gulp.task('build-css', ['clean-css'], function() {
   .pipe(plumber())
   .pipe(sourcemaps.init())
   .pipe(stylus({
-    compress: true
+    compress: true,
+    use: [
+      require('rupture')()
+    ]
   }))
-  .pipe(postcss([ autoprefixer(), rucksack() ]))
+  .pipe(postcss([ require('autoprefixer')(), require('rucksack-css')() ]))
   .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest('public/assets/css/.dist'))
 })

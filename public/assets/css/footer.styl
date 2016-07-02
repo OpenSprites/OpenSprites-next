@@ -11,18 +11,50 @@ footer {
   display flex
   flex-wrap wrap
   
+  +below(4) {
+    display block
+  }
+  
   color #B4B4B4
   
   section {
     flex 1
+    
+    +below(1322px) {
+      margin-bottom 1em
+    }
+    
+    +tablet() {
+      display inline-block
+      width auto
+      margin auto
+      margin-bottom 2em
+      margin-left 3%
+      margin-right 3%
+    }
   }
   
   section.large {
     clear both
     margin-left 24px
     
+    +below(1322px) {
+      margin-left 0
+      margin-bottom 0
+    }
+    
+    +tablet() {
+      display block
+    }
+
     > a {
       display block
+      
+      +below(1322px) {
+        & ~ br {
+          display none
+        }
+      }
 
       img, div {
         float left
@@ -35,12 +67,29 @@ footer {
           display inline-block
           width 70px
           text-align center
+          
+          +below(1322px) {
+            line-height 36px
+            font-size 24px
+            width 36px
+          }
+        }
+        
+        &#on-gh {
+          +below(1322px) {
+            height 36px
+            width 36px
+          }
         }
 
         & + span {
           padding-left .5em
           display inline-block
           line-height 70px
+          
+          +below(1322px) {
+            line-height 36px
+          }
         }
       }
     }

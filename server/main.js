@@ -134,7 +134,8 @@ app.get('/join', async function(req, res) {
 
     code: req.session.joinCode,
     fail: req.session.joinFailWhy,
-    already: req.session.join || {}
+    already: req.session.join || {},
+    project: signupProjectId
   })
 
   delete req.session.joinFailWhy
