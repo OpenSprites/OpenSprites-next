@@ -9,3 +9,15 @@
 
 ####Uploading a resource
 When you submit a resource to OpenSprites, we remember the date and time it was uploaded, the username and user ID number of the uploader, along with the file name you specify on the upload page. If you do not specify a file name, the original file name is used, unless the file is a Scratch script or originated from a Scratch project file. We keep this information so other users can search for your file quickly. Images encoded in modern formats carry metadata (known as EXIF data), such as capture device make and model, image capture settings and occasionally location data. The inclusion of location data is subject to the capture device. Some cameras and mobile phones equipped with GPS units will include this data automatically; consult your manufacturer for further details. All images uploaded to OpenSprites have their metadata deleted immediately; however, we cannot be held responsible for any errors during this process.
+
+###Information we collect automatically
+
+####IP addresses
+Requests sent from your browser to the OpenSprites website are sent along with a set of numbers which uniquely identify your network. This is standard practice for the whole internet; the inclusion of your IP address allows the web server to respond and return the requested information to the correct location. We record all requests made to OpenSprites in a log. Information such as your IP address, browser and operating system version (user agent), and requested webpage are all saved to the log. This allows us to investigate and prevent abuse of our services by blocking access from specific networks.
+
+####User agent
+
+###Information we place on your system
+
+####Cookies
+
