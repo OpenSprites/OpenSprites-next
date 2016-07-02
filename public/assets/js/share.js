@@ -6,6 +6,7 @@
  */
 
 const template = require('./template')
+const cookie = require('cookie')
 
 function addResourceInput() {
   const dialog = template('file-upload')
@@ -13,8 +14,18 @@ function addResourceInput() {
   fileInput.addEventListener('change', function(event) {
     dialog.classList.add('has-file')
     readFile(dialog, event).then(reader => {
-        console.log(reader.result)
+      // This should be done later - for now it's here.
+      console.log(reader.result)
+      const headers = new Headers()
+      headers.append('Content-Type', 'application/oclet-stream')
+      return fetch('/share', {
+        method: 'POST',
+        body: reader.result,
+        credentials: 'same-origin'
       })
+    }).then(res => res.blob())
+      .then(res => console.log('response:', res))
+      .catch(e => console.error(e))
   })
   document.getElementById('file-uploads').appendChild(dialog)
 }

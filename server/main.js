@@ -20,7 +20,7 @@ require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, {
 require('source-map-support').install()
 
 process.on('unhandledRejection', function(err) {
-  console.log('Error in Promise:', new Error(JSON.stringify(err)))
+  console.log('Error in Promise:', err)
 })
 
 /////////////////////////////////////////////////////////
@@ -315,6 +315,28 @@ We need you to [verify your email address](/verify) before you can share resourc
 })
 
 app.post('/share', upload.any(), async function(req, res) {
+
+  //!!! WARNING - UNTESTED CODE !!!\\
+  // |     THIS CODE HAS NOT     | \\
+  // |       TESTED YET!!!       | \\
+  // |                           | \\
+  // |   IT MAY CAUSE SERIOUS    | \\
+  // |      ISSUES SUCH AS:      | \\
+  // |                           | \\
+  // |  * SYNTAX ERRORS          | \\
+  // |  * DELETION OF HARD DRIVE | \\
+  // |  * DATABASE CORRUPTION    | \\
+  // |                           | \\
+  // | CONTINUE AT YOUR OWN RISK | \\
+  // +                           + \\
+
+  res.set('Content-Type', 'text/plain')
+  res.end('not implemented')
+
+  return 0
+
+  // <<   END OF UNTESTED CODE  >> \\
+
   if(!req.session.user) {
     req.session.r = req.originalUrl
     res.redirect('/signin')
@@ -324,7 +346,8 @@ app.post('/share', upload.any(), async function(req, res) {
 
   let u = await db.users.get(req.session.user)
 
-  res.json(req.files)
+  res.set('Content-Type', 'image/png')
+  res.end('Okay')
 })
 
 app.get('/', function(req, res) {
