@@ -1,0 +1,60 @@
+/**
+ * css/user.styl
+ * -------------
+ * 
+ * /users/xxx
+ */
+
+.user {
+  #row {
+    display flex
+    height 128px
+
+    #avatar {
+      display inline-block
+      height 128px
+      width 128px
+      
+      margin-right 36px
+    }
+
+    #username {
+      display inline-block
+      line-height 128px
+      flex 1
+      margin 0
+    }
+  }
+  
+  .bio {
+    @extend p
+    
+    p {
+      margin 0
+      padding 0
+    }
+    
+    padding .5em
+    
+    > *:first-child {
+      margin-top 0
+    }
+    
+    border-radius 3px
+    outline 0
+    
+    blockquote {
+      border-left 3px solid #ddd
+    }
+    
+    &[contenteditable] {
+      &:hover, &:focus {
+        background rgba(black, 0.02)
+      }
+      
+      &:focus {
+        @extend .mono
+      }
+    }
+  }
+}

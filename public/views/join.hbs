@@ -14,7 +14,7 @@
   <form method='post'>
     <div class='split'>
       <div>
-        <h2>Step One</h2>
+        {{#if project}}<h2>Step One</h2>{{/if}}
 
         <a href='/privacy'>We promise</a> to not give anyone your details. <br>
 
@@ -44,21 +44,24 @@
       </div>
 
       <div>
-        <h2>Step Two</h2>
+        {{#if project}}
+          <h2>Step Two</h2>
 
-        We need to check that you're actually the Scratcher you say you are.
-        
-        <blockquote style='font-size:18px'>
-          Go to <a href='https://scratch.mit.edu/projects/47606468/' target='_blank'>this Scratch project</a> and comment the below code. <div style='margin-bottom:1em'></div>
+          We need to check that you're actually the Scratcher you say you are.
+          
+          <blockquote style='font-size:18px'>
+            Go to <a href='https://scratch.mit.edu/projects/{{project}}/' target='_blank'>this Scratch project</a> and comment the below code. <div style='margin-bottom:1em'></div>
 
-          <code id='code'>{{code}}</code>
-          <div class='flat btn' data-clipboard-target='#code' id='copycode'>Copy</div>
-        </blockquote>
+            <code id='code'>{{code}}</code>
+            <div class='flat btn' data-clipboard-target='#code' id='copycode'>Copy</div>
+          </blockquote>
 
-        Once you've done that <b>with the same Scratch account as the one you're joining with</b>, click the button below to get started with OpenSprites!
+          Once you've done that <b>with the same Scratch account as the one you're joining with</b>, click the button below to get started with OpenSprites!
 
-        <br><br>
+          <br><br>
+        {{/if}}
 
+        <input type='hidden' name='csrf' value='{{csrfToken}}'>
         <input type='submit' class='btn' value='Join OpenSprites!'>
       </div>
     </div>

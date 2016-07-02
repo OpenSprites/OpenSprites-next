@@ -10,6 +10,11 @@ os-grey = #828282
 os-dark = #3C6160
 os-light = #C8DDDB
 
+rupture.mobile-cutoff = 425px
+rupture.tablet-cutoff = 768px
+rupture.desktop-cutoff = 1024px
+rupture.hd-cutoff = 1440px
+
 @require 'font.styl'
 
 body {
@@ -24,19 +29,36 @@ input:-webkit-autofill {
   -webkit-box-shadow 0 0 0px 1000px white inset
 }
 
-.c, .container {
+c() {
   width calc(100% - 48px * 2)
   max-width 1280px
   
+  +mobile() {
+    width calc(100% - 24px * 2)
+  }
+  
+  +tablet() {
+    width calc(100% - 36px * 2)
+  }
+   
   margin 0 auto
   
   &.slim {
     max-width 900px
   }
+  
+  &.thin {
+    max-width 640px
+  }
+}
+
+.c, .container {
+  c()
 }
 
 main {
-  @extend .container
+  c()
+  col(1 / 3)
   
   margin 2em auto
   position relative
@@ -45,6 +67,14 @@ main {
   background white
   
   padding 48px
+  
+  +mobile() {
+    padding 24px
+  }
+  
+  +tablet() {
+    padding 32px
+  }
   
   > :first-child {
     margin-top 0
@@ -69,7 +99,7 @@ code, pre {
     width 100%
   }
   
-  @media (min-width: 1000px) {
+  +desktop() {
     display flex
     
     > * {
@@ -179,8 +209,13 @@ input[type=text] {
   color os-light
 }
 
+header + hr {
+  display none
+}
+
 @require 'nav.styl'
 @require 'signup-join.styl'
 @require 'resources.styl'
 @require 'footer.styl'
 @require 'share.styl'
+@require 'user.styl'

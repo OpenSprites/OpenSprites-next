@@ -1,13 +1,15 @@
-<header><main>
-  <h1>
-    {{who.username}}
-  </h1>
+<header><main class='user'>
+  <div id='row'>
+    <img src='/users/{{who.username}}/avatar?s=128' width=128 height=128 id='avatar'>
 
-  {{#if who.exists}}
-    <h4>
-      Sample Text
-    </h4>
-  {{else}}
+    <h1 id='username'>
+      {{who.username}}
+    </h1>
+
+    <small>Joined <b>{{{timeago who.joined}}}</b></small>
+  </div>
+
+  {{#unless who.exists}}
     <h4>
       {{who.username}} isn't on OpenSprites yet.
     </h4>
@@ -17,9 +19,16 @@
     <a class='super btn' href='https://scratch.mit.edu/users/{{who.username}}/#comment-form'>
       invite them!
     </a>
-  {{/if}}
+  {{/unless}}
 </main></header>
 
-<main>
-<img src='/users/{{who.username}}/avatar?s=128' width=128 height=128>
-</main>
+{{#if who.exists}}
+  <main class='user'>
+    <div {{#if who.isYou}}contenteditable{{/if}} class='bio'>
+      {{{md who.about}}}
+    </div>
+    <small></small>
+
+    <script>var bio_raw = '{{json who.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+  </main>
+{{/if}}
