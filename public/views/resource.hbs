@@ -1,0 +1,16 @@
+<header><main>
+  <h1>{{resource.name}}</h1>
+  By {{#each resource.owners}}<a href='/users/{{this}}'>{{this}}</a> {{/each}}
+</main></header>
+
+<main>
+  <!-- todo: figure out `resource.type` and show relevant element -->
+  <img src='/resources/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:1em;border-radius:3px;'>
+
+  <div {{#if resource.youOwn}}contenteditable{{/if}} class='bio'>
+    {{{md resource.about}}}
+  </div>
+  <small></small>
+
+  <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+</main>

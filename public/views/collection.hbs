@@ -1,0 +1,29 @@
+<header><main>
+  <h1>{{collection.name}}</h1>
+  By {{#each collection.owners}}<a href='/users/{{this}}'>{{this}}</a> {{/each}}
+</main></header>
+
+<main>
+  <div {{#if collection.youOwn}}contenteditable{{/if}} class='bio'>
+    {{{md collection.about}}}
+  </div>
+  <small></small>
+
+  <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+
+  <div class='resources'>
+    {{#each resources}}
+      <div class='resource'>
+        <a href='/resources/{{_id}}'>
+          <img>
+
+          <h4>{{name}}</h4>
+        </a>
+
+        {{#each owners}}
+          <a href='/users/{{this}}'>{{this}}</a>
+        {{/each}}
+      </div>
+    {{/each}}
+  </div>
+</main>

@@ -13,19 +13,6 @@ function addResourceInput() {
   const fileInput = dialog.querySelector('.file-select-button')
   fileInput.addEventListener('change', function(event) {
     dialog.classList.add('has-file')
-    readFile(dialog, event).then(reader => {
-      // This should be done later - for now it's here.
-      console.log(reader.result)
-      const headers = new Headers()
-      headers.append('Content-Type', 'application/oclet-stream')
-      return fetch('/share', {
-        method: 'POST',
-        body: reader.result,
-        credentials: 'same-origin'
-      })
-    }).then(res => res.blob())
-      .then(res => console.log('response:', res))
-      .catch(e => console.error(e))
   })
   document.getElementById('file-uploads').appendChild(dialog)
 }

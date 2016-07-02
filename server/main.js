@@ -42,9 +42,8 @@ const cheerio = require('cheerio')
 const request = require('request-promise')
 
 const marked = require('marked')
-const base32 = require('base32')
-const uniqid = require('uniqid').process
 const shortid = require('shortid').generate
+const uniqid = require('uniqid').process
 const rot = require('rot')
 const bcrypt = require('bcrypt-as-promised')
 
@@ -74,7 +73,7 @@ app.engine('hbs', exprhbs.create({
   partialsDir: 'public/views/partials/',
 
   helpers: {
-    md: raw => marked(raw, { sanitize: true }),
+    md: raw => marked(raw || '', { sanitize: true }),
     json: raw => JSON.stringify(raw),
     timeago: raw => `<span class='timeago'>${raw}</span>`
   }
@@ -97,23 +96,16 @@ app.use(session({
   })
 }))
 
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, path.join(__dirname, '../../', 'db/resource')),
-    filename: (req, file, cb) => {
-      if(!req.session.user) cb(null, false)
-
-      let filename = base32.encode(
-        shortid()
-      )
-
-      cb(null, filename)
+  storage: multer.memoryStorage({
+    limis: {
+      fileSize: 52428800 // ~50mb
     }
   })
 })
-
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
 
 function mustSignIn(req, res, next) {
   if(req.session.user) {
@@ -125,7 +117,11 @@ function mustSignIn(req, res, next) {
 }
 
 app.use(csrf({
-  value: req => req.body.csrf
+  value: req => {
+    let sess = req.session.csrf || ''
+    delete req.session.csrf
+    return req.body.csrf || sess
+  }
 }))
 
 app.use(function(err, req, res, next) {
@@ -133,6 +129,13 @@ app.use(function(err, req, res, next) {
 
   res.status(403).render('403', {
     user: req.session.user
+  })
+})
+
+app.use(function(err, req, res, next) {
+  res.status(500).render('500', {
+    user: req.session.user,
+    err
   })
 })
 
@@ -263,6 +266,9 @@ app.post('/signin', async function(req, res) {
 
     req.session.user = req.body.username
 
+    user.online = true
+    user.save()
+
     res.redirect(r)
   } catch(e) {
     req.session.signInFailWhy = `Sorry! That username and password doesn't match.`
@@ -273,8 +279,11 @@ app.post('/signin', async function(req, res) {
 // allows for <img src='/signout'> which is *BAD*
 // perhaps use PUT and check the Referrer header?
 app.get('/signout', async function(req, res) {
-  delete req.session.user
+  let user = await db.User.find({ username: req.session.user })
+  user.online = false
+  user.save()
 
+  delete req.session.user
   res.redirect('/')
 })
 
@@ -291,8 +300,13 @@ app.get('/users/:who', async function(req, res) {
     who[0].exists = true
     who[0].isYou = who[0].username === req.session.user
 
+    let collections = await db.Collection.find({
+      owners: who[0].username
+    })
+
     res.render('user', {
       user: req.session.user,
+      collections,
       who: who[0],
       csrfToken: req.csrfToken()
     })
@@ -369,35 +383,15 @@ We need you to [verify your email address](/verify) before you can share resourc
     return
   }
 
+  req.session.csrf = req.csrfToken() // bit hacky
   res.render('share', {
     user: req.session.user,
-    title: 'Share'
+    title: 'Share',
+    csrfToken: req.csrfToken()
   })
 })
 
 app.post('/share', upload.any(), async function(req, res) {
-
-  //!!! WARNING - UNTESTED CODE !!!\\
-  // |     THIS CODE HAS NOT     | \\
-  // |       TESTED YET!!!       | \\
-  // |                           | \\
-  // |   IT MAY CAUSE SERIOUS    | \\
-  // |      ISSUES SUCH AS:      | \\
-  // |                           | \\
-  // |  * SYNTAX ERRORS          | \\
-  // |  * DELETION OF HARD DRIVE | \\
-  // |  * DATABASE CORRUPTION    | \\
-  // |                           | \\
-  // | CONTINUE AT YOUR OWN RISK | \\
-  // +                           + \\
-
-  res.set('Content-Type', 'text/plain')
-  res.end('not implemented')
-
-  return 0
-
-  // <<   END OF UNTESTED CODE  >> \\
-
   if(!req.session.user) {
     req.session.r = req.originalUrl
     res.redirect('/signin')
@@ -405,10 +399,106 @@ app.post('/share', upload.any(), async function(req, res) {
     return
   }
 
-  let u = db.user.get(req.session.user)
+  let collection = await db.Collection.find({
+    owners: req.session.user,
+    isShared: true
+  })
 
-  res.set('Content-Type', 'image/png')
-  res.end('Okay')
+  if(collection[0]) {
+    collection = collection[0]
+  } else {
+    collection = new db.Collection({
+      _id: shortid(),
+      name: 'Shared Resources',
+      owners: [req.session.user],
+      isShared: true
+    })
+  }
+
+  for(let f = 0; f < req.files.length; f++) {
+    let file = req.files[f]
+
+    let name = file.originalname.split('.')
+        name.pop()
+        name = name.join(' ')
+
+    let resource = db.Resource({
+      _id: shortid(),
+      owners: [ req.session.user ],
+      name: name,
+      type: file.mimetype,
+      data: file.buffer,
+      when: Date.now()
+    })
+
+    resource.save()
+
+    collection.resources.push(resource.id)
+
+    console.log(`${req.session.user} uploaded "${name}" ${tada}`)
+  }
+
+  await collection.save()
+
+  res.redirect('/you')
+})
+
+app.get('/collections/:id', async function(req, res) {
+  let collection = await db.Collection.find({
+    _id: req.params.id
+  })
+
+  if(collection[0]) {
+    let rs = []
+
+    for(let i = 0; i < collection[0].resources.length; i++) {
+      let r = await db.Resource.findOne({ _id: collection[0].resources[i] })
+      rs.push(r)
+    }
+
+    res.render('collection', {
+      user: req.session.user,
+      collection: collection[0],
+      resources: rs,
+      csrfToken: req.csrfToken()
+    })
+  } else {
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  }
+})
+
+app.get('/resources/:id', async function(req, res) {
+  let resource = await db.Resource.find({
+    _id: req.params.id
+  })
+
+  if(resource[0]) {
+    res.render('resource', {
+      user: req.session.user,
+      resource: resource[0],
+      csrfToken: req.csrfToken()
+    })
+  } else {
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  }
+})
+
+app.get('/resources/:id/raw', async function(req, res) {
+  let resource = await db.Resource.find({
+    _id: req.params.id
+  })
+
+  if(resource[0]) {
+    res.contentType(resource[0].type).send(resource[0].data)
+  } else {
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  }
 })
 
 app.get('/', function(req, res) {

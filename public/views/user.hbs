@@ -30,5 +30,23 @@
     <small></small>
 
     <script>var bio_raw = '{{json who.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+
+    <h1>Collections</h1>
+
+    <div class='resources'>
+      {{#each collections}}
+        <div class='resource'>
+          <a href='/collections/{{_id}}'>
+            <img>
+
+            <h4>{{name}}</h4>
+          </a>
+
+          {{#each owners}}
+            <a href='/users/{{this}}'>{{this}}</a>
+          {{/each}}
+        </div>
+      {{/each}}
+    </div>
   </main>
 {{/if}}

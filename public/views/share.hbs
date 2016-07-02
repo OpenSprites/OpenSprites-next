@@ -1,10 +1,12 @@
 <main>
   <h1>Share</h1>
 
-  <div id='file-uploads'></div>
+  <form method='post' enctype='multipart/form-data'>
+    <div id='file-uploads'></div>
 
-  <button id='add-resource' class='flat btn'>Add Resource</button>
-  <input type='submit' class='btn' value='Upload and publish'>
+    <button id='add-resource' class='flat btn'>Add Resource</button>
+    <input type='submit' class='btn' value='Upload and share'>
+  </form>
 
   <div class='file-upload template' data-template-id='file-upload'>
     <div class='file-upload-preview'>
@@ -12,7 +14,16 @@
       <div class='file-preview'></div>
       <span class='file-select-text'>Select a File</span>
       <span class='file-selected-text'>File selected!</span>
-      <input type='file' class='file-select-button'>
+      <input type='file' class='file-select-button' name='files[]' accept='
+        image/png,
+        image/jpeg,
+        image/gif,
+        image/svg,
+        audio/mp3,
+        audio/wav,
+        .sb2,
+        .sprite2
+      '>
     </div>
     Name: <span contenteditable='true' placeholder='Bob the Cactus' class='file-upload-name'></span><br>
     Description: <span contenteditable='true' placeholder='Long time no see!' class='file-upload-name'></span>
