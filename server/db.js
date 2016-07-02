@@ -68,9 +68,12 @@ let db = {
       data.admin = data.admin || false
       data.emailConfirmed = data.emailConfirmed || false
       data.joined = Date.now()
-      data.country = udata.country
-      data.about = udata.bio || 'Hello, World!'
       data.username = udata.username
+      data.country = udata.profile.country
+      data.about = '# About Me\n' + (udata.profile.bio || `Hi there! I'm *${data.username}*.`)
+
+      console.log(udata)
+      console.log(data.username + ' joined! 🎉')
 
       db.user.set(data.username, data)
 
@@ -109,4 +112,3 @@ let db = {
 }
 
 module.exports = db
-

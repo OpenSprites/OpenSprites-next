@@ -70,7 +70,8 @@ app.engine('hbs', exprhbs.create({
 
   helpers: {
     md: raw => marked(raw, { sanitize: true }),
-    json: raw => JSON.stringify(raw)
+    json: raw => JSON.stringify(raw),
+    timeago: raw => `<span class='timeago'>${raw}</span>`
   }
 }).engine)
 
@@ -265,7 +266,7 @@ app.get('/users/:who', async function(req, res) {
   if(db.user.exists(req.params.who)) {
     who.exists = true
     who.isYou = who.username === req.session.user
-    
+
     res.render('user', {
       user: req.session.user,
       who: who

@@ -5,6 +5,8 @@
     <h1 id='username'>
       {{who.username}}
     </h1>
+
+    <small>Joined <b>{{{timeago who.joined}}}</b></small>
   </div>
 
   {{#unless who.exists}}
