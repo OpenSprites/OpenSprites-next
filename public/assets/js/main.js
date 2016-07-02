@@ -19,6 +19,6 @@ if('/share' === window.location.pathname)
 if('/users' === window.location.pathname.substr(0, 6))
   user()
 
-document.querySelectorAll('.timeago').forEach(function(el) {
+for (let el of document.querySelectorAll('.timeago')) {
   el.innerHTML = timeago(parseInt(el.innerHTML))
-})
+}
