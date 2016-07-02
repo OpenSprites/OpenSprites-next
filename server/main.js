@@ -33,6 +33,7 @@ const fs = require('fs')
 const express = require('express')
 const multer = require('multer')
 const bodyParser = require('body-parser')
+const csrf = require('csurf')
 const session = require('express-session')
 const sessionStore = require('session-file-store')(session)
 const exprhbs = require('express-handlebars')
@@ -45,7 +46,9 @@ const base32 = require('base32')
 const uniqid = require('uniqid').process
 const shortid = require('shortid').generate
 const rot = require('rot')
+const bcrypt = require('bcrypt-as-promised')
 
+const tada = '🎉'
 const db = require('../db')
 
 /////////////////////////////////////////////////////
@@ -84,7 +87,7 @@ app.set('trust proxy', 1)
 app.set('json spaces', 2)
 
 app.use(session({
-  secret: 'thisandagainplsexplain',
+  secret: process.env.session_secret,
   cookie: { secure: false }, // enable if running on HTTPS
   resave: true,
   saveUninitialized: true,
@@ -110,17 +113,7 @@ const upload = multer({
 })
 
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
-
-app.use(function(req, res, next) {
-  req.session.udata = db.user.get(req.session.user || '')
-
-  if(req.session.user && !db.user.exists(req.session.user)) {
-    delete req.session.user
-  }
-
-  next()
-})
+app.use(bodyParser.urlencoded({ extended: false }))
 
 function mustSignIn(req, res, next) {
   if(req.session.user) {
@@ -130,6 +123,18 @@ function mustSignIn(req, res, next) {
     res.redirect('/signin')
   }
 }
+
+app.use(csrf({
+  value: req => req.body.csrf
+}))
+
+app.use(function(err, req, res, next) {
+  if(err.code !== 'EBADCSRFTOKEN') return next(err)
+
+  res.status(403).render('403', {
+    user: req.session.user
+  })
+})
 
 /////////////////////////////////////////////////////////
 
@@ -157,7 +162,8 @@ app.get('/join', async function(req, res) {
     code: req.session.joinCode,
     fail: req.session.joinFailWhy,
     already: req.session.join || {},
-    project: signupProjectId
+    project: signupProjectId,
+    csrfToken: req.csrfToken()
   })
 
   delete req.session.joinFailWhy
@@ -176,35 +182,46 @@ app.post('/join', async function(req, res) {
     found = $(`[data-comment-user="${req.body.username}"] + div .content:contains(${code})`).length
   }
 
-  let success = false
+  function err(why) {
+    req.session.joinFailWhy = why
+    res.redirect('/join')
+  }
 
   if(found) {
     if(req.body.password === req.body.passwordRepeat) {
-      success = await db.user.join({
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password
-      }) ? true : `Sorry, but <b>that user already exists</b>!`
+      if((await db.User.find({ username: req.body.username })).length > 0) {
+        console.log(await db.User.find({ name: req.body.username }))
+        err('Sorry, but <b>that user already exists</b>!')
+      } else {
+        let user = new db.User({
+          email: req.body.email,
+          username: req.body.username,
+          password: await bcrypt.hash(req.body.password, 12),
+          joined: Date.now()
+        })
+
+        user.save(function(err) {
+          if(err) {
+            err('Looks like <b<something went wrong on our end</b>. Shoot us an email if this persists!')
+          } else {
+            delete req.session.join
+            delete req.session.joinCode
+
+            let r = req.query.r || req.session.r || '/'
+            delete req.session.r
+
+            req.session.user = req.body.username
+            res.redirect(r)
+
+            console.log(`${req.body.username} joined! ${tada}`)
+          }
+        })
+      }
     } else {
-      success = `Those <b>passwords don't match</b>. Try retyping them?`
+      err(`Those <b>passwords don't match</b>. Try retyping them?`)
     }
   } else {
-    success = `Looks like <b>we couldn't find a comment</b> with your code and username! Did you copy it correctly?`
-  }
-
-  if(success === true) {
-    delete req.session.join
-    delete req.session.joinCode
-
-    let r = req.query.r || req.session.r || '/'
-    delete req.session.r
-
-    req.session.user = req.body.username
-
-    res.redirect(r)
-  } else {
-    req.session.joinFailWhy = success
-    res.redirect('/join')
+    err(`Looks like <b>we couldn't find a comment</b> with your code and username! Did you copy it correctly?`)
   }
 })
 
@@ -219,7 +236,8 @@ app.get('/signin', async function(req, res) {
 
     code: req.session.joinCode,
     fail: req.session.signInFailWhy,
-    already: req.session.signIn || {}
+    already: req.session.signIn || {},
+    csrfToken: req.csrfToken()
   })
 
   delete req.session.signInFailWhy
@@ -228,23 +246,25 @@ app.get('/signin', async function(req, res) {
 app.post('/signin', async function(req, res) {
   req.session.signIn = { username: req.body.username }
 
-  if(!db.user.exists(req.body.username)) {
+  let user = await db.User.find({ username: req.body.username })
+
+  if(!user[0]) {
     req.session.signInFailWhy = `Sorry! That username and password doesn't match.`
     res.redirect('/signin')
 
     return
   }
 
-  let yay = await db.user.signIn(req.body.username, req.body.password)
+  try {
+    await bcrypt.compare(req.body.password, user[0].password)
 
-  if(yay) {
     let r = req.query.r || req.session.r || '/'
     delete req.session.r
 
     req.session.user = req.body.username
 
     res.redirect(r)
-  } else {
+  } catch(e) {
     req.session.signInFailWhy = `Sorry! That username and password doesn't match.`
     res.redirect('/signin')
   }
@@ -263,15 +283,18 @@ app.get('/you', mustSignIn, function(req, res) {
 })
 
 app.get('/users/:who', async function(req, res) {
-  let who = db.user.get(req.params.who)
+  let who = await db.User.find({
+    username: req.params.who
+  })
 
-  if(db.user.exists(req.params.who)) {
-    who.exists = true
-    who.isYou = who.username === req.session.user
+  if(who[0]) {
+    who[0].exists = true
+    who[0].isYou = who[0].username === req.session.user
 
     res.render('user', {
       user: req.session.user,
-      who: who
+      who: who[0],
+      csrfToken: req.csrfToken()
     })
   } else {
     try {
@@ -298,12 +321,14 @@ app.put('/users/:who/about', async function(req, res) {
   if(req.params.who !== req.session.user) {
     res.status(403).json(false)
   } else {
-    let u = req.session.udata
-    u.about = replaceBadWords(req.body.md)
+    let user = (await db.User.find({
+      username: req.params.who
+    }))[0]
 
-    await db.user.set(req.params.who, u)
+    user.about = replaceBadWords(req.body.md)
+    await user.save()
 
-    res.status(200).json(u.about)
+    res.status(200).json(user.about)
   }
 })
 
@@ -419,7 +444,7 @@ app.get('*', function(req, res) {
 
 /////////////////////////////////////////////////////////
 
-db.load.users().then(function() {
+db.load().then(function() {
   app.listen(3000, function() {
     console.log('Listening on http://localhost:3000')
   })
