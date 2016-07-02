@@ -25,6 +25,8 @@ process.on('unhandledRejection', function(err) {
 
 /////////////////////////////////////////////////////////
 
+require('dotenv').config()
+
 const path = require('path')
 const fs = require('fs')
 
