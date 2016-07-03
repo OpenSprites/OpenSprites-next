@@ -47,4 +47,4 @@ db/**/*
 .env
 
 *.sublime-project
-*.sublime-project.sublime-workspace
+*.sublime-workspace
