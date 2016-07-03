@@ -151,6 +151,13 @@ function mustSignIn(req, res, next) {
   }
 }
 
+function nocache(req, res, next) {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+  res.header('Expires', '-1')
+  res.header('Pragma', 'no-cache')
+  next()
+}
+
 app.use(csrf({
   value: req => {
     return req.body.csrf || req.headers['x-csrf-token']
@@ -184,7 +191,7 @@ app.get('/assets/:type/*', function(req, res) {
   })
 })
 
-app.get('/join', async function(req, res) {
+app.get('/join', nocache, async function(req, res) {
   // if already signed in, skip
   if(req.session.user)
     res.redirect(req.query.r || '/')
@@ -324,7 +331,7 @@ app.get('/you', mustSignIn, function(req, res) {
   res.redirect('/users/' + req.session.user)
 })
 
-app.get('/users/:who', async function(req, res) {
+app.get('/users/:who', nocache, async function(req, res) {
   let who = await db.User.find({
     username: req.params.who
   })
@@ -512,7 +519,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
   
 })
 
-app.get('/collections/:id', async function(req, res) {
+app.get('/collections/:id', nocache, async function(req, res) {
   let collection = await db.Collection.find({
     _id: req.params.id
   })
@@ -540,7 +547,7 @@ app.get('/collections/:id', async function(req, res) {
   }
 })
 
-app.get(`/${process.env.resources_name.toLowerCase()}/:id`, async function(req, res) {
+app.get(`/${process.env.resources_name.toLowerCase()}/:id`, nocache, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
   }, {
@@ -669,7 +676,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover-inb4`, async fun
   res.contentType('image/svg+xml').send(thumb)
 })
 
-app.get('/', async function(req, res) {
+app.get('/', nocache, async function(req, res) {
   let recent = db.Resource.find({}, {
     data: false
   }).sort({ when: -1 }).limit(5)
