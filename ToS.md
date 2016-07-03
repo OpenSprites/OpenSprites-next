@@ -7,7 +7,7 @@ This policy forms an agreement between the end-user (You, User, Your), and OpenS
  - OpenSprites reserves the right to revoke or terminate Your use of the site without prior notice.
  - OpenSprites reserves the right to revoke any electronic content You upload without any prior notice. OpenSprites claims no responsibility for data loss.
  - By using Our services, OpenSprites will accept no responsibility for loss, damage, errors or other circumstances.
- - Content uploaded to OpenSprites remains under its original license. Users who download content must follow the terms set by the license.
+ - Content uploaded to OpenSprites remains under its original license. Users who download content are encouraged to comply with and maintain the terms set by the license.
 
 ### Prohibited Actions and Violations of Our Services ###
  - Uploading content which is not in the [public domain](https://en.wikipedia.org/wiki/Public_domain) or under any [Creative Commons license](https://creativecommons.org/share-your-work/licensing-types-examples/).
