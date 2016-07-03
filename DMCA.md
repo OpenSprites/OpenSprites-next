@@ -13,4 +13,4 @@ You will be expected to register for a support account to file your request.
 Please note:
  - You will be expected to provide sufficient evidence that you are the copyright holder.
  - You will be expected to identify which asset on our site is violating copyright law.
- - We can not handle DMCA Requests 24/7. It may take up to 72 hours for your request to be processed.
+ - We can not handle DMCA Requests 24/7. It may take up to 3 business days for your request to be processed.
