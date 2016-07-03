@@ -454,7 +454,8 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
   fs.writeFile(where, file.buffer, async function(err) {
     if(err) {
-      res.status(500).render('500', { user: req.session.user, err })
+      console.error('Error uploading file:', err)
+      res.status(500).render('500', {  user: req.session.user, err })
       return
     }
 

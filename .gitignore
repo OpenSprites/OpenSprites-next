@@ -45,3 +45,6 @@ db/**/*
 
 # dotenv file
 .env
+
+*.sublime-project
+*.sublime-project.sublime-workspace

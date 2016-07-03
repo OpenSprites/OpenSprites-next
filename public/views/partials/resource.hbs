@@ -2,18 +2,14 @@
   <a href='/{{resources}}/{{_id}}' class='to' {{#if loading}}title="We're still loading this, so sit tight!"{{/if}}>
     {{#if audio}}
       <div class='audio' style='background: url("/{{resources}}/{{_id}}/cover");'>
-        {{#unless loading}}
-          <div class='play icon'>play_arrow</div>
-          <audio preload src='/{{resources}}/{{_id}}/raw'></audio>
-        {{/unless}}
+        <div class='play icon'>play_arrow</div>
+        <audio preload src='/{{resources}}/{{_id}}/raw'></audio>
       </div>
     {{/if}}
 
     {{#if image}}
       <div class='img'>
-        {{#unless loading}}
-          <img src='/{{resources}}/{{_id}}/raw'>
-        {{/unless}}
+        <img src='/{{resources}}/{{_id}}/raw'>
       </div>
     {{/if}}
 

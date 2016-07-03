@@ -30,8 +30,7 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   image: Boolean,
   script: Boolean,
   sprite: Boolean,
-
-  loading: { type: Boolean, default: true },
+  
   cover: String,
 
   data: String, // db/uploads/_id.dat
