@@ -8,7 +8,15 @@ OpenSprites is the place where [Scratchers](https://wiki.scratch.mit.edu/wiki/Sc
 ## Installation
 Make sure you have both [Node.js](https://nodejs.org/) and [MongoDB](https://www.mongodb.com/download-center#community) installed.  
 
-Setup a `.env` file in this format, making sure to create the respective database and username/password:
+Then, in a Terminal or Command Prompt window:
+
+```sh
+git clone https://github.com/OpenSprites/OpenSprites-next.git opensprites-next
+cd opensprites-next
+npm install
+```
+
+Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:
 
 ```
 db_host=localhost
@@ -18,14 +26,6 @@ db_pass=password
 
 resources_name=Stuff
 session_secret=thisandagainplsexplain
-```
-
-Then, in a Terminal or Command Prompt window:
-
-```sh
-git clone https://github.com/OpenSprites/OpenSprites-next.git opensprites-next
-cd opensprites-next
-npm install
 ```
 
 # Usage
