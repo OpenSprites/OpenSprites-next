@@ -41,7 +41,8 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   owners: { type: Array, default: [] },
   when: Number,
 
-  downloads: { type: Number, default: 0 }
+  downloads: { type: Number, default: 0 },
+  downloaders: [ String ]
 }))
 
 const Collection = mongoose.model('Collection', mongoose.Schema({

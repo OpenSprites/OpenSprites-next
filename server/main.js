@@ -77,6 +77,8 @@ function squish(buffer, type) {
 
 let app = express()
 
+app.enable('trust proxy')
+
 app.engine('hbs', exprhbs.create({
   defaultLayout: 'main',
   extname: '.hbs',
@@ -629,7 +631,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async function(req, res) {
   // I don't even code style mate
   const resource = await db
-    .Resource.findOne({ _id: req.params.id }, { name: true, type: true, data: true, downloads: true })
+    .Resource.findOne({ _id: req.params.id }, { name: true, type: true, data: true, downloads: true, downloaders: true })
   if(!resource) {
     res.status(404).render('404', {
       user: req.session.user
@@ -641,8 +643,11 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async f
 
     res.redirect(`/${process.env.resources_name.toLowerCase()}/${req.params.id}/download/${f}`)
   } else {
-    resource.downloads = (resource.downloads || 0) + 1
-    await resource.save()
+    if(!resource.downloaders.includes(req.ip)) {
+      resource.downloads = (resource.downloads || 0) + 1
+      resource.downloaders.push(req.ip)
+      await resource.save()
+    }
 
     fs.readFile(resource.data, (err, data) => {
       res.contentType(resource.type)
