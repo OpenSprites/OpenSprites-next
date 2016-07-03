@@ -15,6 +15,7 @@ const multer = require('multer')
 const bodyParser = require('body-parser')
 const csrf = require('csurf')
 const session = require('express-session')
+const compression = require('compression')
 const sessionStore = require('session-file-store')(session)
 const exprhbs = require('express-handlebars')
 
@@ -116,6 +117,8 @@ app.set('view engine', 'hbs')
 
 app.set('trust proxy', 1)
 app.set('json spaces', 2)
+
+app.use(compression())
 
 app.use(session({
   secret: process.env.session_secret,
