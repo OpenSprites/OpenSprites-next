@@ -195,7 +195,7 @@ app.get('/join', async function(req, res) {
     code: req.session.joinCode,
     fail: req.session.joinFailWhy,
     already: req.session.join || {},
-    project: signupProjectId || false,
+    project: signupProjectId != null,
     csrfToken: req.csrfToken()
   })
 
@@ -602,10 +602,17 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
       user: req.session.user
     })
   } else {
-    fs.readFile(resource[0].data + '.thumb', (err, data) => {
-      res.contentType('image/png')
-        .send(data)
-    })
+    if(resource[0].type === 'image') {
+      fs.readFile(resource[0].data + '.thumb', (err, data) => {
+        res.contentType('image/png')
+          .send(data)
+      })
+    } else {
+      fs.readFile(resource[0].data, (err, data) => {
+        res.contentType(resource[0].type)
+          .send(data)
+      })
+    }
   }
 })
 

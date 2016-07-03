@@ -16,6 +16,7 @@ Then, in a Terminal or Command Prompt window:
 ```sh
 git clone https://github.com/OpenSprites/OpenSprites-next.git opensprites-next
 cd opensprites-next
+mkdir db/uploads
 npm install
 ```
 
