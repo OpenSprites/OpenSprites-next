@@ -26,9 +26,12 @@ db_name=next
 db_user=username
 db_pass=password
 
+project_id=115307769
 resources_name=Stuff
 session_secret=thisandagainplsexplain
 ```
+
+(Don't set `project_id` and you won't need a Scratch username to join.)
 
 # Usage
 

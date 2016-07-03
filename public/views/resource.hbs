@@ -15,15 +15,17 @@
       {{/if}}
 
       {{#if resource.image}}
-        <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:30vh;'>
+        <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:50vh;'>
       {{/if}}
     {{/if}}
   </div>
 
   <div>
     <a href='/{{resources}}/{{resource._id}}/download'><button class='btn'>Download</button></a>
-    <span style='margin-left: 15px'>Downloaded at least {{resource.downloads}} time{{s? resource.downloads}}</span>
+    <span style='margin-left: 15px'>Downloaded {{resource.downloads.length}} time{{s? resource.downloads.length}}</span>
   </div>
+
+  <br>
 
   <div {{#if youOwn}}contenteditable{{/if}} class='bio'>
     {{{md resource.about}}}
