@@ -54,7 +54,8 @@ async function upload() {
   const resources = document.querySelectorAll('#file-uploads .resource')
   let req = []
 
-  resources.forEach(async function(resource) {
+  for(let r = 0; r < resources.length; r++) {
+    let resource = resources[r]
     const file = resource.querySelector('input[type=file]').files[0]
 
     resource.style.pointerEvents = 'none'
@@ -76,7 +77,7 @@ async function upload() {
     })
 
     resource.style.border = '1px dotted #8BC34A'
-  })
+  }
 
   window.location.href = '/you'
 }
