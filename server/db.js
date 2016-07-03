@@ -31,7 +31,7 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   script: Boolean,
   sprite: Boolean,
   
-  cover: String,
+  thumbnail: String,
 
   data: String, // db/uploads/_id.dat
   owners: { type: Array, default: [] },
