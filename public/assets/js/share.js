@@ -51,6 +51,9 @@ function addResourceInput() {
 }
 
 async function upload() {
+  document.querySelector('a#submit').style.display = 'none'
+  document.querySelector('a#add-resource').style.display = 'none'
+
   const resources = document.querySelectorAll('#file-uploads .resource')
   let req = []
 
@@ -67,8 +70,8 @@ async function upload() {
 
     await ajax.put('/share', data, {
       progress: p => {
-        let percent = (p.loaded / p.total)
-        console.log(percent*100 + '%')
+        let percent = Math.floor((p.loaded / p.total) * 100)
+        resource.querySelector('.file-type').innerText = percent + '% uploaded'
       },
 
       headers: {
