@@ -37,14 +37,12 @@
       {{#each collections}}
         <div class='resource'>
           <a href='/collections/{{_id}}'>
-            <img>
+            <div class='img'></div>
 
             <h4>{{name}}</h4>
           </a>
 
-          {{#each owners}}
-            <a href='/users/{{this}}'>{{this}}</a>
-          {{/each}}
+          <span>{{{by owners}}}</span>
         </div>
       {{/each}}
     </div>

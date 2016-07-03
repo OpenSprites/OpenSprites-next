@@ -41,15 +41,7 @@
 
   <div class='resources'>
     {{#each recentResources}}
-      <div class='resource'>
-        <a href='/resources/{{this._id}}'>
-          <img src='/resources/{{this._id}}/raw'>
-          <h4>{{this.name}}</h4>
-        </a>
-        {{#each this.owners}}
-          <a href='/users/{{this}}'>{{this}}</a>
-        {{/each}}
-      </div>
+      {{> resource this}}
     {{/each}}
   </div>
 </main>

@@ -1,11 +1,16 @@
 <header><main>
   <h1>{{resource.name}}</h1>
-  By {{#each resource.owners}}<a href='/users/{{this}}'>{{this}}</a> {{/each}}
+  {{{by resource.owners}}}
 </main></header>
 
 <main>
-  <!-- todo: figure out `resource.type` and show relevant element -->
-  <img src='/resources/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:1em;border-radius:3px;'>
+  {{#if resource.audio}}
+    <audio preload controls src='/resources/{{resource._id}}/raw' style='margin:auto'></audio>
+  {{/if}}
+
+  {{#if resource.image}}
+    <img src='/resources/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:32px;margin:auto'>
+  {{/if}}
 
   <div {{#if resource.youOwn}}contenteditable{{/if}} class='bio'>
     {{{md resource.about}}}

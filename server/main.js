@@ -47,6 +47,8 @@ const uniqid = require('uniqid').process
 const rot = require('rot')
 const bcrypt = require('bcrypt-as-promised')
 
+const trianglify = require('trianglify')
+
 const tada = '🎉'
 const db = require('../db')
 
@@ -75,7 +77,18 @@ app.engine('hbs', exprhbs.create({
   helpers: {
     md: raw => marked(raw || '', { sanitize: true }),
     json: raw => JSON.stringify(raw),
-    timeago: raw => `<span class='timeago'>${raw}</span>`
+    timeago: raw => `<span class='timeago'>${raw}</span>`,
+    by: owners => {
+      let res = ''
+      owners.forEach((owner, i) => {
+        let add = ', '
+        if(owners.length-1 === i) add = ' and '
+        if(i === 0) add = 'by '
+
+        res += `${add}<a href='/users/${owner}'>${owner}</a>`
+      })
+      return res
+    }
   }
 }).engine)
 
@@ -427,11 +440,13 @@ app.post('/share', upload.any(), async function(req, res) {
       owners: [ req.session.user ],
       name: name,
       type: file.mimetype,
+      audio: file.mimetype.substr(0, 5) === 'audio',
+      image: file.mimetype.substr(0, 5) === 'image',
       data: file.buffer,
       when: Date.now()
     })
 
-    resource.save()
+    await resource.save()
 
     collection.resources.push(resource.id)
 
@@ -452,9 +467,11 @@ app.get('/collections/:id', async function(req, res) {
     let rs = []
 
     for(let i = 0; i < collection[0].resources.length; i++) {
-      let r = await db.Resource.findOne({ _id: collection[0].resources[i] })
-      rs.push(r)
+      let r = await db.Resource.findOne({ _id: collection[0].resources[i] }, 'name owners audio image')
+      if(r) rs.push(r)
     }
+
+    rs.reverse() // order by "latest added to collection"
 
     res.render('collection', {
       user: req.session.user,
@@ -472,6 +489,8 @@ app.get('/collections/:id', async function(req, res) {
 app.get('/resources/:id', async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
+  }, {
+    data: false
   })
 
   if(resource[0]) {
@@ -490,6 +509,9 @@ app.get('/resources/:id', async function(req, res) {
 app.get('/resources/:id/raw', async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
+  }, {
+    type: true,
+    data: true
   })
 
   if(resource[0]) {
@@ -501,10 +523,26 @@ app.get('/resources/:id/raw', async function(req, res) {
   }
 })
 
+app.get('/resources/:id/cover', async function(req, res) {
+  let art = trianglify({
+    width: 240,
+    height: 240,
+    seed: req.params.id
+  }).svg().innerHTML
+
+  let svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">'
+
+  res.contentType('image/svg+xml').send(svg + art + '</svg>')
+})
+
 app.get('/', async function(req, res) {
+  let recent = db.Resource.find({}, {
+    data: false
+  }).sort({ when: -1 }).limit(4)
+
   res.render('index', {
     user: req.session.user,
-    recentResources: await (db.getRecentResources()).then(e => e.toArray())
+    recentResources: await recent
   })
 })
 
