@@ -1,4 +1,7 @@
 const mongoose = require('mongoose')
+const Grid = require('gridfs-stream')
+Grid.mongo = mongoose.mongo
+ 
 console.log('Connecting to MongoDB...')
 mongoose.connect(`mongodb://${process.env.db_user}:${process.env.db_pass}@${process.env.db_host}/${process.env.db_name}`)
 
@@ -70,10 +73,15 @@ module.exports = {
   User,
   Resource,
   Collection,
-
+  
+  GridFS: null,
+  
   load: function() {
     return new Promise(function(done, reject) {
       db.once('open', function() {
+        console.log("Loading GridFS...")
+        var gfs = Grid(db.db)
+        module.exports.GridFS = gfs
         done()
       })
     })
