@@ -2,7 +2,7 @@
   "name": "opensprites",
   "version": "1.0.0",
   "description": "The website for Scratchers to share and show off their sprites, scripts, audio and more!",
-  "main": "server/.dist/main.js",
+  "main": "server/.dist/entry-min.js",
   "scripts": {
     "postinstall": "npm run build",
     "build": "./node_modules/.bin/gulp build",
@@ -55,6 +55,7 @@
     "hashids": "^1.0.2",
     "htmldec": "0.0.1",
     "jquery-browserify": "^1.8.1",
+    "lwip": "0.0.9",
     "marked": "^0.3.5",
     "mongoose": "^4.5.3",
     "multer": "^1.1.0",

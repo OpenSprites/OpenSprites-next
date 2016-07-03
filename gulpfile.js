@@ -55,7 +55,7 @@ gulp.task('clean-img', function() {
 /////////////////////////////////////////////////////////
 
 gulp.task('build-server', ['clean-server'], function() {
-  return gulp.src('server/main.js')
+  return gulp.src([traceur.RUNTIME_PATH, 'server/entry.js'])
   .pipe(plumber())
   .pipe(sourcemaps.init()) 
   .pipe(traceur({ 

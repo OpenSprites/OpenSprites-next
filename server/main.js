@@ -5,26 +5,6 @@
  * The server. Obviously.
  */
 
-require('traceur/bin/traceur-runtime') 
-require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, { 
-  experimental: true, 
-  properTailCalls: false, 
-  symbols: true, 
-  arrayComprehension: true, 
-  asyncFunctions: true,
-  asyncGenerators: true, 
-  forOn: true, 
-  generatorComprehension: true 
-})
-
-require('source-map-support').install()
-
-process.on('unhandledRejection', function(err) {
-  console.error(err)
-})
-
-/////////////////////////////////////////////////////////
-
 require('dotenv').config()
 
 const path = require('path')
@@ -50,9 +30,10 @@ const bcrypt = require('bcrypt-as-promised')
 
 const hello = require('greetings')
 const trianglify = require('trianglify')
+const lwip = require('lwip')
 
 const tada = '🎉'
-const db = require('../db')
+const db = require('./db')
 
 /////////////////////////////////////////////////////
 
@@ -69,6 +50,27 @@ const hasBadWords = text => text.match(badWordsRegex)
 const replaceBadWords = (text, w='⋆⋆⋆⋆') => text.replace(badWordsRegex, w)
 
 process.env.resources_name = process.env.resources_name || 'Stuff'
+
+function squish(buffer, type) {
+  return new Promise(function(done, reject) {
+    // the best nodejs library ever written
+    lwip.open(buffer, type, (err, imag) => {
+      imag.contain(240, 240, function(err, imag) {
+        if(err) {
+          reject(err)
+          return
+        }
+
+        imag.toBuffer('png', {
+          compression: 'high'
+        }, function(err, buff) {
+          if(err) reject(err)
+          else done(buff)
+        })
+      })
+    })
+  })
+}
 
 /////////////////////////////////////////////////////////
 
@@ -170,8 +172,8 @@ app.use(function(err, req, res, next) {
 /////////////////////////////////////////////////////////
 
 app.get('/assets/:type/*', function(req, res) {
-  let f = path.join(__dirname, '../../', `public/assets/${req.params.type}/.dist/${req.params[0]}`)
-  let f2 = path.join(__dirname, '../../', `public/assets/${req.params.type}/${req.params[0]}`)
+  let f = path.join(__dirname, '../', `public/assets/${req.params.type}/.dist/${req.params[0]}`)
+  let f2 = path.join(__dirname, '../', `public/assets/${req.params.type}/${req.params[0]}`)
 
   fs.stat(f, function(err) {
     if(err) res.sendFile(f2)
@@ -193,7 +195,7 @@ app.get('/join', async function(req, res) {
     code: req.session.joinCode,
     fail: req.session.joinFailWhy,
     already: req.session.join || {},
-    project: signupProjectId,
+    project: signupProjectId || false,
     csrfToken: req.csrfToken()
   })
 
@@ -448,20 +450,41 @@ app.put('/share', upload.single('file'), async function(req, res) {
   let file = req.file
   let name = req.body.name
   let id = shortid()
-  let where = path.join(__dirname, '../../', 'db/uploads/', sanitize(id) + '.dat')
+  let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
+
+  let isAudio = file.mimetype.substr(0, 5) === 'audio'
+  let svg
+  let thumb
+  let isImage = file.mimetype.substr(0, 5) === 'image'
+
+  if(isAudio) {
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
+      trianglify({
+        width: 240,
+        height: 240,
+        seed: name
+      }).svg().innerHTML
+    + '</svg>'
+  }
+
+  if(isImage) {
+    thumb = await squish(file.buffer, file.mimetype.substr(-3))
+  }
 
   let resource = new db.Resource({
     _id: id,
     owners: [ req.session.user ],
     name: name,
     type: file.mimetype,
-    audio: file.mimetype.substr(0, 5) === 'audio',
-    image: file.mimetype.substr(0, 5) === 'image',
+    fname: name,
+    audio: isAudio,
+    image: isImage,
     loading: false, // unused now
     when: Date.now(),
     cover: name,
     data: where,
-    downloads: 0
+    downloads: 0,
+    thumbnail: svg || ''
   })
 
   fs.writeFile(where, file.buffer, async function(err) {
@@ -475,6 +498,10 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     collection.resources.push(resource.id)
     await collection.save()
+
+    fs.writeFile(where + '.thumb', thumb, (err) => {
+      if(err) throw err
+    })
 
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
     res.json(tada)
@@ -566,16 +593,17 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
   }
 })
 
+// 240 x 240px
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
   const resource = await db
     .Resource.find({ _id: req.params.id }, { type: true, data: true })
-  if (resource[0] === false) {
+  if(resource[0] === false) {
     res.status(404).render('404', {
       user: req.session.user
     })
   } else {
-    fs.readFile(resource[0].data, (err, data) => {
-      res.contentType(resource[0].type)
+    fs.readFile(resource[0].data + '.thumb', (err, data) => {
+      res.contentType('image/png')
         .send(data)
     })
   }
@@ -584,8 +612,8 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/download`, async function(req, res) {
   // I don't even code style mate
   const resource = await db
-    .Resource.findOne({ _id: req.params.id }, { type: true, data: true, downloads: true })
-  if (resource === false) {
+    .Resource.findOne({ _id: req.params.id }, { type: true, data: true, downloads: true, fname: true })
+  if(resource === false) {
     res.status(404).render('404', {
       user: req.session.user
     })
@@ -594,40 +622,34 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/download`, async funct
     resource.save()
     fs.readFile(resource.data, (err, data) => {
       res.contentType(resource.type)
-        .set('Content-Disposition', 'attachment; filename=resource.png')
+        .set(`Content-Disposition', 'attachment; filename=${sanitize(resource.fname)}`)
         .send(data)
     })
   }
 })
 
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover`, async function(req, res) {
-  let resource = await db.Resource.findOne({
-    _id: req.params.id
-  }, {
-    cover: true
-  })
+  const resource = await db
+    .Resource.findOne({ _id: req.params.id }, { image: true, audio: true, thumbnail: true, fname: true })
 
-  if(!resource) {
-    res.status(404).render('404', {
-      user: req.session.user
-    })
-
-    return
+  if(resource.image)
+    res.redirect(`/${process.env.resources_name.toLowerCase()}/${req.params.id}/raw`)
+  else if(resource.audio) {
+    res.contentType('image/svg+xml')
+      .send(resource.thumbnail)
   }
-
-  res.redirect(`/${process.env.resources_name.toLowerCase()}/${resource.cover}/cover-inb4`)
 })
 
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover-inb4`, async function(req, res) {
-  let art = trianglify({
-    width: 240,
-    height: 240,
-    seed: req.params.id
-  }).svg().innerHTML
+  let thumb = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
+    trianglify({
+      width: 240,
+      height: 240,
+      seed: req.params.id
+    }).svg().innerHTML
+  + '</svg>'
 
-  let svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">'
-
-  res.contentType('image/svg+xml').send(svg + art + '</svg>')
+  res.contentType('image/svg+xml').send(thumb)
 })
 
 app.get('/', async function(req, res) {
@@ -642,14 +664,14 @@ app.get('/', async function(req, res) {
   res.render('index', {
     user: req.session.user,
     recentResources: await recent,
-    downloadedResources: await dowloaded
+    downloadedResources: await downloaded
   })
 })
 
 /////////////////////////////////////////////////////////
 
 app.get('/dmca', function(req, res) {
-  let f = path.join(__dirname, '../../', 'DMCA.md')
+  let f = path.join(__dirname, '../', 'DMCA.md')
 
   fs.readFile(f, 'utf8', function(err, file) {
     res.render('md-page', {
@@ -661,7 +683,7 @@ app.get('/dmca', function(req, res) {
 })
 
 app.get('/tos', function(req, res) {
-  let f = path.join(__dirname, '../../', 'ToS.md')
+  let f = path.join(__dirname, '../', 'ToS.md')
 
   fs.readFile(f, 'utf8', function(err, file) {
     res.render('md-page', {
@@ -673,7 +695,7 @@ app.get('/tos', function(req, res) {
 })
 
 app.get('/privacy', function(req, res) {
-  let f = path.join(__dirname, '../../', 'PRIVACY.md')
+  let f = path.join(__dirname, '../', 'PRIVACY.md')
 
   fs.readFile(f, 'utf8', function(err, file) {
     res.render('md-page', {

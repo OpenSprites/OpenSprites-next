@@ -8,6 +8,7 @@ OpenSprites is the place where [Scratchers](https://wiki.scratch.mit.edu/wiki/Sc
 ## Installation
 To start, install:
 - [Node.js](https://nodejs.org/)
+- [node-gyp](https://github.com/nodejs/node-gyp#installation)
 - [MongoDB](https://www.mongodb.com/download-center#community) (or use [mLab](https://mlab.com/))
 
 Then, in a Terminal or Command Prompt window:
@@ -31,7 +32,7 @@ resources_name=Stuff
 session_secret=thisandagainplsexplain
 ```
 
-(Don't set `project_id` and you won't need a Scratch username to join.)
+(Don't set `project_id` to not require a Scratch account to join.)
 
 # Usage
 
