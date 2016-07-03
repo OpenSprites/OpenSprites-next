@@ -4,23 +4,33 @@
 </main></header>
 
 <main>
-  {{#if loading}}
-    <small>
-      We're still loading this, so sit tight!
-    </small>
-  {{else}}
-    {{#if resource.audio}}
-      <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
-    {{/if}}
+  <div style='float: left; margin-right: 20px;'>
+    {{#if loading}}
+      <small>
+        We're still loading this, so sit tight!
+      </small>
+    {{else}}
+      {{#if resource.audio}}
+        <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
+      {{/if}}
 
-    {{#if resource.image}}
-      <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;'>
+      {{#if resource.image}}
+        <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:32px;margin:auto;max-width:calc(100% - 64px);'>
+      {{/if}}
     {{/if}}
-  {{/if}}
+  </div>
+
+  <div>
+    <a href='/{{resources}}/{{resource._id}}/download'><button class='btn'>Download</button></a>
+    <span style='margin-left: 15px'>Downloaded at least {{resource.downloads}} time(s)</span>
+  </div>
 
   <div {{#if youOwn}}contenteditable{{/if}} class='bio'>
     {{{md resource.about}}}
   </div>
+
+  <div style='clear: both'></div>
+
   <small></small>
 
   <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}';</script>

@@ -456,7 +456,8 @@ app.put('/share', upload.single('file'), async function(req, res) {
     loading: false, // unused now
     when: Date.now(),
     cover: name,
-    data: where
+    data: where,
+    downloads: 0
   })
 
   fs.writeFile(where, file.buffer, async function(err) {
@@ -562,18 +563,35 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
 })
 
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
-  let resource = await db.Resource.find({
-    _id: req.params.id
-  }, {
-    type: true,
-    data: true
-  })
-
-  if(resource[0]) {
-    fs.readFile(resource[0].data, (err, data) => res.contentType(resource[0].type).send(data))
-  } else {
+  const resource = await db
+    .Resource.find({ _id: req.params.id }, { type: true, data: true })
+  if (resource[0] === false) {
     res.status(404).render('404', {
       user: req.session.user
+    })
+  } else {
+    fs.readFile(resource[0].data, (err, data) => {
+      res.contentType(resource[0].type)
+        .send(data)
+    })
+  }
+})
+
+app.get(`/${process.env.resources_name.toLowerCase()}/:id/download`, async function(req, res) {
+  // I don't even code style mate
+  const resource = await db
+    .Resource.findOne({ _id: req.params.id }, { type: true, data: true, downloads: true })
+  if (resource === false) {
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  } else {
+    resource.downloads++;
+    resource.save()
+    fs.readFile(resource.data, (err, data) => {
+      res.contentType(resource.type)
+        .set('Content-Disposition', 'attachment; filename=resource.png')
+        .send(data)
     })
   }
 })

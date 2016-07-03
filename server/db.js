@@ -36,6 +36,8 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   data: String, // db/uploads/_id.dat
   owners: { type: Array, default: [] },
   when: Number,
+
+  downloads: Number
 }))
 
 const Collection = mongoose.model('Collection', mongoose.Schema({
