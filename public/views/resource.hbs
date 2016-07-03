@@ -18,10 +18,14 @@
     {{/if}}
   {{/if}}
 
-  <div {{#if resource.youOwn}}contenteditable{{/if}} class='bio'>
+  <div {{#if youOwn}}contenteditable{{/if}} class='bio'>
     {{{md resource.about}}}
   </div>
   <small></small>
 
   <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+
+  {{#if youOwn}}
+    <a id='edit' class='btn flat' style='float:right'>edit description</a>
+  {{/if}}
 </main>

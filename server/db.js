@@ -15,7 +15,7 @@ db.on('error', e => {
 const Resource = mongoose.model('Resource', mongoose.Schema({
   _id: String,
   name: { type: String, default: 'Something' },
-  about: { type: String, default: '' },
+  about: { type: String, default: 'Sample Text' },
   type: { type: String, enum: [
     'image/png',
     'image/jpeg',

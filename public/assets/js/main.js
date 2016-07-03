@@ -17,13 +17,7 @@ if('/join' === window.location.pathname)
 if('/share' === window.location.pathname)
   share()
 
-if('/users' === window.location.pathname.substr(0, 6))
-  md()
-
-if('/collections' === window.location.pathname.substr(0, 12))
-  md()
-
-if('/stuff' === window.location.pathname.substr(0, 10))
+if(document.querySelector('main > #edit'))
   md()
 
 for (let el of document.querySelectorAll('.timeago')) {

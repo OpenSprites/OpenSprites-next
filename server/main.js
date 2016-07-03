@@ -48,6 +48,7 @@ const uniqid = require('uniqid').process
 const rot = require('rot')
 const bcrypt = require('bcrypt-as-promised')
 
+const hello = require('greetings')
 const trianglify = require('trianglify')
 
 const tada = '🎉'
@@ -81,6 +82,7 @@ app.engine('hbs', exprhbs.create({
     md: raw => marked(raw || '', { sanitize: true }),
     json: raw => JSON.stringify(raw),
     timeago: raw => `<span class='timeago'>${raw}</span>`,
+    
     by: owners => {
       let res = ''
       owners.forEach((owner, i) => {
@@ -92,9 +94,14 @@ app.engine('hbs', exprhbs.create({
       })
       return res
     },
+
     lower: upper => upper.toLowerCase(),
+
     resources: () => process.env.resources_name.toLowerCase(),
-    Resources: () => process.env.resources_name[0].toUpperCase() + process.env.resources_name.substr(1)
+    Resources: () => process.env.resources_name[0].toUpperCase() + process.env.resources_name.substr(1),
+
+    Hello: () => hello(),
+    hello: () => hello().toLowerCase()
   }
 }).engine)
 
