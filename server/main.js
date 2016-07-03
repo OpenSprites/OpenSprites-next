@@ -82,7 +82,7 @@ app.engine('hbs', exprhbs.create({
     md: raw => marked(raw || '', { sanitize: true }),
     json: raw => JSON.stringify(raw),
     timeago: raw => `<span class='timeago'>${raw}</span>`,
-    
+
     by: owners => {
       let res = ''
       owners.forEach((owner, i) => {
@@ -543,6 +543,21 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id`, async function(req, 
     res.status(404).render('404', {
       user: req.session.user
     })
+  }
+})
+
+app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function(req, res) {
+  let resource = await db.Resource.findOne({
+    _id: req.params.id
+  })
+
+  if(!resource || !resource.owners.includes(req.session.user)) {
+    res.status(403).json(false)
+  } else {
+    resource.about = replaceBadWords(req.body.md)
+    await resource.save()
+
+    res.status(200).json(resource.about)
   }
 })
 
