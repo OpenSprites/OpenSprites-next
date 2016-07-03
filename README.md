@@ -18,6 +18,12 @@ git clone https://github.com/OpenSprites/OpenSprites-next.git opensprites-next
 cd opensprites-next
 mkdir db/uploads
 npm install
+
+# *nix
+cd node_modules/lwip && node-gyp rebuild && cd ../../
+
+# windows
+cd node_modules\lwip & node-gyp rebuild & cd ..\..\
 ```
 
 Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:

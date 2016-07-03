@@ -4,7 +4,7 @@
   "description": "The website for Scratchers to share and show off their sprites, scripts, audio and more!",
   "main": "server/.dist/entry-min.js",
   "scripts": {
-    "postinstall": "cd node_modules/lwip && node-gyp rebuild && cd ../../ && npm run build",
+    "postinstall": "npm run build",
     "build": "./node_modules/.bin/gulp build",
     "watch": "./node_modules/.bin/gulp watch",
     "start": "./node_modules/.bin/nodemon -w server/.dist"
