@@ -101,7 +101,9 @@ app.engine('hbs', exprhbs.create({
     Resources: () => process.env.resources_name[0].toUpperCase() + process.env.resources_name.substr(1),
 
     Hello: () => hello(),
-    hello: () => hello().toLowerCase()
+    hello: () => hello().toLowerCase(),
+
+    's?': val => val === 1? '' : 's'
   }
 }).engine)
 
