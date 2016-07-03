@@ -1,8 +1,8 @@
 /**
- * js/user.js
- * ----------
+ * js/md.js
+ * --------
  * 
- * /users/xxx
+ * Applies to pages with .bio elements
  */
 
 const ajax = require('axios')
@@ -37,5 +37,12 @@ module.exports = function() {
     bio.innerHTML = marked(bio_raw, {
       sanitize: true
     })
+
+    document.getElementById('edit').style.display = 'inline-block'
+  })
+
+  document.getElementById('edit').addEventListener('click', function(e) {
+    document.querySelector('.bio').focus()
+    this.style.display = 'none'
   })
 }

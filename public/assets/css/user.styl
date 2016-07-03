@@ -25,36 +25,36 @@
       margin 0
     }
   }
+}
+
+.bio {
+  @extend p
   
-  .bio {
-    @extend p
-    
-    p {
-      margin 0
-      padding 0
+  p {
+    margin 0
+    padding 0
+  }
+  
+  padding .5em
+  
+  > *:first-child {
+    margin-top 0
+  }
+  
+  border-radius 3px
+  outline 0
+  
+  blockquote {
+    border-left 3px solid #ddd
+  }
+  
+  &[contenteditable] {
+    &:hover, &:focus {
+      background rgba(black, 0.02)
     }
     
-    padding .5em
-    
-    > *:first-child {
-      margin-top 0
-    }
-    
-    border-radius 3px
-    outline 0
-    
-    blockquote {
-      border-left 3px solid #ddd
-    }
-    
-    &[contenteditable] {
-      &:hover, &:focus {
-        background rgba(black, 0.02)
-      }
-      
-      &:focus {
-        @extend .mono
-      }
+    &:focus {
+      @extend .mono
     }
   }
 }

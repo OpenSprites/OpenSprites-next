@@ -5,11 +5,11 @@
 
 <main>
   {{#if resource.audio}}
-    <audio preload controls src='/resources/{{resource._id}}/raw' style='margin:auto'></audio>
+    <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
   {{/if}}
 
   {{#if resource.image}}
-    <img src='/resources/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:32px;margin:auto'>
+    <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:32px;margin:auto'>
   {{/if}}
 
   <div {{#if resource.youOwn}}contenteditable{{/if}} class='bio'>

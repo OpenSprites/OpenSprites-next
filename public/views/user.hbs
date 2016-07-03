@@ -31,6 +31,10 @@
 
     <script>var bio_raw = '{{json who.about}}'; var csrfToken = '{{json csrfToken}}';</script>
 
+    {{#if who.isYou}}
+      <a id='edit' class='btn flat' style='float:right'>edit about me</a>
+    {{/if}}
+
     <h1>Collections</h1>
 
     <div class='resources'>

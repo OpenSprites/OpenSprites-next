@@ -16,6 +16,7 @@ db_name=next
 db_user=username
 db_pass=password
 
+resources_name=Stuff
 session_secret=thisandagainplsexplain
 ```
 

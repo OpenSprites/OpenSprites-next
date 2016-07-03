@@ -7,7 +7,7 @@
 
 const join = require('./join')
 const share = require('./share')
-const user = require('./user')
+const md = require('./md')
 const timeago = require('./timeago')
 
 if('/join' === window.location.pathname)
@@ -17,7 +17,13 @@ if('/share' === window.location.pathname)
   share()
 
 if('/users' === window.location.pathname.substr(0, 6))
-  user()
+  md()
+
+if('/collections' === window.location.pathname.substr(0, 12))
+  md()
+
+if('/stuff' === window.location.pathname.substr(0, 10))
+  md()
 
 for (let el of document.querySelectorAll('.timeago')) {
   el.innerHTML = timeago(parseInt(el.innerHTML))

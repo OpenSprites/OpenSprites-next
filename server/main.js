@@ -64,6 +64,8 @@ const badWordsRegex = new RegExp(rot(badWords, -13), 'gi')
 const hasBadWords = text => text.match(badWordsRegex)
 const replaceBadWords = (text, w='⋆⋆⋆⋆') => text.replace(badWordsRegex, w)
 
+process.env.resources_name = process.env.resources_name || 'Stuff'
+
 /////////////////////////////////////////////////////////
 
 let app = express()
@@ -88,7 +90,10 @@ app.engine('hbs', exprhbs.create({
         res += `${add}<a href='/users/${owner}'>${owner}</a>`
       })
       return res
-    }
+    },
+    lower: upper => upper.toLowerCase(),
+    resources: () => process.env.resources_name.toLowerCase(),
+    Resources: () => process.env.resources_name[0].toUpperCase() + process.env.resources_name.substr(1)
   }
 }).engine)
 
@@ -114,7 +119,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 const upload = multer({
   storage: multer.memoryStorage({
-    limis: {
+    limits: {
       fileSize: 52428800 // ~50mb
     }
   })
@@ -292,7 +297,7 @@ app.post('/signin', async function(req, res) {
 // allows for <img src='/signout'> which is *BAD*
 // perhaps use PUT and check the Referrer header?
 app.get('/signout', async function(req, res) {
-  let user = await db.User.find({ username: req.session.user })
+  let user = await db.User.findOne({ username: req.session.user })
   user.online = false
   user.save()
 
@@ -321,7 +326,8 @@ app.get('/users/:who', async function(req, res) {
       user: req.session.user,
       collections,
       who: who[0],
-      csrfToken: req.csrfToken()
+      csrfToken: req.csrfToken(),
+      title: who.username
     })
   } else {
     try {
@@ -334,7 +340,8 @@ app.get('/users/:who', async function(req, res) {
 
       res.render('user', {
         user: req.session.user,
-        who: who
+        who: who,
+        title: who.username
       })
     } catch(e) {
       res.status(404).render('404', {
@@ -486,7 +493,7 @@ app.get('/collections/:id', async function(req, res) {
   }
 })
 
-app.get('/resources/:id', async function(req, res) {
+app.get(`/${process.env.resources_name.toLowerCase()}/:id`, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
   }, {
@@ -497,7 +504,8 @@ app.get('/resources/:id', async function(req, res) {
     res.render('resource', {
       user: req.session.user,
       resource: resource[0],
-      csrfToken: req.csrfToken()
+      csrfToken: req.csrfToken(),
+      title: resource[0].name
     })
   } else {
     res.status(404).render('404', {
@@ -506,7 +514,7 @@ app.get('/resources/:id', async function(req, res) {
   }
 })
 
-app.get('/resources/:id/raw', async function(req, res) {
+app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
   }, {
@@ -523,7 +531,7 @@ app.get('/resources/:id/raw', async function(req, res) {
   }
 })
 
-app.get('/resources/:id/cover', async function(req, res) {
+app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover`, async function(req, res) {
   let art = trianglify({
     width: 240,
     height: 240,
