@@ -36,6 +36,18 @@
 
 <main class='center'>
   <h2>
+    Most Downloaded
+  </h2>
+
+  <div class='resources'>
+    {{#each downloadedResources}}
+      {{> resource this}}
+    {{/each}}
+  </div>
+</main>
+
+<main class='center'>
+  <h2>
     Latest {{Resources}}
   </h2>
 

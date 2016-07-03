@@ -60,6 +60,8 @@ const badWords = '\\o(shtyl|(\\j*?)shpx(\\j*?)|s(h|i|\\*)?p?x(vat?)?|(\\j*?)fu(v
 const signupProjectId = process.env.project_id || null // '' to disable check
 const requireEmailConfirmedToShare = false
 
+console.log('Signup Project ID is #' + signupProjectId)
+
 /////////////////////////////////////////////////////////
 
 const badWordsRegex = new RegExp(rot(badWords, -13), 'gi')
@@ -633,9 +635,14 @@ app.get('/', async function(req, res) {
     data: false
   }).sort({ when: -1 }).limit(5)
 
+  let downloaded = db.Resource.find({}, {
+    data: false
+  }).sort({ downloaded: 1, when: -1 }).limit(5)
+
   res.render('index', {
     user: req.session.user,
-    recentResources: await recent
+    recentResources: await recent,
+    downloadedResources: await dowloaded
   })
 })
 
