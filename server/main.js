@@ -596,13 +596,13 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
 // 240 x 240px
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
   const resource = await db
-    .Resource.find({ _id: req.params.id }, { type: true, data: true })
+    .Resource.find({ _id: req.params.id }, { type: true, data: true, image: true })
   if(!resource[0]) {
     res.status(404).render('404', {
       user: req.session.user
     })
   } else {
-    if(resource[0].type === 'image') {
+    if(resource[0].image) {
       fs.readFile(resource[0].data + '.thumb', (err, data) => {
         res.contentType('image/png')
           .send(data)
