@@ -511,7 +511,26 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id`, async function(req, 
       resource: resource[0],
       csrfToken: req.csrfToken(),
       title: resource[0].name,
-      youOwn: resource[0].owners.includes(req.session.user||'')
+      youOwn: resource[0].owners.includes(req.session.user||''),
+      head: `<!-- Social: Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content=${JSON.stringify(resource[0].owners[0])}>
+<meta name="twitter:title" content=${JSON.stringify(resource[0].name)}>
+<meta name="twitter:description" content=${JSON.stringify(resource[0].about)}>
+<meta name="twitter:image:src" content="${req.originalUrl}/raw">
+
+<!-- Social: Facebook / Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:title" content=${JSON.stringify(resource[0].name)}>
+<meta property="og:image" content="${req.originalUrl}/raw">
+<meta property="og:description" content=${JSON.stringify(resource[0].about)}>
+<meta property="og:site_name" content="OpenSprites">
+
+
+<!-- Social: Google+ / Schema.org  -->
+<meta itemprop="name" content=${JSON.stringify(resource[0].name)}>
+<meta itemprop="description" content=${JSON.stringify(resource[0].about)}>
+<meta itemprop="image" content="${req.originalUrl}/raw">`
     })
   } else {
     res.status(404).render('404', {
