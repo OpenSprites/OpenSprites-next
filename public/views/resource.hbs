@@ -4,12 +4,18 @@
 </main></header>
 
 <main>
-  {{#if resource.audio}}
-    <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
-  {{/if}}
+  {{#if loading}}
+    <small>
+      We're still loading this, so sit tight!
+    </small>
+  {{else}}
+    {{#if resource.audio}}
+      <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
+    {{/if}}
 
-  {{#if resource.image}}
-    <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:32px;margin:auto'>
+    {{#if resource.image}}
+      <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");padding:32px;margin:auto'>
+    {{/if}}
   {{/if}}
 
   <div {{#if resource.youOwn}}contenteditable{{/if}} class='bio'>

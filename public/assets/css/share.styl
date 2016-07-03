@@ -1,3 +1,4 @@
+/*
 .file-upload {
   min-height 84px
   padding 8px
@@ -83,5 +84,54 @@
       height 0
       padding-bottom 74%
     }
+  }
+}
+*/
+
+#file-uploads {
+  .resource:not(.has-file) .img {
+    background white
+  }
+  
+  .to {
+    cursor default
+  }
+
+  .file-select-text {
+    display inline-block
+    position absolute
+    top 50%
+    left 50%
+    transform translate(-50%, -50%)
+    
+    width 7rem
+    text-align center
+  }
+  
+  .has-file .file-select-text {
+    display none
+  }
+
+  .file-selected-text {
+    display none
+  }
+  
+  .file-upload-name {
+    cursor text
+    outline 0
+    padding 0.5em 16px
+    text-overflow initial
+    
+    &:hover, &:focus {
+      background rgba(os-grey, 0.07)
+    }
+  }
+  
+  .to + span {
+    margin-top calc(-0.5em + 16px)
+  }
+  
+  input[type=file] {
+    display none
   }
 }

@@ -9,6 +9,10 @@
   </div>
   <small></small>
 
+  {{#if collection.youOwn}}
+    <a id='edit' class='btn flat' style='float:right'>edit about me</a>
+  {{/if}}
+
   <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
 
   <div class='resources'>

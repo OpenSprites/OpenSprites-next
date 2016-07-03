@@ -42,6 +42,7 @@ const cheerio = require('cheerio')
 const request = require('request-promise')
 
 const marked = require('marked')
+const sanitize = require('sanitize-filename')
 const shortid = require('shortid').generate
 const uniqid = require('uniqid').process
 const rot = require('rot')
@@ -120,7 +121,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 const upload = multer({
   storage: multer.memoryStorage({
     limits: {
-      fileSize: 52428800 // ~50mb
+      fileSize: 52428800 // ~50mb.
     }
   })
 })
@@ -136,9 +137,7 @@ function mustSignIn(req, res, next) {
 
 app.use(csrf({
   value: req => {
-    let sess = req.session.csrf || ''
-    delete req.session.csrf
-    return req.body.csrf || sess
+    return req.body.csrf || req.headers['x-csrf-token']
   }
 }))
 
@@ -411,7 +410,7 @@ We need you to [verify your email address](/verify) before you can share resourc
   })
 })
 
-app.post('/share', upload.any(), async function(req, res) {
+app.put('/share', upload.single('file'), async function(req, res) {
   if(!req.session.user) {
     req.session.r = req.originalUrl
     res.redirect('/signin')
@@ -435,34 +434,39 @@ app.post('/share', upload.any(), async function(req, res) {
     })
   }
 
-  for(let f = 0; f < req.files.length; f++) {
-    let file = req.files[f]
+  let file = req.file
+  let name = req.body.name
+  let id = shortid()
+  let where = path.join(__dirname, '../../', 'db/uploads/', sanitize(id) + '.dat')
 
-    let name = file.originalname.split('.')
-        name.pop()
-        name = name.join(' ')
+  let resource = new db.Resource({
+    _id: id,
+    owners: [ req.session.user ],
+    name: name,
+    type: file.mimetype,
+    audio: file.mimetype.substr(0, 5) === 'audio',
+    image: file.mimetype.substr(0, 5) === 'image',
+    loading: false, // unused now
+    when: Date.now(),
+    cover: name,
+    data: where
+  })
 
-    let resource = db.Resource({
-      _id: shortid(),
-      owners: [ req.session.user ],
-      name: name,
-      type: file.mimetype,
-      audio: file.mimetype.substr(0, 5) === 'audio',
-      image: file.mimetype.substr(0, 5) === 'image',
-      data: file.buffer,
-      when: Date.now()
-    })
+  fs.writeFile(where, file.buffer, async function(err) {
+    if(err) {
+      res.status(500).render('500', { user: req.session.user, err })
+      return
+    }
 
     await resource.save()
 
     collection.resources.push(resource.id)
+    await collection.save()
 
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
-  }
-
-  await collection.save()
-
-  res.redirect('/you')
+    res.json(tada)
+  })
+  
 })
 
 app.get('/collections/:id', async function(req, res) {
@@ -505,7 +509,8 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id`, async function(req, 
       user: req.session.user,
       resource: resource[0],
       csrfToken: req.csrfToken(),
-      title: resource[0].name
+      title: resource[0].name,
+      youOwn: resource[0].owners.includes(req.session.user||'')
     })
   } else {
     res.status(404).render('404', {
@@ -523,7 +528,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
   })
 
   if(resource[0]) {
-    res.contentType(resource[0].type).send(resource[0].data)
+    fs.readFile(resource[0].data, (err, data) => res.contentType(resource[0].type).send(data))
   } else {
     res.status(404).render('404', {
       user: req.session.user
@@ -532,6 +537,24 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
 })
 
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover`, async function(req, res) {
+  let resource = await db.Resource.findOne({
+    _id: req.params.id
+  }, {
+    cover: true
+  })
+
+  if(!resource) {
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+
+    return
+  }
+
+  res.redirect(`/${process.env.resources_name.toLowerCase()}/${resource.cover}/cover-inb4`)
+})
+
+app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover-inb4`, async function(req, res) {
   let art = trianglify({
     width: 240,
     height: 240,
@@ -546,7 +569,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover`, async function
 app.get('/', async function(req, res) {
   let recent = db.Resource.find({}, {
     data: false
-  }).sort({ when: -1 }).limit(4)
+  }).sort({ when: -1 }).limit(5)
 
   res.render('index', {
     user: req.session.user,
@@ -606,6 +629,6 @@ app.get('*', function(req, res) {
 
 db.load().then(function() {
   app.listen(3000, function() {
-    console.log('Listening on http://localhost:3000')
+    console.log('Listening on http://localhost:3000 ' + tada)
   })
 })

@@ -1,10 +1,14 @@
 const mongoose = require('mongoose')
+console.log('Connecting to MongoDB...')
 mongoose.connect(`mongodb://${process.env.db_user}:${process.env.db_pass}@${process.env.db_host}/${process.env.db_name}`)
 
 mongoose.Promise = Promise
 
 let db = mongoose.connection
-db.on('error', console.error.bind(console, 'Connection error:'))
+db.on('error', e => {
+  console.error('Error!', e.message)
+  process.exit(1)
+})
 
 /////////////////////////////////////////////////////////
 
@@ -27,7 +31,10 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   script: Boolean,
   sprite: Boolean,
 
-  data: Buffer,
+  loading: { type: Boolean, default: true },
+  cover: String,
+
+  data: String, // db/uploads/_id.dat
   owners: { type: Array, default: [] },
   when: Number,
 }))

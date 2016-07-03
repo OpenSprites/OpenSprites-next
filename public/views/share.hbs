@@ -2,30 +2,42 @@
   <h1>Share</h1>
 
   <form method='post' enctype='multipart/form-data'>
-    <div id='file-uploads'></div>
+    <div id='file-uploads' class='resources'></div>
 
-    <button id='add-resource' class='flat btn'>Add Resource</button>
-    <input type='submit' class='btn' value='Upload and share'>
+    <br>
+
+    <a id='add-resource' class='flat btn'>add more</a>
+    <a id='submit' class='btn'>upload and share</a>
   </form>
 
-  <div class='file-upload template' data-template-id='file-upload'>
-    <div class='file-upload-preview'>
-      <!-- Fill preview -->
-      <div class='file-preview'></div>
-      <span class='file-select-text'>Select a File</span>
-      <span class='file-selected-text'>File selected!</span>
-      <input type='file' class='file-select-button' name='files[]' accept='
-        image/png,
-        image/jpeg,
-        image/gif,
-        image/svg+xml,
-        audio/mp3,
-        audio/wav,
-        .sb2,
-        .sprite2
-      '>
-    </div>
-    Name: <span contenteditable='true' placeholder='Bob the Cactus' class='file-upload-name'></span><br>
-    Description: <span contenteditable='true' placeholder='Long time no see!' class='file-upload-name'></span>
+  <div class='file-upload template resource' data-template-id='file-upload'>
+    <a class='to'>
+      <div class='img'>
+        <img class='file-preview'>
+
+        <div class='play icon'>play_arrow</div>
+        <audio preload></audio>
+
+        <div class='file-select-text flat btn'>Select a File</div>
+        <div class='file-selected-text btn'>File selected!</div>
+      </div>
+
+      <input type='text' name='name' class='file-upload-name' value='Something'>
+    </a>
+    <span>by <a href='/users/{{user}}'>{{user}}</a></span>
+    <small class='file-type'>&nbsp;</small>
+
+    <input type='file' class='file-select-button' name='files[]' accept='
+      image/png,
+      image/jpeg,
+      image/gif,
+      image/svg+xml,
+      audio/mp3,
+      audio/wav,
+      .sb2,
+      .sprite2
+    '>
   </div>
+
+  <script>var resources = '{{resources}}'; var csrf = '{{csrfToken}}';</script>
 </main>

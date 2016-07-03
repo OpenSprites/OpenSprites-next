@@ -36,7 +36,7 @@
   flex-shrink 0
   overflow hidden
   
-  margin 16px
+  margin 7px
   
   width 240px
   
@@ -71,7 +71,7 @@
         transform translate(-50%, -50%)
       }
       
-      .play {
+      &.audio .play {
         width 96px
         height 96px
         
@@ -98,10 +98,16 @@
       &.play .play {
         display block
       }
+      
+      &:not(.audio) .play {
+        display none
+      }
     }
   }
 
-  h4 {
+  h4, input[name=name] {
+    @extend h4
+
     margin-top 0
     white-space nowrap
     overflow: hidden
