@@ -48,6 +48,8 @@ function addResourceInput() {
 
   dialog.querySelector('.file-select-text')
         .addEventListener('click', e => fileInput.click())
+  dialog.querySelector('.remove')
+        .addEventListener('click', dialog.remove.bind(dialog))
 }
 
 async function upload() {
