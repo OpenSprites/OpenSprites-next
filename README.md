@@ -6,7 +6,9 @@
 OpenSprites is the place where [Scratchers](https://wiki.scratch.mit.edu/wiki/Scratcher) can upload and download super-cool resources to use in their projects, with new stuff being added daily by users all over the globe.
 
 ## Installation
-Make sure you have [Node.js](https://nodejs.org/), [node-canvas](https://github.com/Automattic/node-canvas/wiki/_pages) (see "Installing dependencies") and [MongoDB](https://www.mongodb.com/download-center#community) installed.  
+To start, install:
+- [Node.js](https://nodejs.org/)
+- [MongoDB](https://www.mongodb.com/download-center#community) (or use [mLab](https://mlab.com/))
 
 Then, in a Terminal or Command Prompt window:
 
