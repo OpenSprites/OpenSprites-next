@@ -48,3 +48,4 @@ db/**/*
 
 *.sublime-project
 *.sublime-workspace
+ci-log.txt
