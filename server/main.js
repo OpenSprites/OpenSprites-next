@@ -283,8 +283,8 @@ app.post('/signin', async function(req, res) {
 
     req.session.user = req.body.username
 
-    user.online = true
-    user.save()
+    user[0].online = true
+    user[0].save()
 
     res.redirect(r)
   } catch(e) {

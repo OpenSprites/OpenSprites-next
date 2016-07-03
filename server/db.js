@@ -56,7 +56,9 @@ const User = mongoose.model('User', mongoose.Schema({
   emailConfirmed: { type: Boolean, default: false },
 
   joined: { type: String, default: Date.now() },
-  about: { type: String, default: '# About Me\nHi there!' }
+  about: { type: String, default: '# About Me\nHi there!' },
+
+  online: { type: Boolean, default: true }
 }))
 
 /////////////////////////////////////////////////////////
