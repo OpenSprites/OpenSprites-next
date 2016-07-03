@@ -31,7 +31,6 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   script: Boolean,
   sprite: Boolean,
 
-  fname: String,
   thumbnail: String,
   cover: String,
 

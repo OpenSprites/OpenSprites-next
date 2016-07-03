@@ -597,7 +597,7 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
   const resource = await db
     .Resource.find({ _id: req.params.id }, { type: true, data: true })
-  if(resource[0] === false) {
+  if(!resource[0]) {
     res.status(404).render('404', {
       user: req.session.user
     })
@@ -619,17 +619,21 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/download`, async function(req, res) {
   // I don't even code style mate
   const resource = await db
-    .Resource.findOne({ _id: req.params.id }, { type: true, data: true, downloads: true, fname: true })
-  if(resource === false) {
+    .Resource.findOne({ _id: req.params.id }, { name: true, type: true, data: true, downloads: true })
+  if(!resource) {
     res.status(404).render('404', {
       user: req.session.user
     })
   } else {
-    resource.downloads++;
-    resource.save()
+    resource.downloads = (resource.downloads || 0) + 1
+    await resource.save()
+
+    console.log(`${req.session.user || 'Somebody'} downloaded "${resource.name}" #${resource.downloads}`)
+
     fs.readFile(resource.data, (err, data) => {
+      let title = resource.name.replace(/\ /g, '-')
       res.contentType(resource.type)
-        .set(`Content-Disposition', 'attachment; filename=${sanitize(resource.fname)}`)
+        .set(`Content-Disposition', 'attachment; filename=${sanitize(title)}.${require('mime-types').extension(resource.type)}`)
         .send(data)
     })
   }

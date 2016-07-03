@@ -58,6 +58,7 @@
     "jquery-browserify": "^1.8.1",
     "lwip": "0.0.9",
     "marked": "^0.3.5",
+    "mime-types": "^2.1.11",
     "mongoose": "^4.5.3",
     "multer": "^1.1.0",
     "ndjson": "^1.4.3",
