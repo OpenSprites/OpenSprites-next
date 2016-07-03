@@ -15,7 +15,14 @@
       height 128px
       width 128px
       
+      background white
       margin-right 36px
+      
+      +mobile() {
+        height 64px
+        width 64px
+        margin-right 8px
+      }
     }
 
     #username {
@@ -23,6 +30,17 @@
       line-height 128px
       flex 1
       margin 0
+      
+      +mobile() {
+        line-height 64px
+      }
+    }
+    
+    small {
+      // timeago
+      +mobile() {
+        display none
+      }
     }
   }
 }
