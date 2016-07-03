@@ -719,7 +719,8 @@ app.get('*', function(req, res) {
 /////////////////////////////////////////////////////////
 
 db.load().then(function() {
-  app.listen(3000, function() {
-    console.log('Listening on http://localhost:3000 ' + tada)
+  var port = process.env.server_port || 3000;
+  app.listen(port, function() {
+    console.log('Listening on http://localhost:' + port + ' ' + tada)
   })
 })
