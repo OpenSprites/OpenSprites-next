@@ -616,7 +616,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
   }
 })
 
-app.get(`/${process.env.resources_name.toLowerCase()}/:id/download`, async function(req, res) {
+app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async function(req, res) {
   // I don't even code style mate
   const resource = await db
     .Resource.findOne({ _id: req.params.id }, { name: true, type: true, data: true, downloads: true })
@@ -624,16 +624,19 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/download`, async funct
     res.status(404).render('404', {
       user: req.session.user
     })
+  } else if(!req.params.f) {
+    let title = resource.name.replace(/\ /g, '-')
+    let type = require('mime-types').extension(resource.type) || 'mp3'
+    let f = `${sanitize(title)}.${type}`
+
+    res.redirect(`/${process.env.resources_name.toLowerCase()}/${req.params.id}/download/${f}`)
   } else {
     resource.downloads = (resource.downloads || 0) + 1
     await resource.save()
 
-    console.log(`${req.session.user || 'Somebody'} downloaded "${resource.name}" #${resource.downloads}`)
-
     fs.readFile(resource.data, (err, data) => {
-      let title = resource.name.replace(/\ /g, '-')
       res.contentType(resource.type)
-        .set(`Content-Disposition', 'attachment; filename=${sanitize(title)}.${require('mime-types').extension(resource.type)}`)
+        .set(`Content-Disposition', 'attachment; filename=${req.params.f}`)
         .send(data)
     })
   }
