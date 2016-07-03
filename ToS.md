@@ -5,12 +5,14 @@ This policy forms an agreement between the end-user (You, User, Your), and OpenS
  - OpenSprites welcomes people of all ages, races, ethnicities, religions, sexual orientations, and gender identities.
  - OpenSprites cannot and does not guarantee reliability, uptime, bug fixes, stability, security, or service.
  - OpenSprites reserves the right to revoke or terminate Your use of the site without prior notice.
- - Any content uploaded is licensed under the [Creative Commons Attribution-ShareAlike 2.0 Generic](http://creativecommons.org/licenses/by-sa/2.0/deed.en) license immediately from upload.
  - OpenSprites reserves the right to revoke any electronic content You upload without any prior notice. OpenSprites claims no responsibility for data loss.
  - By using Our services, OpenSprites will accept no responsibility for loss, damage, errors or other circumstances.
+ - Content uploaded to OpenSprites remains under its original license. Users who download content must follow the terms set by the license.
 
 ### Prohibited Actions and Violations of Our Services ###
- - Uploading copyrighted content or content the uploader has no permissions to use. We cannot be held responsible for the content posted to OpenSprites.
+ - Uploading content which is not in the [public domain](https://en.wikipedia.org/wiki/Public_domain) or under any [Creative Commons license](https://creativecommons.org/share-your-work/licensing-types-examples/).
+ - Not giving appropriate credit to the original author/owner or violating terms on content shared under any Creative Commons license.
+ - Uploading content without the permission of the author/owner
  - Attempting to or accessing private administration areas of OpenSprites (Including but not limited to: administrator control panels, FTP, databases, hosting accounts and configurations, any accounts related to OpenSprites.)
  - Disrupting the content or account profiles of other users.
  - Using software or bot-nets to gain unauthorised access to OpenSprites or to disrupt the OpenSprites service.
