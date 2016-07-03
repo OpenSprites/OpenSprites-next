@@ -4,7 +4,7 @@ module.exports = {
       // this page has resources in it somewhere
       let resources = document.querySelectorAll('.resources > .resource')
 
-      resources.forEach(el => {
+      for (let el of resources) {
         let id = el.id
         let audio = el.querySelector('.audio')
         let image = el.querySelector('.img')
@@ -58,7 +58,7 @@ module.exports = {
             return true
           })
         }
-      })
+      }
     }
   }
 }
