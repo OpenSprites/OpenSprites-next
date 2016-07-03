@@ -501,9 +501,10 @@ app.get('/resources/:id/raw', async function(req, res) {
   }
 })
 
-app.get('/', function(req, res) {
+app.get('/', async function(req, res) {
   res.render('index', {
-    user: req.session.user
+    user: req.session.user,
+    recentResources: await (db.getRecentResources()).then(e => e.toArray())
   })
 })
 

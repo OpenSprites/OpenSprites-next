@@ -36,49 +36,21 @@
 
 <main>
   <h2>
-    Popular Resources
+    Newest Resources
   </h2>
 
   <div class='resources'>
-    <div class='resource'>
-      <a href='/users/liam48D/0'>
-        <img src='https://is.gd/NfqPMT'>
-
-        <h4> cute pug </h4>
-      </a>
-
-      <a href='/users/liam48D'> liam48D </a>
-    </div>
-
-    <div class='resource'>
-      <a href='/users/nanalan/0'>
-        <img src='https://cdn2.scratch.mit.edu/get_image/project/109764181_282x210.png'>
-
-        <h4> Selfie </h4>
-      </a>
-
-      <a href='/users/nanalan'> nanalan </a>
-    </div>
-
-    <div class='resource'>
-      <a href='/users/cheeseeater/0'>
-        <img src='https://cdn2.scratch.mit.edu/get_image/project/47606468_282x210.png'>
-
-        <h4> OpenSprites Logo </h4>
-      </a>
-
-      <a href='/users/cheeseeater'> cheeseeater </a>
-    </div>
-
-    <div class='resource'>
-      <a href='/users/kittylover/18'>
-        <img src='https://is.gd/tzxHhM'>
-
-        <h4> Kitty #18 </h4>
-      </a>
-      
-      <a href='/users/kittylover'> kittylover </a>
-    </div>
+    {{#each recentResources}}
+      <div class='resource'>
+        <a href='/resources/{{this._id}}'>
+          <img src='/resources/{{this._id}}/raw'>
+          <h4>{{this.name}}</h4>
+        </a>
+        {{#each this.owners}}
+          <a href='/users/{{this}}'>{{this}}</a>
+        {{/each}}
+      </div>
+    {{/each}}
   </div>
 </main>
 

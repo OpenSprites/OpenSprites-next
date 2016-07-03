@@ -23,7 +23,7 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   ] },
   data: Buffer,
   owners: { type: Array, default: [] },
-  when: String,
+  when: Number,
 }))
 
 const Collection = mongoose.model('Collection', mongoose.Schema({
@@ -60,5 +60,12 @@ module.exports = {
         done()
       })
     })
+  },
+
+  getRecentResources: async function(count) {
+    const resources = (await db.collections.resources.find())
+      .sort({when: -1})
+      .limit(4)
+    return resources
   }
 }
