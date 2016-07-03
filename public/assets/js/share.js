@@ -62,27 +62,27 @@ async function upload() {
     const file = resource.querySelector('input[type=file]').files[0]
 
     resource.style.pointerEvents = 'none'
-    resource.style.border = '1px dotted #00BCD4'
+    resource.querySelector('.file-type').innerText = '0% uploaded'
 
     let data = new FormData()
     data.append('name', resource.querySelector('.file-upload-name').value)
     data.append('file', file)
 
-    await ajax.put('/share', data, {
+    req.push(ajax.put('/share', data, {
+      'headers': {
+        'X-CSRF-Token': window.csrf
+      },
+      
       progress: p => {
         let percent = Math.floor((p.loaded / p.total) * 100)
         resource.querySelector('.file-type').innerText = percent + '% uploaded'
-      },
-
-      headers: {
-        'X-CSRF-Token': window.csrf
       }
-    })
-
-    resource.style.border = '1px dotted #8BC34A'
+    }))
   }
 
-  window.location.href = '/you'
+  ajax.all(req).then(ajax.spread(function() {
+    window.location.href = '/you'
+  }))
 }
 
 module.exports = function() {
