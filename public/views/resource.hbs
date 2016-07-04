@@ -2,31 +2,45 @@
   <h1 {{#if youOwn}}contenteditable{{/if}} class='resource-title'>{{resource.name}}</h1>
   <small></small><br/>
   {{{by resource.owners}}}
+
+  {{#if u.admin}}
+    <br> <br>
+
+    <a class='flat btn admin-do' data-to='/{{resources}}/{{resource._id}}'>
+      {{#if resource.deleted}}
+        undelete
+      {{else}}
+        delete
+      {{/if}}
+    </a>
+  {{else}}
+    {{#if resource.youOwn}}
+      <br> <br>
+
+      <a class='flat btn admin-do' data-to='/{{resources}}/{{resource._id}}' data-sure>
+        delete
+      </a>
+    {{/if}}
+  {{/if}}
 </main></header>
 
 {{#if resource.audio}}
-  <canvas id="vis-canvas" class="hide" width="500" height="500"></canvas>
+  <canvas id="vis-canvas" style='z-index: 11; background-color: rgba(0,0,0,0.8);' class="hide" width="500" height="500"></canvas>
 {{/if}}
 
 <main style='display: flex; z-index: 10'>
   <div style='margin-right: 20px; text-align: center;'>
-    {{#if loading}}
-      <small>
-        We're still loading this, so sit tight!
-      </small>
-    {{else}}
-      {{#if resource.audio}}
-        <div class='audio-thumb-container'>
-          <img class='audio-thumb' src='/{{resources}}/{{resource._id}}/cover' style='margin:auto;max-width:100%;max-height:50vh;'>
-          <img class='loader' src='/assets/img/logo/icon.png'>
-        </div>
-        <br>
-        <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
-      {{/if}}
+    {{#if resource.audio}}
+      <div class='audio-thumb-container'>
+        <img class='audio-thumb' src='/{{resources}}/{{resource._id}}/cover' style='margin:auto;max-width:100%;max-height:50vh;'>
+        <img class='loader' src='/assets/img/logo/icon.png'>
+      </div>
+      <br>
+      <audio preload controls src='/{{resources}}/{{resource._id}}/raw' style='margin:auto'></audio>
+    {{/if}}
 
-      {{#if resource.image}}
-        <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:50vh;'>
-      {{/if}}
+    {{#if resource.image}}
+      <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:50vh;'>
     {{/if}}
   </div>
 
@@ -48,4 +62,6 @@
       <a id='edit' class='btn flat' style='float:right'>edit description</a>
     {{/if}}
   </div>
+
+  <script>var csrf = {{{json csrfToken}}};</script>
 </main>

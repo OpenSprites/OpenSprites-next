@@ -26,6 +26,8 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   thumbnail: String,
   cover: String,
 
+  deleted: { type: Boolean, default: false },
+
   data: String, // db/uploads/_id.dat
   owners: { type: Array, default: [] },
   when: Number,

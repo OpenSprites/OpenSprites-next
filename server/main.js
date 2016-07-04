@@ -169,6 +169,8 @@ app.use(csrf({
 app.use(function(err, req, res, next) {
   if(err.code !== 'EBADCSRFTOKEN') return next(err)
 
+  console.log(req.session.user, 'hit CSRF error')
+
   res.status(403).render('403', {
     user: req.session.user
   })
@@ -458,7 +460,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
     } else {
       collection = new db.Collection({
         _id: shortid(),
-        name: 'Shared Resources',
+        name: 'Shared',
         owners: [req.session.user],
         isShared: true
       })
@@ -586,6 +588,7 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
     }
     rs.reverse()
     rs = rs.filter(e => !e.audio) // we can't render svgs to pngs yet
+    rs = rs.filter(e => !e.deleted)
   
     let $ = callbackToPromise
   
@@ -618,9 +621,26 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
     data: false
   })
 
+  let user = {}
+
+  if(req.session.user) {
+    user = await db.User.findOne({
+      username: req.session.user
+    })
+  }
+
   if(resource[0]) {
+    if(resource[0].deleted && !user.admin) {
+      res.status(403).render('404', {
+        user: req.session.user
+      })
+
+      return
+    }
+
     res.render('resource', {
       user: req.session.user,
+      u: user,
       resource: resource[0],
       csrfToken: req.csrfToken(),
       title: resource[0].name,
@@ -650,6 +670,44 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       user: req.session.user
     })
   }
+})
+
+// for DRY's sake
+async function delResource(DEL, req, res) {
+  let resource = await db.Resource.findOne({
+    _id: req.params.id
+  }, {
+    owners: true
+  })
+
+  let user = await db.User.findOne({
+    username: req.session.user
+  })
+
+  if(resource) {
+    if(user.admin || resource.owners.includes(user.username)) {
+      resource.deleted = DEL
+      await resource.save()
+
+      res.json('success')
+    } else {
+      res.status(403).render('403', {
+        user: req.session.user
+      })
+    }
+  } else {
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  }
+}
+
+app.delete(`/resources/:id`, mustSignIn, async function(req, res) {
+  await delResource(true, req, res)
+})
+
+app.post(`/resources/:id`, mustSignIn, async function(req, res) {
+  await delResource(false, req, res)
 })
 
 app.put(`/resources/:id/about`, async function(req, res) {
@@ -770,12 +828,46 @@ app.get(`/resources/:id/cover-inb4`, async function(req, res) {
   res.contentType('image/svg+xml').send(thumb)
 })
 
+app.get('/admin', nocache, async function(req, res) {
+  const user = await db.User.findOne({
+    username: req.session.user
+  })
+
+  if(!user || !user.admin) {
+    res.render('403', { user: req.session.user })
+    return
+  }
+
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 25
+
+  const resources = db.Resource.find()
+    .sort({ when: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit)
+
+  res.render('admin', {
+    user: req.session.user,
+    resources: await resources,
+
+    page, limit,
+    lastPage: page - 1,
+    nextPage: page + 1,
+
+    csrf: req.csrfToken()
+  })
+})
+
 app.get('/', nocache, async function(req, res) {
-  let recent = db.Resource.find({}, {
+  let recent = db.Resource.find({
+    deleted: false
+  }, {
     data: false
   }).sort({ when: -1 }).limit(5)
 
-  let downloaded = db.Resource.find({}, {
+  let downloaded = db.Resource.find({
+    deleted: false
+  }, {
     data: false
   }).sort({ downloaded: 1, when: -1 }).limit(5)
 
@@ -837,7 +929,8 @@ app.get('*', function(req, res) {
 /////////////////////////////////////////////////////////
 
 db.load().then(function() {
-  var port = process.env.server_port || 3000;
+  const port = process.env.server_port || 3000
+
   app.listen(port, function() {
     console.log('Listening on http://localhost:' + port + ' ' + tada)
   })
