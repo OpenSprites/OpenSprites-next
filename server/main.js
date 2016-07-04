@@ -38,6 +38,7 @@ const tada = '🎉'
 const db = require('./db')
 
 const replaceBadWords = require('./utils/replace-bad-words')
+const callbackToPromise = require('./utils/callback-to-promise')
 
 /////////////////////////////////////////////////////////
 
@@ -526,7 +527,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
   
     await resource.save()
   
-    collection.resources.push(resource.id)
+    collection.resources.push(resource._id)
     await collection.save()
   
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
@@ -572,7 +573,44 @@ app.get('/collections/:id', nocache, async function(req, res) {
 })
 
 app.get('/collections/:id/cover', nocache, async function(req, res) {
+  try {
+    let collection = await db.Collection.find({
+      _id: req.params.id
+    })
   
+    if(!collection[0]) throw "Collection not found: " + req.params.id;
+    let rs = []
+    for(let i = 0; i < collection[0].resources.length; i++) {
+      let res = collection[0].resources[i]
+      if(!res) continue
+      let r = await Resource.findById(res)
+      if(r) rs.push(r)
+    }
+    rs.reverse()
+    rs = rs.filter(e => !e.audio) // we can't render svgs to pngs yet
+  
+    let $ = callbackToPromise
+  
+    let image = await $(lwip, lwip.create, 240, 240, {r:0, g:0, b:0, a:0})
+    
+    for(var i = 0; i < Math.min(rs.length, 4); i++) {
+      let thumbData = await rs[i].getThumbnail()
+      let thumb = await $(lwip, lwip.open, thumbData.data, 'png')
+      thumb = await $(thumb, thumb.cover, 120, 120, "lanczos")
+      let x = (i % 2 == 0) ? 0 : 120
+      let y = (i < 2) ? 0 : 120
+      image = await $(image, image.paste, x, y, thumb)
+    }
+    
+    let buf = await $(image, image.toBuffer, 'png')
+    
+    res.contentType('image/png').send(buf)
+  } catch(err){
+    console.log(err)
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  }
 })
 
 app.get(`/resource/:id`, nocache, async function(req, res) {

@@ -41,7 +41,9 @@
       {{#each collections}}
         <div class='resource'>
           <a href='/collections/{{_id}}'>
-            <div class='img'></div>
+            <div class='img'>
+              <img src='/collections/{{_id}}/cover' />
+            </div>
 
             <h4>{{name}}</h4>
           </a>

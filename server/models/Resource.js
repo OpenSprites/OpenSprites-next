@@ -13,7 +13,9 @@ class Resource {
         _id: id
       })
     }
-    return new Resource(await promise)
+    let result = await promise
+    if(!result) throw "Resource not found"
+    return new Resource(result)
   }
   
   static create(data){
@@ -156,7 +158,7 @@ class Resource {
         } else {
           fs.readFile(location, (err, data) => {
             resolve({
-              contentType: 'image/svg+xml',
+              contentType: 'image/png',
               data: data
             })
           })
