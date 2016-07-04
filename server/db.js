@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Grid = require('gridfs-stream')
+const Grid = require('gridfs-locking-stream')
 Grid.mongo = mongoose.mongo
  
 console.log('Connecting to MongoDB...')

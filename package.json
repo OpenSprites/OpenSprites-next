@@ -43,6 +43,7 @@
     "express-handlebars": "^3.0.0",
     "express-session": "^1.13.0",
     "greetings": "^1.0.0",
+    "gridfs-locking-stream": "^1.1.0",
     "gridfs-stream": "^1.1.1",
     "gulp": "^3.9.1",
     "gulp-browserify": "^0.5.1",

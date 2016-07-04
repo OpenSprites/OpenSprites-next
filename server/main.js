@@ -444,150 +444,181 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     return
   }
-
-  let collection = await db.Collection.find({
-    owners: req.session.user,
-    isShared: true
-  })
-
-  if(collection[0]) {
-    collection = collection[0]
-  } else {
-    collection = new db.Collection({
-      _id: shortid(),
-      name: 'Shared Resources',
-      owners: [req.session.user],
+  
+  try {
+     let collection = await db.Collection.find({
+      owners: req.session.user,
       isShared: true
     })
-  }
-
-  let file = req.file
-  if(!file){
-    res.status(400).json({success: false, message: "Missing file"})
-    return
-  }
-  let name = req.body.name
-  let clientid = req.body.clientid
-  let id = shortid()
-  let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
-
-  let isAudio = file.mimetype.substr(0, 5) === 'audio'
-  let svg
-  let thumb
-  if(process.env.db_file_storage == "true"){
-    where = 'dbstorage/' + sanitize(id) + '.dat'
-  }
-  let isImage = file.mimetype.substr(0, 5) === 'image'
-
-  if(isAudio) {
-    svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
-      trianglify({
-        width: 240,
-        height: 240,
-        seed: name
-      }).svg().innerHTML
-    + '</svg>'
-  }
-
-  if(isImage) {
-    let type = file.mimetype.split("/")
-    if(type.length < 2){
-      res.status(400).json({success: false, message: "Unrecognized image type"})
-      return
+  
+    if(collection[0]) {
+      collection = collection[0]
     } else {
-      type = type[1]
+      collection = new db.Collection({
+        _id: shortid(),
+        name: 'Shared Resources',
+        owners: [req.session.user],
+        isShared: true
+      })
     }
-    thumb = await squish(file.buffer, type)
-  }
-
-  let resource = new db.Resource({
-    _id: id,
-    owners: [ req.session.user ],
-    name: name,
-    type: file.mimetype,
-    fname: name,
-    audio: isAudio,
-    image: isImage,
-    loading: false, // unused now
-    when: Date.now(),
-    cover: name,
-    data: where,
-    downloads: 0,
-    thumbnail: svg || ''
-  })
-
-  let saveComplete = async function() {
-    await resource.save()
-
-    collection.resources.push(resource.id)
-    await collection.save()
-
+  
+    let file = req.file
+    if(!file){
+      res.status(400).json({success: false, message: "Missing file"})
+      return
+    }
+    let name = req.body.name
+    let clientid = req.body.clientid
+    let id = shortid()
+    let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
+  
+    let isAudio = file.mimetype.substr(0, 5) === 'audio'
+    let svg
+    let thumb
+    if(process.env.db_file_storage == "true"){
+      where = 'dbstorage/' + sanitize(id) + '.dat'
+    }
+    let isImage = file.mimetype.substr(0, 5) === 'image'
+  
+    if(isAudio) {
+      svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
+        trianglify({
+          width: 240,
+          height: 240,
+          seed: name
+        }).svg().innerHTML
+      + '</svg>'
+    }
+  
+    if(isImage) {
+      let type = file.mimetype.split("/")
+      if(type.length < 2){
+        res.status(400).json({success: false, message: "Unrecognized image type"})
+        return
+      } else {
+        type = type[1]
+      }
+      thumb = await squish(file.buffer, type)
+    }
+  
+    let resource = new db.Resource({
+      _id: id,
+      owners: [ req.session.user ],
+      name: name,
+      type: file.mimetype,
+      fname: name,
+      audio: isAudio,
+      image: isImage,
+      loading: false, // unused now
+      when: Date.now(),
+      cover: name,
+      data: where,
+      downloads: 0,
+      thumbnail: svg || ''
+    })
+  
+    let saveComplete = async function() {
+      await resource.save()
+  
+      collection.resources.push(resource.id)
+      await collection.save()
+  
+      console.log(`${req.session.user} uploaded "${name}" ${tada}`)
+      res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/' + process.env.resources_name.toLowerCase() + '/' + id})
+    }
+    
+    let saveThumb = function() {
+      if(isImage) {
+        if(process.env.db_file_storage == "true"){
+          db.GridFS.createWriteStream({
+            filename: where + '.thumb'
+          }, function(err, writestream) {
+            if(err) {
+              res.status(500).json({success: false, message: err})
+              return
+            }
+            writestream.write(thumb)
+            writestream.end()
+            saveComplete()
+          })
+        } else {
+          fs.writeFile(where + '.thumb', thumb, (err) => {
+            if(err) {
+              res.status(500).json({success: false, message: err})
+              return
+            }
+            saveComplete()
+          })
+        }
+      } else {
+        saveComplete()
+      }
+    }
+    
     if(process.env.db_file_storage == "true"){
       var writestream = db.GridFS.createWriteStream({
-        filename: where + '.thumb'
+          filename: where
+      }, function(err, writestream){
+        if(err){
+          res.status(500).json({success: false, message: err})
+          return
+        }
+        writestream.on('error', function(err){
+          console.error('Error uploading file to db:', err)
+          res.status(500).json({success: false, message: err})
+        })
+        writestream.on('finish', function(){
+          saveThumb()
+        })
+        writestream.write(file.buffer)
+        writestream.end()
       })
-      writestream.write(file.buffer)
-      writestream.end()
     } else {
-      fs.writeFile(where + '.thumb', thumb, (err) => {
-        if(err) throw err
+      fs.writeFile(where, file.buffer, function(err) {
+        if(err) {
+          console.error('Error uploading file:', err)
+          res.status(500).json({success: false, message: err})
+          return
+        }
+        
+        saveThumb()
       })
     }
-
-    console.log(`${req.session.user} uploaded "${name}" ${tada}`)
-    res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/' + process.env.resources_name.toLowerCase() + '/' + id})
+  } catch(err){
+    res.status(500).json({success: false, message: err})
   }
-  
-  if(process.env.db_file_storage == "true"){
-    var writestream = db.GridFS.createWriteStream({
-        filename: where
-    })
-    writestream.on('error', function(err){
-      console.error('Error uploading file to db:', err)
-      res.status(500).json({success: false, message: err})
-    })
-    writestream.on('finish', function(){
-      saveComplete()
-    })
-    writestream.write(file.buffer)
-    writestream.end()
-  } else {
-    fs.writeFile(where, file.buffer, function(err) {
-      if(err) {
-        console.error('Error uploading file:', err)
-        res.status(500).json({success: false, message: err})
-        return
-      }
-      
-      saveComplete()
-    })
-  }
-  
 })
 
 app.get('/collections/:id', nocache, async function(req, res) {
-  let collection = await db.Collection.find({
-    _id: req.params.id
-  })
-
-  if(collection[0]) {
-    let rs = []
-
-    for(let i = 0; i < collection[0].resources.length; i++) {
-      let r = await db.Resource.findOne({ _id: collection[0].resources[i] }, 'name owners audio image')
-      if(r) rs.push(r)
-    }
-
-    rs.reverse() // order by "latest added to collection"
-
-    res.render('collection', {
-      user: req.session.user,
-      collection: collection[0],
-      resources: rs,
-      csrfToken: req.csrfToken()
+  try {
+    let collection = await db.Collection.find({
+      _id: req.params.id
     })
-  } else {
-    res.status(404).render('404', {
+  
+    if(collection[0]) {
+      let rs = []
+  
+      for(let i = 0; i < collection[0].resources.length; i++) {
+        let r = await db.Resource.findOne({ _id: collection[0].resources[i] }, 'name owners audio image')
+        if(r) rs.push(r)
+      }
+  
+      rs.reverse() // order by "latest added to collection"
+  
+      res.render('collection', {
+        user: req.session.user,
+        collection: collection[0],
+        resources: rs,
+        csrfToken: req.csrfToken()
+      })
+    } else {
+      res.status(404).render('404', {
+        user: req.session.user
+      })
+    }
+  } catch(err){
+    console.log(err)
+    res.status(500).render('500', {
       user: req.session.user
     })
   }
@@ -651,8 +682,18 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
 
 // 240 x 240px
 app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
-  const resource = await db
+  let resource
+  
+  try {
+    resource = await db
     .Resource.find({ _id: req.params.id }, { type: true, data: true, image: true })
+  } catch(err){
+    console.log(err)
+    res.status(500).render('500', {
+      user: req.session.user
+    })
+    return
+  }
   if(!resource[0]) {
     res.status(404).render('404', {
       user: req.session.user
@@ -661,11 +702,24 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
     if(resource[0].image) {
       let location = resource[0].data + '.thumb'
       if(location.startsWith('dbstorage/')) {
-        let readstream = db.GridFS.createReadStream({
-          filename: location
+        db.GridFS.files.findOne({ filename: location }, function (err, file) {
+          if(err){
+            res.status(404).render('404', {
+              user: req.session.user
+            })
+            return
+          }
+          db.GridFS.createReadStream({
+            _id: file._id
+          }, function(err, readstream){
+            if(err){
+              res.status(500).json({'error' : 'Unable to open database read stream'})
+              return
+            }
+            res.contentType('image/png')
+            readstream.pipe(res)
+          })
         })
-        res.contentType('image/png')
-        readstream.pipe(res)
       } else {
         fs.readFile(location, (err, data) => {
           res.contentType('image/png')
@@ -675,11 +729,49 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
     } else {
       let location = resource[0].data
       if(location.startsWith('dbstorage/')) {
-        let readstream = db.GridFS.createReadStream({
-          filename: location
+        db.GridFS.files.findOne({ filename: location }, function (err, file) {
+          if(err){
+            res.status(404).render('404', {
+              user: req.session.user
+            })
+            return
+          }
+          let rangeRequest = req.range(file.length)
+          let rsParams = { _id: file._id }
+          let length = file.length
+          if(rangeRequest == -1 || rangeRequest == -2){
+            res.status(416)
+            res.end()
+            return
+          } if(Array.isArray(rangeRequest) && rangeRequest.type === 'bytes' && rangeRequest.length > 0) {
+            console.log(rangeRequest[0])
+            rsParams.range = {
+              startPos: rangeRequest[0].start,
+              endPos: rangeRequest[0].end
+            }
+            length = rsParams.range.endPos - rsParams.range.startPos + 1
+            res.status(206)
+            res.set('Content-Range', 'bytes ' + rsParams.range.startPos + '-' + rsParams.range.endPos + '/' + file.length)
+          }
+          
+          db.GridFS.createReadStream(rsParams, function(err, readstream){
+            if(err){
+              res.status(500).json({'error' : 'Unable to open database read stream'}).end()
+              return
+            }
+            readstream.on('error', function(err){
+              res.status(500).json({'error' : 'Database read stream failed', 'errobj': err}).end()
+            })
+            res.contentType(resource[0].type)
+            res.set('Content-Length', length + '')
+            res.set('Accept-Ranges', 'bytes')
+            req.connection.on('close', (function(res, readstream){
+              readstream.unpipe()
+              res.end()
+            }).bind(this, res, readstream));
+            readstream.pipe(res)
+          })
         })
-        res.contentType(resource[0].type)
-        readstream.pipe(res)
       } else {
         fs.readFile(location, (err, data) => {
           res.contentType(resource[0].type)
@@ -713,12 +805,25 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async f
 
     let location = resource.data
     if(location.startsWith("dbstorage/")) {
-      let readstream = db.GridFS.createReadStream({
-        filename: location
-      })
-      res.contentType(resource.type)
-          .set(`Content-Disposition`, `attachment; filename="${req.params.f}"`)
-      readstream.pipe(res)
+      db.GridFS.files.findOne({ filename: location }, function (err, file) {
+        if(err || !file){
+          res.status(400).json({'error' : 'Resource not found'})
+          return
+        }
+        console.log(file)
+        db.GridFS.createReadStream({
+          _id: file._id
+        }, function(err, readstream){
+          if(err){
+            res.status(500).json({'error' : 'Unable to open database read stream'})
+            return
+          }
+          res.set('Content-Length', file.length + '')
+          res.contentType(resource.type)
+            .set(`Content-Disposition`, `attachment; filename="${req.params.f}"`)
+          readstream.pipe(res)
+        })
+      });
     } else {
       fs.readFile(resource.data, (err, data) => {
         res.contentType(resource.type)
