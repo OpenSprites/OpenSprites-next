@@ -17,9 +17,13 @@ Then, in a Terminal or Command Prompt window:
 git clone https://github.com/OpenSprites/OpenSprites-next.git opensprites-next
 cd opensprites-next
 npm install
-
-cd node_modules/lwip && node-gyp rebuild && cd ../../
 ```
+
+If you get errors during install or the server ends up not working, you may need to rebuild native modules
+```sh
+npm rebuild lwip
+npm rebuild bcrypt
+``
 
 Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:
 
