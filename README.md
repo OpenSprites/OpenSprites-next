@@ -23,11 +23,11 @@ If you get errors during install or the server ends up not working, you may need
 ```sh
 npm rebuild lwip
 npm rebuild bcrypt
-``
+```
 
 Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:
 
-```
+```yaml
 db_host=localhost
 db_name=next
 db_user=username
