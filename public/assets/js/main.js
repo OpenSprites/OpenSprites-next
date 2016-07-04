@@ -12,6 +12,8 @@ const timeago = require('./timeago')
 const resources = require('./resources')
 const resource_page = require('./resource_page')
 
+const visualizer = require('./visualizer')
+
 if('/join' === window.location.pathname)
   join()
 
@@ -23,6 +25,9 @@ if(document.querySelector('.markdown-about-edit'))
 
 if(window.location.pathname.startsWith('/resource'))
   resource_page()
+
+if(document.querySelector("#vis-canvas"))
+  visualizer()
 
 for (let el of document.querySelectorAll('.timeago')) {
   el.innerHTML = timeago(parseInt(el.innerHTML))

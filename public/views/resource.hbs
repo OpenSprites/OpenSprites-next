@@ -4,7 +4,11 @@
   {{{by resource.owners}}}
 </main></header>
 
-<main style='display: flex'>
+{{#if resource.audio}}
+  <canvas id="vis-canvas" class="hide" width="500" height="500"></canvas>
+{{/if}}
+
+<main style='display: flex; z-index: 10'>
   <div style='margin-right: 20px; text-align: center;'>
     {{#if loading}}
       <small>
