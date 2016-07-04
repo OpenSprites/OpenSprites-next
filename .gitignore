@@ -39,10 +39,8 @@ jspm_packages
 # dist folders
 **/.dist
 
-# database
-db/**/*
-!db/**/.keep
-!db/uploads/.keep
+# db
+db/users.json
 
 # dotenv file
 .env
