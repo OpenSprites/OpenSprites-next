@@ -1,5 +1,6 @@
 <header><main>
-  <h1>{{resource.name}}</h1>
+  <h1 {{#if youOwn}}contenteditable{{/if}} class='resource-title'>{{resource.name}}</h1>
+  <small></small><br/>
   {{{by resource.owners}}}
 </main></header>
 

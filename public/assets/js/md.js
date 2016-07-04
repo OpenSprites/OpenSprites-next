@@ -26,17 +26,22 @@ module.exports = function() {
 
     document.querySelector('.bio ~ small').innerHTML = 'Saving...'
 
-    let res = await ajax.put(window.location.pathname + '/about', {
-      md: bio_raw,
-      csrf: csrfToken
-    })
-    bio_raw = JSON.parse(res.request.responseText)
+    try {
+      let res = await ajax.put(window.location.pathname + '/about', {
+        md: bio_raw,
+        csrf: csrfToken
+      })
+      bio_raw = JSON.parse(res.request.responseText).about
 
-    document.querySelector('.bio ~ small').innerHTML = 'Saved'
-
-    bio.innerHTML = marked(bio_raw, {
-      sanitize: true
-    })
+      document.querySelector('.bio ~ small').innerHTML = 'Saved'
+      
+      bio.innerHTML = marked(bio_raw, {
+        sanitize: true
+      })
+    } catch(err){
+      document.querySelector('.bio ~ small').innerHTML = 'Error'
+      console.log(err)
+    }
   })
 
   if(document.getElementById('edit')) {

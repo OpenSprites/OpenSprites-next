@@ -673,10 +673,15 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
   if(!resource || !resource.owners.includes(req.session.user)) {
     res.status(403).json(false)
   } else {
-    resource.about = replaceBadWords(req.body.md)
-    await resource.save()
-
-    res.status(200).json(resource.about)
+    if(req.body.md) resource.about = replaceBadWords(req.body.md)
+    if(req.body.title) resource.name = replaceBadWords(req.body.title)
+    try {
+      await resource.save()
+      res.status(200).json({about: resource.about, title: resource.name})
+    } catch(err) {
+      console.log(err)
+      res.status(500).json(false)
+    }
   }
 })
 

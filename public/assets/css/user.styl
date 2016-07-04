@@ -81,3 +81,13 @@
     }
   }
 }
+
+.resource-title {
+  border: 2px solid transparent
+  &[contenteditable] {
+    &:hover, &:focus {
+      background rgba(black, 0.02)
+      border: 2px dashed white
+    }
+  }
+}
