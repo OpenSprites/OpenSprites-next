@@ -28,7 +28,6 @@ const marked = require('marked')
 const sanitize = require('sanitize-filename')
 const shortid = require('shortid').generate
 const uniqid = require('uniqid').process
-const rot = require('rot')
 const bcrypt = require('bcrypt-as-promised')
 
 const hello = require('greetings')
@@ -38,19 +37,21 @@ const lwip = require('lwip')
 const tada = '🎉'
 const db = require('./db')
 
-/////////////////////////////////////////////////////
+const replaceBadWords = require('./utils/replace-bad-words')
 
-const badWords = '\\o(shtyl|(\\j*?)shpx(\\j*?)|s(h|i|\\*)?p?x(vat?)?|(\\j*?)fu(v|1|y)g(\\j*?)|pe(n|@|\\*)c(cre|crq|l)?|(onq|qhzo|wnpx)?(n|@)ff(u(b|0)yr|jvcr)?|(onq|qhzo|wnpx)?(n|@)efr(u(b|0)yr|jvcr)?|onfgneq|o(v|1|y|\\*)?g?pu(r?f)?|phag|phz|(tbq?)?qnz(a|z)(vg)?|qbhpur(\\j*?)|(arj)?snt(tbg|tng)?|sevt(tra|tva|tvat)?|bzst|cvff(\\j*?)|cbea|pbpx|obyybpxf|onyyfnpx|qvpx|qvpxurnq|encr|ergneq|frk|f r k|fung|fyhg|gvg|ju(b|0)er(\\j*?)|jg(s|su|u))(f|rq)?\\o' // rot13
+/////////////////////////////////////////////////////////
+
+// yay, our first legit model
+const Resource = require('./models/Resource')
+
+/////////////////////////////////////////////////////////
+
 const signupProjectId = process.env.project_id || null // '' to disable check
 const requireEmailConfirmedToShare = false
 
 console.log('Signup Project ID is #' + signupProjectId)
 
 /////////////////////////////////////////////////////////
-
-const badWordsRegex = new RegExp(rot(badWords, -13), 'gi')
-const hasBadWords = text => text.match(badWordsRegex)
-const replaceBadWords = (text, w='⋆⋆⋆⋆') => text.replace(badWordsRegex, w)
 
 function squish(buffer, type) {
   return new Promise(function(done, reject) {
@@ -503,7 +504,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       thumb = await squish(file.buffer, type)
     }
   
-    let resource = new db.Resource({
+    let resource = Resource.create({
       _id: id,
       owners: [ req.session.user ],
       name: name,
@@ -518,74 +519,18 @@ app.put('/share', upload.single('file'), async function(req, res) {
       downloads: 0,
       thumbnail: svg || ''
     })
-  
-    let saveComplete = async function() {
-      await resource.save()
-  
-      collection.resources.push(resource.id)
-      await collection.save()
-  
-      console.log(`${req.session.user} uploaded "${name}" ${tada}`)
-      res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resource/' + id})
-    }
     
-    let saveThumb = function() {
-      if(isImage) {
-        if(process.env.db_file_storage == "true"){
-          db.GridFS.createWriteStream({
-            filename: where + '.thumb'
-          }, function(err, writestream) {
-            if(err) {
-              res.status(500).json({success: false, message: err})
-              return
-            }
-            writestream.write(thumb)
-            writestream.end()
-            saveComplete()
-          })
-        } else {
-          fs.writeFile(where + '.thumb', thumb, (err) => {
-            if(err) {
-              res.status(500).json({success: false, message: err})
-              return
-            }
-            saveComplete()
-          })
-        }
-      } else {
-        saveComplete()
-      }
-    }
+    await resource.uploadThumbnail(thumb)
     
-    if(process.env.db_file_storage == "true"){
-      var writestream = db.GridFS.createWriteStream({
-          filename: where
-      }, function(err, writestream){
-        if(err){
-          res.status(500).json({success: false, message: err})
-          return
-        }
-        writestream.on('error', function(err){
-          console.error('Error uploading file to db:', err)
-          res.status(500).json({success: false, message: err})
-        })
-        writestream.on('finish', function(){
-          saveThumb()
-        })
-        writestream.write(file.buffer)
-        writestream.end()
-      })
-    } else {
-      fs.writeFile(where, file.buffer, function(err) {
-        if(err) {
-          console.error('Error uploading file:', err)
-          res.status(500).json({success: false, message: err})
-          return
-        }
-        
-        saveThumb()
-      })
-    }
+    await resource.uploadContent(file.buffer)
+  
+    await resource.save()
+  
+    collection.resources.push(resource.id)
+    await collection.save()
+  
+    console.log(`${req.session.user} uploaded "${name}" ${tada}`)
+    res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resource/' + id})    
   } catch(err){
     res.status(500).json({success: false, message: err})
   }
@@ -624,6 +569,10 @@ app.get('/collections/:id', nocache, async function(req, res) {
       user: req.session.user
     })
   }
+})
+
+app.get('/collections/:id/cover', nocache, async function(req, res) {
+  
 })
 
 app.get(`/resource/:id`, nocache, async function(req, res) {
@@ -668,22 +617,21 @@ app.get(`/resource/:id`, nocache, async function(req, res) {
 })
 
 app.put(`/resource/:id/about`, async function(req, res) {
-  let resource = await db.Resource.findOne({
-    _id: req.params.id
-  })
+  try {
+    let resource = await Resource.findById(req.params.id)
+  } catch(err) {
+    console.log(err)
+    res.status(404).json(false)
+  }
 
-  if(!resource || !resource.owners.includes(req.session.user)) {
+  if(!resource.owners.includes(req.session.user)) {
     res.status(403).json(false)
   } else {
     if(req.body.md) {
-      let about = replaceBadWords(req.body.md)
-      if(about.length > 1024) about = about.substr(0, 1024)
-      resource.about = about
+      resource.updateAbout(req.body.md)
     }
     if(req.body.title) {
-      let name = replaceBadWords(req.body.title).replace(/[\r\n]/g, '')
-      if(name.length > 256) name = name.substr(0, 256)
-      resource.name = name
+      resource.updateTitle(req.body.title)
     }
     try {
       await resource.save()
@@ -700,163 +648,76 @@ app.get(`/resource/:id/raw`, async function(req, res) {
   let resource
   
   try {
-    resource = await db
-    .Resource.find({ _id: req.params.id }, { type: true, data: true, image: true })
+    resource = await Resource.findById(req.params.id)
   } catch(err){
     console.log(err)
-    res.status(500).render('500', {
+    res.status(404).render('404', {
       user: req.session.user
     })
     return
   }
-  if(!resource[0]) {
-    res.status(404).render('404', {
-      user: req.session.user
-    })
-  } else {
-    if(resource[0].image) {
-      let location = resource[0].data + '.thumb'
-      if(location.startsWith('dbstorage/')) {
-        db.GridFS.files.findOne({ filename: location }, function (err, file) {
-          if(err){
-            res.status(404).render('404', {
-              user: req.session.user
-            })
-            return
-          }
-          db.GridFS.createReadStream({
-            _id: file._id
-          }, function(err, readstream){
-            if(err){
-              res.status(500).json({'error' : 'Unable to open database read stream'})
-              return
-            }
-            res.contentType('image/png')
-            readstream.pipe(res)
-          })
-        })
-      } else {
-        fs.readFile(location, (err, data) => {
-          res.contentType('image/png')
-            .send(data)
-        })
-      }
-    } else {
-      let location = resource[0].data
-      if(location.startsWith('dbstorage/')) {
-        db.GridFS.files.findOne({ filename: location }, function (err, file) {
-          if(err){
-            res.status(404).render('404', {
-              user: req.session.user
-            })
-            return
-          }
-          let rangeRequest = req.range(file.length)
-          let rsParams = { _id: file._id }
-          let length = file.length
-          if(rangeRequest == -1 || rangeRequest == -2){
-            res.status(416)
-            res.end()
-            return
-          } if(Array.isArray(rangeRequest) && rangeRequest.type === 'bytes' && rangeRequest.length > 0) {
-            rsParams.range = {
-              startPos: rangeRequest[0].start,
-              endPos: rangeRequest[0].end
-            }
-            length = rsParams.range.endPos - rsParams.range.startPos + 1
-            res.status(206)
-            res.set('Content-Range', 'bytes ' + rsParams.range.startPos + '-' + rsParams.range.endPos + '/' + file.length)
-          }
-          
-          db.GridFS.createReadStream(rsParams, function(err, readstream){
-            if(err){
-              res.status(500).json({'error' : 'Unable to open database read stream'}).end()
-              return
-            }
-            readstream.on('error', function(err){
-              res.status(500).json({'error' : 'Database read stream failed', 'errobj': err}).end()
-            })
-            res.contentType(resource[0].type)
-            res.set('Content-Length', length + '')
-            res.set('Accept-Ranges', 'bytes')
-            req.connection.on('close', (function(res, readstream){
-              readstream.unpipe()
-              res.end()
-            }).bind(this, res, readstream));
-            readstream.pipe(res)
-          })
-        })
-      } else {
-        fs.readFile(location, (err, data) => {
-          res.contentType(resource[0].type)
-            .send(data)
-        })
-      }
+
+  if(resource.image){
+    try {
+      let thumb = await resource.getThumbnail()
+      res.contentType(thumb.contentType)
+      res.send(thumb.data)
+    } catch(err){
+      res.status(404).render('404', {
+        user: req.session.user
+      })
     }
+  } else {
+    resource.downloadToResponse(req, res)
   }
 })
 
 app.get(`/resource/:id/download/:f?`, async function(req, res) {
-  // I don't even code style mate
-  const resource = await db
-    .Resource.findOne({ _id: req.params.id }, { name: true, type: true, data: true, downloads: true, downloaders: true })
-  if(!resource) {
+  let resource
+  try {
+    resource = await Resource.findById(req.params.id)
+  } catch(err){
+    console.log(err)
     res.status(404).render('404', {
       user: req.session.user
     })
-  } else if(!req.params.f) {
+    return
+  }
+  
+  if(!req.params.f) {
     let title = resource.name.replace(/\ /g, '-')
     let type = require('mime-types').extension(resource.type) || 'mp3'
     let f = `${sanitize(title)}.${type}`
 
     res.redirect(`/resource/${req.params.id}/download/${f}`)
   } else {
-    if(!resource.downloaders.includes(req.ip)) {
-      resource.downloads = (resource.downloads || 0) + 1
-      resource.downloaders.push(req.ip)
-      await resource.save()
+    try {
+      await resource.incrementDownloads(req.ip)
+    } catch(err){
+      console.log(err)
+      // continue to download anyway
     }
-
-    let location = resource.data
-    if(location.startsWith("dbstorage/")) {
-      db.GridFS.files.findOne({ filename: location }, function (err, file) {
-        if(err || !file){
-          res.status(400).json({'error' : 'Resource not found'})
-          return
-        }
-        console.log(file)
-        db.GridFS.createReadStream({
-          _id: file._id
-        }, function(err, readstream){
-          if(err){
-            res.status(500).json({'error' : 'Unable to open database read stream'})
-            return
-          }
-          res.set('Content-Length', file.length + '')
-          res.contentType(resource.type)
-            .set(`Content-Disposition`, `attachment; filename="${req.params.f}"`)
-          readstream.pipe(res)
-        })
-      });
-    } else {
-      fs.readFile(resource.data, (err, data) => {
-        res.contentType(resource.type)
-          .set(`Content-Disposition`, `attachment; filename="${req.params.f}"`)
-          .send(data)
-      })
-    }
+    res.set("Content-Disposition", "attachment; filename=\"" + req.params.f + "\"")
+    resource.downloadToResponse(req, res)
   }
 })
 
+// DEPRECATED
 app.get(`/resource/:id/cover`, async function(req, res) {
-  const resource = await db
-    .Resource.findOne({ _id: req.params.id }, { image: true, audio: true, thumbnail: true, fname: true })
-
-  if(resource.image)
-    res.redirect(`/resource/${req.params.id}/raw`)
-  else if(resource.audio) {
-    res.contentType('image/svg+xml')
-      .send(resource.thumbnail)
+ try {
+    let resource = await Resource.findById(req.params.id)
+    if(resource.audio) {
+      let thumb = await resource.getThumbnail()
+      res.contentType(thumb.contentType)
+      res.send(thumb.data)
+    } else {
+      res.redirect(`/resource/${req.params.id}/raw`)
+    }
+  } catch(err){
+    console.log(err)
+    res.status(404).render('404', {
+      user: req.session.user
+    })
   }
 })
 
