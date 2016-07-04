@@ -70,13 +70,14 @@
     border-left 3px solid #ddd
   }
   
+  border: 2px solid transparent
+  margin-top: 0.2em
+  margin-bottom: 0.2em
+  
   &[contenteditable] {
     &:hover, &:focus {
       background rgba(black, 0.02)
-    }
-    
-    &:focus {
-      @extend .mono
+      border: 2px dashed #659593
     }
   }
 }

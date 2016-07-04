@@ -3,8 +3,8 @@
   {{{by resource.owners}}}
 </main></header>
 
-<main>
-  <div style='float: left; margin-right: 20px; text-align: center;'>
+<main style='display: flex'>
+  <div style='margin-right: 20px; text-align: center;'>
     {{#if loading}}
       <small>
         We're still loading this, so sit tight!
@@ -25,24 +25,22 @@
     {{/if}}
   </div>
 
-  <div>
+  <div style='flex: 1'>
     <a href='/{{resources}}/{{resource._id}}/download'><button class='btn'>Download</button></a>
     <span style='margin-left: 15px'>Downloaded {{resource.downloads}} time{{s? resource.downloads}}</span>
+    <br>
+    <div {{#if youOwn}}contenteditable{{/if}} class='bio'>
+      {{{md resource.about}}}
+    </div>
+    
+    <div style='clear: both'></div>
+  
+    <small></small>
+  
+    <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+    
+    {{#if youOwn}}
+      <a id='edit' class='btn flat' style='float:right'>edit description</a>
+    {{/if}}
   </div>
-
-  <br>
-
-  <div {{#if youOwn}}contenteditable{{/if}} class='bio'>
-    {{{md resource.about}}}
-  </div>
-
-  <div style='clear: both'></div>
-
-  <small></small>
-
-  <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}';</script>
-
-  {{#if youOwn}}
-    <a id='edit' class='btn flat' style='float:right'>edit description</a>
-  {{/if}}
 </main>

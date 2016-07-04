@@ -24,7 +24,7 @@ module.exports = function() {
   bio.addEventListener('blur', async function(e) {
     bio_raw = bio.innerText
 
-    document.querySelector('.bio + small').innerHTML = 'Saving...'
+    document.querySelector('.bio ~ small').innerHTML = 'Saving...'
 
     let res = await ajax.put(window.location.pathname + '/about', {
       md: bio_raw,
@@ -32,19 +32,16 @@ module.exports = function() {
     })
     bio_raw = JSON.parse(res.request.responseText)
 
-    document.querySelector('.bio + small').innerHTML = 'Saved'
+    document.querySelector('.bio ~ small').innerHTML = 'Saved'
 
     bio.innerHTML = marked(bio_raw, {
       sanitize: true
     })
-
-    document.getElementById('edit').style.display = 'inline-block'
   })
 
   if(document.getElementById('edit')) {
     document.getElementById('edit').addEventListener('click', function(e) {
       document.querySelector('.bio').focus()
-      this.style.display = 'none'
     })
   }
   
