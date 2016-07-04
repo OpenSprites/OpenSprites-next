@@ -1,6 +1,12 @@
 <main>
   <h1>Share</h1>
 
+  <div class='upload-error'>
+    <h2>Uh oh</h2>
+    <p>Something went wrong while uploading.<br/><a href='javascript:location.reload(true)'>Refresh the page</a> and try again later.</p>
+    <p class='details'></p>
+  </div>
+  
   <form method='post' enctype='multipart/form-data'>
     <div id='file-uploads' class='resources'></div>
 
@@ -38,6 +44,22 @@
       .sb2,
       .sprite2
     '>
+    <div class='overlay'>
+      <svg class="progress" width="110" height="110" viewport="0 0 110 110" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"></feGaussianBlur>
+            <feMerge>
+              <feMergeNode in="coloredBlur"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
+        </defs>
+        <path d="M55,5 a50,50 0 0,1 0,0" stroke="white" stroke-width="2" fill="transparent" style="filter:url(#glow)"></path>
+        <path d="M55,105 a50,50 0 0,1 0,0" stroke="white" stroke-width="2" fill="transparent" style="filter:url(#glow)"></path>
+      </svg>
+      <div class='progress-text'>0%</div>
+    </div>
   </div>
 
   <script>var resources = '{{resources}}'; var csrf = '{{csrfToken}}';</script>

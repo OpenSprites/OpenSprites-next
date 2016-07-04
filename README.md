@@ -34,12 +34,18 @@ db_name=next
 db_user=username
 db_pass=password
 
+db_file_storage=true
+
 project_id=115307769
 resources_name=Stuff
 session_secret=thisandagainplsexplain
+
+server_port=3000
 ```
 
 (Don't set `project_id` to not require a Scratch account to join.)
+
+(Set `db_file_storage` to false to store uploads on the local filesystem instead of in mongo.)
 
 # Usage
 
