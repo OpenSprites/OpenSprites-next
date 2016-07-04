@@ -11,6 +11,9 @@ To start, install:
 - [node-gyp](https://github.com/nodejs/node-gyp#installation)
 - [MongoDB](https://www.mongodb.com/download-center#community) (or use [mLab](https://mlab.com/))
 
+Follow the prerequisites for building node-canvas. Find the instructions for your OS [here](https://github.com/Automattic/node-canvas/wiki)  
+If you have Python 3 installed already, you can install a portable version of python 2.7 and replace the PATH entry.
+
 Then, in a Terminal or Command Prompt window:
 
 ```sh
@@ -23,6 +26,7 @@ If you get errors during install or the server ends up not working, you may need
 ```sh
 npm rebuild lwip
 npm rebuild bcrypt
+npm rebuild canvas
 ```
 
 Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:

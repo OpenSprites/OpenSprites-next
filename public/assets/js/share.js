@@ -127,7 +127,7 @@ async function upload() {
   }, function(res){
     document.querySelector('.upload-error').style.display = 'block'
     if(res.data && res.data.message){
-      document.querySelector('.upload-error .details').textContent = res.data.message
+      document.querySelector('.upload-error .details').textContent = JSON.stringify(res.data.message)
     }
     completeUpload()
   })

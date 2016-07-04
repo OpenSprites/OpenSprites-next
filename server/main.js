@@ -477,7 +477,6 @@ app.put('/share', upload.single('file'), async function(req, res) {
     let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
   
     let isAudio = file.mimetype.substr(0, 5) === 'audio'
-    let svg
     let thumb
     if(process.env.db_file_storage == "true"){
       where = 'dbstorage/' + sanitize(id) + '.dat'
@@ -485,13 +484,13 @@ app.put('/share', upload.single('file'), async function(req, res) {
     let isImage = file.mimetype.substr(0, 5) === 'image'
   
     if(isAudio) {
-      svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
-        trianglify({
-          width: 240,
-          height: 240,
-          seed: name
-        }).svg().innerHTML
-      + '</svg>'
+      let pngURI = trianglify({
+        width: 240,
+        height: 240,
+        seed: name
+      }).png()
+      let data = pngURI.substr(pngURI.indexOf('base64') + 7);
+      thumb = new Buffer(data, 'base64');
     }
   
     if(isImage) {
@@ -518,7 +517,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       cover: name,
       data: where,
       downloads: 0,
-      thumbnail: svg || ''
+      thumbnail: where + '.thumb'
     })
     
     await resource.uploadThumbnail(thumb)
@@ -533,6 +532,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
     res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resources/' + id})    
   } catch(err){
+    console.log(err)
     res.status(500).json({success: false, message: err})
   }
 })
@@ -587,7 +587,6 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
       if(r) rs.push(r)
     }
     rs.reverse()
-    rs = rs.filter(e => !e.audio) // we can't render svgs to pngs yet
     rs = rs.filter(e => !e.deleted)
   
     let $ = callbackToPromise

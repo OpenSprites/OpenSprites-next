@@ -88,31 +88,26 @@ class Resource {
   uploadThumbnail(thumb) {
     return new Promise((function(resolve, reject){
       let where = this.data
-      let isImage = this.image
-      if(isImage) {
-        if(process.env.db_file_storage == "true"){
-          db.GridFS.createWriteStream({
-            filename: where + '.thumb'
-          }, function(err, writestream) {
-            if(err) {
-              reject(err)
-              return
-            }
-            writestream.write(thumb)
-            writestream.end()
-            resolve()
-          })
-        } else {
-          fs.writeFile(where + '.thumb', thumb, (err) => {
-            if(err) {
-              reject(err)
-              return
-            }
-            resolve()
-          })
-        }
+      if(process.env.db_file_storage == "true"){
+        db.GridFS.createWriteStream({
+          filename: where + '.thumb'
+        }, function(err, writestream) {
+          if(err) {
+            reject(err)
+            return
+          }
+          writestream.write(thumb)
+          writestream.end()
+          resolve()
+        })
       } else {
-        resolve()
+        fs.writeFile(where + '.thumb', thumb, (err) => {
+          if(err) {
+            reject(err)
+            return
+          }
+          resolve()
+        })
       }
     }).bind(this))
   }
@@ -123,14 +118,7 @@ class Resource {
   
   getThumbnail(){
     return new Promise((function(resolve, reject){
-      if(this._mongoDoc.audio) {
-        resolve({
-          contentType: 'image/svg+xml',
-          data: this._mongoDoc.thumbnail
-        })
-      }
-      
-      if(this._mongoDoc.image) {
+      if(this._mongoDoc.image || this._mongoDoc.audio) {
         let location = this._mongoDoc.data + '.thumb'
         if(location.startsWith('dbstorage/')) {
           db.GridFS.files.findOne({ filename: location }, function (err, file) {
@@ -164,7 +152,7 @@ class Resource {
             })
           })
         }
-      }
+      } else reject("Not supported")
     }).bind(this))
   }
   

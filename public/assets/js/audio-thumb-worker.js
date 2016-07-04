@@ -7,12 +7,12 @@ function displayBuffer(leftChannel, imageData) {
     
     for(var yi = -y + canvasHeight / 2; yi <= y + canvasHeight / 2; yi++){
       let addr = (yi * canvasWidth + x) * 4
-      imageData.data[addr] = 101
-      imageData.data[addr + 1] = 149
-      imageData.data[addr + 2] = 147
+      imageData.data[addr] = 255//101
+      imageData.data[addr + 1] = 255//149
+      imageData.data[addr + 2] = 255//147
       imageData.data[addr + 3] = 200
       
-      if(x > 0){
+      /*if(x > 0){
         addr = (yi * canvasWidth + x - 1) * 4
         if(imageData.data[addr + 3] == 0){
           imageData.data[addr] = 0
@@ -30,7 +30,7 @@ function displayBuffer(leftChannel, imageData) {
           imageData.data[addr + 2] = 0
           imageData.data[addr + 3] = 100
         }
-      }
+      }*/
     }
   }
   
