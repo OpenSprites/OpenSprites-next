@@ -47,10 +47,8 @@ const Resource = require('./models/Resource')
 
 /////////////////////////////////////////////////////////
 
-const signupProjectId = process.env.project_id || null // '' to disable check
+const signupProjectId = process.env.project_id || null
 const requireEmailConfirmedToShare = false
-
-console.log('Signup Project ID is #' + signupProjectId)
 
 /////////////////////////////////////////////////////////
 
@@ -106,8 +104,8 @@ app.engine('hbs', exprhbs.create({
 
     lower: upper => upper.toLowerCase(),
 
-    resources: () => "resource",
-    Resources: () => "Resource",
+    resources: () => "resources",
+    Resources: () => "Resources",
 
     Hello: () => hello(),
     hello: () => hello().toLowerCase(),
@@ -531,7 +529,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
     await collection.save()
   
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
-    res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resource/' + id})    
+    res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resources/' + id})    
   } catch(err){
     res.status(500).json({success: false, message: err})
   }
@@ -613,7 +611,7 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
   }
 })
 
-app.get(`/resource/:id`, nocache, async function(req, res) {
+app.get(`/resources/:id`, nocache, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
   }, {
@@ -654,9 +652,9 @@ app.get(`/resource/:id`, nocache, async function(req, res) {
   }
 })
 
-app.put(`/resource/:id/about`, async function(req, res) {
+app.put(`/resources/:id/about`, async function(req, res) {
   try {
-    let resource = await Resource.findById(req.params.id)
+    var resource = await Resource.findById(req.params.id)
   } catch(err) {
     console.log(err)
     res.status(404).json(false)
@@ -682,7 +680,7 @@ app.put(`/resource/:id/about`, async function(req, res) {
 })
 
 // 240 x 240px
-app.get(`/resource/:id/raw`, async function(req, res) {
+app.get(`/resources/:id/raw`, async function(req, res) {
   let resource
   
   try {
@@ -710,7 +708,7 @@ app.get(`/resource/:id/raw`, async function(req, res) {
   }
 })
 
-app.get(`/resource/:id/download/:f?`, async function(req, res) {
+app.get(`/resources/:id/download/:f?`, async function(req, res) {
   let resource
   try {
     resource = await Resource.findById(req.params.id)
@@ -727,7 +725,7 @@ app.get(`/resource/:id/download/:f?`, async function(req, res) {
     let type = require('mime-types').extension(resource.type) || 'mp3'
     let f = `${sanitize(title)}.${type}`
 
-    res.redirect(`/resource/${req.params.id}/download/${f}`)
+    res.redirect(`/resources/${req.params.id}/download/${f}`)
   } else {
     try {
       await resource.incrementDownloads(req.ip)
@@ -741,7 +739,7 @@ app.get(`/resource/:id/download/:f?`, async function(req, res) {
 })
 
 // DEPRECATED
-app.get(`/resource/:id/cover`, async function(req, res) {
+app.get(`/resources/:id/cover`, async function(req, res) {
  try {
     let resource = await Resource.findById(req.params.id)
     if(resource.audio) {
@@ -749,7 +747,7 @@ app.get(`/resource/:id/cover`, async function(req, res) {
       res.contentType(thumb.contentType)
       res.send(thumb.data)
     } else {
-      res.redirect(`/resource/${req.params.id}/raw`)
+      res.redirect(`/resources/${req.params.id}/raw`)
     }
   } catch(err){
     console.log(err)
@@ -759,7 +757,7 @@ app.get(`/resource/:id/cover`, async function(req, res) {
   }
 })
 
-app.get(`/resource/:id/cover-inb4`, async function(req, res) {
+app.get(`/resources/:id/cover-inb4`, async function(req, res) {
   let thumb = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
     trianglify({
       width: 240,
