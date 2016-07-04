@@ -1,3 +1,11 @@
+window.osClearAudioThumbCache = function(){
+  for(let key in localStorage){
+    if(key.startsWith("audio-thumbcache-")){
+      delete localStorage[key];
+    }
+  }
+}
+
 module.exports = function(id, cb) {
   if(window.Worker && window.AudioContext) {
     // yay, let's render a nicer thumbnail

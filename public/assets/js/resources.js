@@ -14,8 +14,8 @@ module.exports = {
 
         if(audio) {
           AudioThumb(id, (function(audio, dataurl){
-            audio.style.backgroundImage = 'url(' + dataurl + ')'
-          }).bind(this, audio))
+            audio.src = dataurl
+          }).bind(this, audio.querySelector("img")))
           
           let play = audio.querySelector('.play')
 

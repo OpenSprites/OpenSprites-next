@@ -24,7 +24,7 @@ function createVisualizer() {
   window.addEventListener("resize", resizeCanvas)
   resizeCanvas()
   
-  canvas.addEventListener("click", function(){
+  canvas.addEventListener("click touchstart", function(){
     player.pause()
   })
 
