@@ -42,6 +42,7 @@ jspm_packages
 # database
 db/**/*
 !db/**/.keep
+!db/uploads/.keep
 
 # dotenv file
 .env
