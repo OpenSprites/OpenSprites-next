@@ -18,7 +18,7 @@ if('/join' === window.location.pathname)
 if('/share' === window.location.pathname)
   share()
 
-if(document.querySelector('main > div > #edit'))
+if(document.querySelector('.markdown-about-edit'))
   md()
 
 if(window.location.pathname.startsWith('/resource'))

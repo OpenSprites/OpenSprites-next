@@ -16,7 +16,15 @@ module.exports = function(){
   }
   
   let title = document.querySelector(".resource-title")
+  
+  title.addEventListener('keyup', function(e){
+    if(e.which == 13 && e.ctrlKey){
+      this.blur()
+    }
+  })
+  
   title.addEventListener("blur", async function(){
+    this.scrollTop = 0
     let title_raw = title.innerText
 
     document.querySelector('.resource-title ~ small').innerHTML = 'Saving...'

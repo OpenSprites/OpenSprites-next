@@ -383,10 +383,14 @@ app.put('/users/:who/about', async function(req, res) {
       username: req.params.who
     }))[0]
 
-    user.about = replaceBadWords(req.body.md)
+    let about = replaceBadWords(req.body.md)
+    if(about.length > 1024){
+      about = about.substring(0, 1024)
+    }
+    user.about = about
     await user.save()
 
-    res.status(200).json(user.about)
+    res.status(200).json({about: user.about})
   }
 })
 
@@ -671,8 +675,16 @@ app.put(`/resource/:id/about`, async function(req, res) {
   if(!resource || !resource.owners.includes(req.session.user)) {
     res.status(403).json(false)
   } else {
-    if(req.body.md) resource.about = replaceBadWords(req.body.md)
-    if(req.body.title) resource.name = replaceBadWords(req.body.title)
+    if(req.body.md) {
+      let about = replaceBadWords(req.body.md)
+      if(about.length > 1024) about = about.substr(0, 1024)
+      resource.about = about
+    }
+    if(req.body.title) {
+      let name = replaceBadWords(req.body.title).replace(/[\r\n]/g, '')
+      if(name.length > 256) name = name.substr(0, 256)
+      resource.name = name
+    }
     try {
       await resource.save()
       res.status(200).json({about: resource.about, title: resource.name})

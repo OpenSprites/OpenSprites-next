@@ -17,6 +17,12 @@ module.exports = function() {
   let csrfToken = htmldec(window.csrfToken)
       csrfToken = csrfToken.substr(1, csrfToken.length - 2)
 
+  bio.addEventListener('keyup', function(e){
+    if(e.which == 13 && e.ctrlKey){
+      this.blur()
+    }
+  })
+  
   bio.addEventListener('focus', function(e) {
     bio.innerText = bio_raw
   })

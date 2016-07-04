@@ -30,7 +30,7 @@
     <a href='/{{resources}}/{{resource._id}}/download'><button class='btn'>Download</button></a>
     <span style='margin-left: 15px'>Downloaded {{resource.downloads}} time{{s? resource.downloads}}</span>
     <br>
-    <div {{#if youOwn}}contenteditable{{/if}} class='bio'>
+    <div {{#if youOwn}}contenteditable{{/if}} class='bio markdown-about-edit'>
       {{{md resource.about}}}
     </div>
     
