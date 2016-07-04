@@ -46,10 +46,8 @@ const Resource = require('./models/Resource')
 
 /////////////////////////////////////////////////////////
 
-const signupProjectId = process.env.project_id || null // '' to disable check
+const signupProjectId = process.env.project_id || null
 const requireEmailConfirmedToShare = false
-
-console.log('Signup Project ID is #' + signupProjectId)
 
 /////////////////////////////////////////////////////////
 
@@ -105,8 +103,8 @@ app.engine('hbs', exprhbs.create({
 
     lower: upper => upper.toLowerCase(),
 
-    resources: () => "resource",
-    Resources: () => "Resource",
+    resources: () => "resources",
+    Resources: () => "Resources",
 
     Hello: () => hello(),
     hello: () => hello().toLowerCase(),
@@ -618,7 +616,7 @@ app.get(`/resource/:id`, nocache, async function(req, res) {
 
 app.put(`/resource/:id/about`, async function(req, res) {
   try {
-    let resource = await Resource.findById(req.params.id)
+    var resource = await Resource.findById(req.params.id)
   } catch(err) {
     console.log(err)
     res.status(404).json(false)

@@ -19,7 +19,7 @@ cd opensprites-next
 npm install
 ```
 
-If you get errors during install or the server ends up not working, you may need to rebuild native modules
+If you get errors during install or the server ends up not working, you may need to rebuild native modules:
 ```sh
 npm rebuild lwip
 npm rebuild bcrypt

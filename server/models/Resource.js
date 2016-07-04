@@ -1,4 +1,5 @@
 const db = require('../db')
+const fs = require('fs')
 const replaceBadWords = require('../utils/replace-bad-words.js')
 
 class Resource {
