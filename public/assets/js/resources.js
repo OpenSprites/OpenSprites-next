@@ -1,3 +1,5 @@
+const AudioThumb = require('./audio-thumb')
+
 module.exports = {
   parse: function parseResources() {
     if(document.querySelectorAll('.resources').length > 0) {
@@ -11,6 +13,10 @@ module.exports = {
         let a = el.querySelector('a.to')
 
         if(audio) {
+          AudioThumb(id, (function(audio, dataurl){
+            audio.style.backgroundImage = 'url(' + dataurl + ')'
+          }).bind(this, audio))
+          
           let play = audio.querySelector('.play')
 
           play.addEventListener('click', e => {

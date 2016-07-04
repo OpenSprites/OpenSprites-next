@@ -131,3 +131,34 @@
     color tint(os-grey, 50%)
   }
 }
+
+.audio-thumb-container {
+  position: relative
+}
+
+@keyframes rotating {
+  from {
+    transform: translateY(-50%) translateX(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) translateX(-50%) rotate(360deg);
+  }
+}
+
+.audio-thumb-container .loader {
+  width: 100px
+  height: 100px
+  position: absolute
+  top: 50%
+  left: 50%
+  animation: rotating 2s linear infinite
+}
+
+.audio-thumb-container {
+  transition: all 0.2s
+  opacity: 1
+}
+
+.audio-thumb-container.fade-out {
+  opacity: 0
+}

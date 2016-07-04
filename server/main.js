@@ -744,7 +744,6 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
             res.end()
             return
           } if(Array.isArray(rangeRequest) && rangeRequest.type === 'bytes' && rangeRequest.length > 0) {
-            console.log(rangeRequest[0])
             rsParams.range = {
               startPos: rangeRequest[0].start,
               endPos: rangeRequest[0].end
