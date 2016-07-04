@@ -1,0 +1,68 @@
+<header><main>
+  <h1>Admin</h1>
+  <h4>Scary.</h4>
+</main></header>
+
+<main>
+  <h1>All {{Resources}}</h1>
+  <h3>Page {{page}}</h3>
+
+  <div class='resources'>
+    {{#if resources}}
+      {{#each resources}}
+        <div class='admin resource' id='{{_id}}'>
+          <a href='/{{resources}}/{{_id}}' class='to'>
+            {{#if audio}}
+              <div class='audio' style='background: url("/{{resources}}/{{_id}}/cover");'>
+                <div class='play icon'>play_arrow</div>
+                <audio preload="none" src='/{{resources}}/{{_id}}/raw'></audio>
+              </div>
+            {{/if}}
+
+            {{#if image}}
+              <div class='img'>
+                <img src='/{{resources}}/{{_id}}/raw'>
+              </div>
+            {{/if}}
+
+            <h4>{{name}}</h4>
+          </a>
+          <span>{{{by owners}}}</span>
+          <small>
+            {{#if audio}}
+              Sound
+            {{/if}}
+
+            {{#if image}}
+              Costume
+            {{/if}}
+          </small>
+
+          <br>
+
+          <a class='flat btn admin-do' style='border-top-left-radius:0;border-top-right-radius:0;display:block;' data-to='/{{resources}}/{{_id}}'>
+            {{#if deleted}}
+              undelete
+            {{else}}
+              delete
+            {{/if}}
+          </a>
+        </div>
+      {{/each}}
+    {{else}}
+      <p>And... that's the end of it. <b>No more {{resources}} here!</b></p>
+    {{/if}}
+  </div>
+
+  <br>
+
+  {{#if lastPage}}
+    <a class='btn flat' href='/admin?page={{lastPage}}&amp;limit={{limit}}'>Previous Page</a>
+  {{/if}}
+
+  {{#if resources}}
+    <a class='btn flat' href='/admin?page={{nextPage}}&amp;limit={{limit}}'>Next Page</a>
+  {{/if}}
+
+  <script>var csrf = {{{json csrf}}};</script>
+</main>

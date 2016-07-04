@@ -11,7 +11,7 @@ const md = require('./md')
 const timeago = require('./timeago')
 const resources = require('./resources')
 const resource_page = require('./resource_page')
-
+const admin = require('./admin')
 const visualizer = require('./visualizer')
 
 if('/join' === window.location.pathname)
@@ -19,6 +19,9 @@ if('/join' === window.location.pathname)
 
 if('/share' === window.location.pathname)
   share()
+
+if(document.querySelector('.btn.admin-do'))
+  admin()
 
 if(document.querySelector('.markdown-about-edit'))
   md()

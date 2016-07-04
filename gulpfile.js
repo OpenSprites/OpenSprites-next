@@ -96,7 +96,6 @@ gulp.task('build-js', ['clean-js'], function() {
 gulp.task('build-css', ['clean-css'], function() {
   return gulp.src('public/assets/css/main.styl')
   .pipe(plumber())
-  .pipe(sourcemaps.init())
   .pipe(stylus({
     compress: true,
     use: [
@@ -104,7 +103,6 @@ gulp.task('build-css', ['clean-css'], function() {
     ]
   }))
   .pipe(postcss([ require('autoprefixer')(), require('rucksack-css')() ]))
-  .pipe(sourcemaps.write('.'))
   .pipe(gulp.dest('public/assets/css/.dist'))
 })
 
