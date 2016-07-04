@@ -23,6 +23,10 @@ function createVisualizer() {
 
   window.addEventListener("resize", resizeCanvas)
   resizeCanvas()
+  
+  canvas.addEventListener("click", function(){
+    player.pause()
+  })
 
   var ctx = canvas.getContext("2d");
 
