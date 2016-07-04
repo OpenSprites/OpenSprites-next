@@ -641,6 +641,7 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       user: req.session.user,
       u: user,
       resource: resource[0],
+      isGif: resource[0].type == "image/gif",
       csrfToken: req.csrfToken(),
       title: resource[0].name,
       youOwn: resource[0].owners.includes(req.session.user||''),
