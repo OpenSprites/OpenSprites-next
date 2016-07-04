@@ -653,8 +653,9 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
 })
 
 app.put(`/resources/:id/about`, async function(req, res) {
+  let resource
   try {
-    var resource = await Resource.findById(req.params.id)
+    resource = await Resource.findById(req.params.id)
   } catch(err) {
     console.log(err)
     res.status(404).json(false)
