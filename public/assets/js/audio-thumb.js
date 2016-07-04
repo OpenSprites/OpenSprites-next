@@ -42,7 +42,7 @@ module.exports = function(id, cb) {
       }
     
       let req = new XMLHttpRequest();
-      req.open("GET", '/stuff/' + id + '/raw', true);
+      req.open("GET", '/resource/' + id + '/raw', true);
       req.responseType = "arraybuffer";    
       req.onreadystatechange = function (e) {
         if (req.readyState == 4) {

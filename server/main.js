@@ -52,8 +52,6 @@ const badWordsRegex = new RegExp(rot(badWords, -13), 'gi')
 const hasBadWords = text => text.match(badWordsRegex)
 const replaceBadWords = (text, w='⋆⋆⋆⋆') => text.replace(badWordsRegex, w)
 
-process.env.resources_name = process.env.resources_name || 'Stuff'
-
 function squish(buffer, type) {
   return new Promise(function(done, reject) {
     // the best nodejs library ever written
@@ -106,8 +104,8 @@ app.engine('hbs', exprhbs.create({
 
     lower: upper => upper.toLowerCase(),
 
-    resources: () => process.env.resources_name.toLowerCase(),
-    Resources: () => process.env.resources_name[0].toUpperCase() + process.env.resources_name.substr(1),
+    resources: () => "resource",
+    Resources: () => "Resource",
 
     Hello: () => hello(),
     hello: () => hello().toLowerCase(),
@@ -524,7 +522,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       await collection.save()
   
       console.log(`${req.session.user} uploaded "${name}" ${tada}`)
-      res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/' + process.env.resources_name.toLowerCase() + '/' + id})
+      res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resource/' + id})
     }
     
     let saveThumb = function() {
@@ -624,7 +622,7 @@ app.get('/collections/:id', nocache, async function(req, res) {
   }
 })
 
-app.get(`/${process.env.resources_name.toLowerCase()}/:id`, nocache, async function(req, res) {
+app.get(`/resource/:id`, nocache, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
   }, {
@@ -665,7 +663,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id`, nocache, async funct
   }
 })
 
-app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function(req, res) {
+app.put(`/resource/:id/about`, async function(req, res) {
   let resource = await db.Resource.findOne({
     _id: req.params.id
   })
@@ -686,7 +684,7 @@ app.put(`/${process.env.resources_name.toLowerCase()}/:id/about`, async function
 })
 
 // 240 x 240px
-app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(req, res) {
+app.get(`/resource/:id/raw`, async function(req, res) {
   let resource
   
   try {
@@ -786,7 +784,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/raw`, async function(r
   }
 })
 
-app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async function(req, res) {
+app.get(`/resource/:id/download/:f?`, async function(req, res) {
   // I don't even code style mate
   const resource = await db
     .Resource.findOne({ _id: req.params.id }, { name: true, type: true, data: true, downloads: true, downloaders: true })
@@ -799,7 +797,7 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async f
     let type = require('mime-types').extension(resource.type) || 'mp3'
     let f = `${sanitize(title)}.${type}`
 
-    res.redirect(`/${process.env.resources_name.toLowerCase()}/${req.params.id}/download/${f}`)
+    res.redirect(`/resource/${req.params.id}/download/${f}`)
   } else {
     if(!resource.downloaders.includes(req.ip)) {
       resource.downloads = (resource.downloads || 0) + 1
@@ -838,19 +836,19 @@ app.get(`/${process.env.resources_name.toLowerCase()}/:id/download/:f?`, async f
   }
 })
 
-app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover`, async function(req, res) {
+app.get(`/resource/:id/cover`, async function(req, res) {
   const resource = await db
     .Resource.findOne({ _id: req.params.id }, { image: true, audio: true, thumbnail: true, fname: true })
 
   if(resource.image)
-    res.redirect(`/${process.env.resources_name.toLowerCase()}/${req.params.id}/raw`)
+    res.redirect(`/resource/${req.params.id}/raw`)
   else if(resource.audio) {
     res.contentType('image/svg+xml')
       .send(resource.thumbnail)
   }
 })
 
-app.get(`/${process.env.resources_name.toLowerCase()}/:id/cover-inb4`, async function(req, res) {
+app.get(`/resource/:id/cover-inb4`, async function(req, res) {
   let thumb = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240">' +
     trianglify({
       width: 240,
