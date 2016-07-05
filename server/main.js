@@ -637,6 +637,8 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       return
     }
 
+    resource[0].comments.reverse()
+
     res.render('resource', {
       user: req.session.user,
       u: user,
@@ -856,6 +858,34 @@ app.get('/admin', nocache, async function(req, res) {
 
     csrf: req.csrfToken()
   })
+})
+
+app.post('/comment', mustSignIn, async function(req, res) {
+  let where = {}
+
+  if(req.body.pageType === 'resource') {
+    where = await db.Resource.findOne({
+      _id: req.body.id
+    })
+  }
+
+  if(where) {
+    // todo: use subset of markdown on `what`
+    let what = req.body.what.substr(0, 500)
+
+    // handlebars automatically uses safe html
+    // so we don't have to worry about that
+
+    where.comments.push({
+      who: req.session.user,
+      what
+    })
+
+    await where.save()
+    res.json('success')
+  } else {
+    res.status(404).render('404', { user: req.session.user })
+  }
 })
 
 app.get('/', nocache, async function(req, res) {

@@ -60,12 +60,16 @@
   
     <small></small>
   
-    <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+    <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}'; var _id = {{{json resource._id}}};</script>
     
-    {{#if youOwn}}
+    {{#if resource.youOwn}}
       <a id='edit' class='btn flat' style='float:right'>edit description</a>
     {{/if}}
   </div>
 
   <script>var csrf = {{{json csrfToken}}};</script>
+</main>
+
+<main class='slim'>
+  {{> comments resource.comments}}
 </main>

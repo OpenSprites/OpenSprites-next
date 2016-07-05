@@ -1,0 +1,29 @@
+<h1>Comments</h1>
+
+{{#if @root.user}}
+  <div class='post-comment'>
+    <textarea placeholder='Leave a comment...' maxlength='500'></textarea>
+    <br>
+    <a class='btn'>post</a>
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      comment()
+    })
+  </script>
+{{/if}}
+
+{{#if this}}
+  <div class='comments'>
+    {{#each this}}
+      <div class='comment' id='comment-{{_id}}' style='background-image:url("/users/{{who}}/avatar");'>
+        <a href='/users/{{who}}' class='who'>{{who}}</a>
+        <small class='when'>{{{timeago when}}}</small><br>
+        <div class='what'>{{what}}</div>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+  <h4> There are no comments <b>:(</b></h4>
+{{/if}}

@@ -1,0 +1,64 @@
+.post-comment {
+  overflow hidden
+
+  textarea {
+    @extend .body
+
+    border 1px solid #ccc
+    padding 8px
+    
+    width 100%
+    max-width 480px
+    
+    max-height 128px
+    resizable no
+    
+    &::placeholder {
+      color #ccc
+    }
+  }
+}
+
+.comments {
+  display block
+  
+  .comment, .comment > .reply {
+    margin-top 24px
+
+    &:not(:last-child) {
+      border-bottom 1px solid #eee
+      padding-bottom 24px
+    }
+
+    display block
+    padding-left 96px
+    
+    width 100%
+    max-width 480px
+    min-height 64px
+    
+    background-position top left
+    background-size 64px
+    background-repeat no-repeat
+    
+    &.reply {
+      margin-left 24px
+    }
+    
+    .who {
+      border-bottom 0
+    }
+    
+    .what {
+      word-wrap break-word
+    }
+    
+    .when {
+      float right
+      
+      +mobile() {
+        display none
+      }
+    }
+  }
+}

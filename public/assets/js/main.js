@@ -14,6 +14,8 @@ const resource_page = require('./resource_page')
 const admin = require('./admin')
 const visualizer = require('./visualizer')
 
+window.comment = require('./comment')
+
 if('/join' === window.location.pathname)
   join()
 
