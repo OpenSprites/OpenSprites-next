@@ -643,7 +643,6 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       user: req.session.user,
       u: user,
       resource: resource[0],
-      isGif: resource[0].type == "image/gif",
       csrfToken: req.csrfToken(),
       title: resource[0].name,
       youOwn: resource[0].owners.includes(req.session.user||''),
@@ -756,10 +755,17 @@ app.get(`/resources/:id/raw`, async function(req, res) {
 
   if(resource.image){
     try {
-      let thumb = await resource.getThumbnail()
-      res.contentType(thumb.contentType)
-      res.send(thumb.data)
+      let thumb;
+      if(resource.type == "image/gif") {
+        res.contentType("image/gif")
+        resource.downloadToResponse(req, res)
+      } else {
+        thumb = await resource.getThumbnail()
+        res.contentType(thumb.contentType)
+        res.send(thumb.data)
+      }
     } catch(err){
+      console.log(err)
       res.status(404).render('404', {
         user: req.session.user
       })

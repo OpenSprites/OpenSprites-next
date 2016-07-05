@@ -40,11 +40,7 @@
     {{/if}}
 
     {{#if resource.image}}
-      {{#if isGif}}
-        <img src='/{{resources}}/{{resource._id}}/download' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:50vh;width:240px;'>
-      {{else}}
-        <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:50vh;'>
-      {{/if}}
+      <img src='/{{resources}}/{{resource._id}}/raw' style='background-repeat:repeat;background-image:url("/assets/img/tile.png");margin:auto;max-width:100%;max-height:50vh;width:240px;'>
     {{/if}}
   </div>
 
