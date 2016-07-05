@@ -41,6 +41,8 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   script: Boolean,
   sprite: Boolean,
 
+  when: { type: Number, default: () => Date.now() },
+
   thumbnail: String,
   cover: String,
 
