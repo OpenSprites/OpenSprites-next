@@ -522,7 +522,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
         let imageNew = piexif.remove(imageOld).substring(imageOld.indexOf(','))
         let newBuffer = new Buffer(imageNew, 'base64')
         console.log(newBuffer)
-        file.buffer.write(newBuffer)
+        file.buffer.write(imageNew, "base64")
         console.log(file.buffer)      
     }
 
