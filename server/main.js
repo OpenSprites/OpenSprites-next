@@ -516,13 +516,9 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     if(file.mimetype == "image/jpeg") {
         // Remove EXIF data
-        let bitmapOld = fs.readFileSync(file)
-    	let b64 = new Buffer(bitmapOld).toString('base64')
-        let file = piexif.remove(b64)
-	console.log(b64)
-	let bitmapNew = new Buffer(b64, 'base64')
-    	fs.writeFileSync(file, bitmapNew)
-
+        let imageOld = file.toString("binary")
+        let newData = piexif.remove(imageOld)
+        fs.writeFileSync(file, newData)
     }
 
     let name = req.body.name
