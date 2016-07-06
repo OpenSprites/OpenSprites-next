@@ -935,7 +935,7 @@ app.get('/', nocache, async function(req, res) {
     deleted: false
   }, {
     data: false
-  }).sort({ downloaded: 1, when: -1 }).limit(5)
+  }).sort({ downloaded: -1 }).limit(5)
 
   res.render('index', {
     user: req.session.user,
