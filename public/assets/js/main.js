@@ -15,6 +15,8 @@ const admin = require('./admin')
 const visualizer = require('./visualizer')
 const leaving = require('./leaving')
 
+require('./cookieconsent')
+
 window.comment = require('./comment')
 
 if('/join' === window.location.pathname)

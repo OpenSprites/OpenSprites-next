@@ -19,8 +19,8 @@ This policy forms an agreement between the end-user (You, User, Your), and OpenS
  - Using Our services to distribute malware, spyware, bot-nets, RATs, PUPs, or other malicious software known to harm computer systems.
  - Forcing Our services to accept electronic content other than the following types of media:
    - Images in the formats: PNG, JPEG, GIF, SVG
-   - Audio in the formats: MPEG-3, WAV
-   - Scripts in the JSON format specified by MIT Scratch (scratch.mit.edu)
+   - Audio in the formats: MP3, WAV
+   - MIT Scratch 2.0 (scratch.mit.edu) project files (.sb2), sprite files (.sprite2), and JSON format scripts (.json)
  - OpenSprites has a young user-base; uploading content unsuitable for ALL ages in strictly prohibited.
  - Sharing information that is or potentially could be [personally identifiable information](http://en.wikipedia.org/wiki/Personally_identifiable_information) (PII), of any OpenSprites or MIT Scratch user, unless one of the following conditions is met:
    - The PII describes the user sharing it, and the user fully understands the consequences involved.
