@@ -62,7 +62,7 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
 const Collection = mongoose.model('Collection', mongoose.Schema({
   _id: String,
   name: { type: String, default: 'A Collection' },
-  about: { type: String, default: '' },
+  about: { type: String, default: 'Sample Text' },
   resources: [ String ],
   owners: { type: Array, default: [] },
   isShared: { type: Boolean, default: false }

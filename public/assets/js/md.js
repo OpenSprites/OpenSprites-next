@@ -37,6 +37,7 @@ module.exports = function() {
         md: bio_raw,
         csrf: csrfToken
       })
+      
       bio_raw = JSON.parse(res.request.responseText).about
 
       document.querySelector('.bio ~ small').innerHTML = 'Saved'

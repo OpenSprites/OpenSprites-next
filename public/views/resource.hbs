@@ -58,7 +58,7 @@
   
     <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}'; var _id = {{{json resource._id}}};</script>
     
-    {{#if resource.youOwn}}
+    {{#if youOwn}}
       <a id='edit' class='btn flat' style='float:right'>edit description</a>
     {{/if}}
   </div>

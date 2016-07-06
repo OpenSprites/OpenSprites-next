@@ -324,8 +324,10 @@ app.post('/signin', async function(req, res) {
 // perhaps use PUT and check the Referrer header?
 app.get('/signout', async function(req, res) {
   let user = await db.User.findOne({ username: req.session.user })
-  user.online = false
-  user.save()
+  if(user) {
+    user.online = false
+    user.save()
+  }
 
   delete req.session.user
   res.redirect('/')
@@ -552,6 +554,8 @@ app.get('/collections/:id', nocache, async function(req, res) {
       }
   
       rs.reverse() // order by "latest added to collection"
+      
+      collection[0].youOwn = collection[0].owners.includes(req.session.user || '')
   
       res.render('collection', {
         user: req.session.user,
@@ -610,6 +614,28 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
     res.status(404).render('404', {
       user: req.session.user
     })
+  }
+})
+
+app.put('/collections/:id/about', nocache, async function(req, res) {
+  try {
+    let collection = await db.Collection.find({
+      _id: req.params.id
+    })
+  
+    if(!collection[0]) throw "Collection not found: " + req.params.id;
+    
+    if(!collection[0].owners.includes(req.session.user)) {
+      res.status(403).json(false)
+    }
+    
+    collection[0].about = replaceBadWords(req.body.md)
+    await collection[0].save()
+    
+    res.status(200).json({about: collection[0].about})
+  } catch(err){
+    console.log(err)
+    res.status(404).json(false)
   }
 })
 

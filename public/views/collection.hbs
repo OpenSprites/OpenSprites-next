@@ -6,13 +6,13 @@
 </main></header>
 
 <main>
-  <div {{#if collection.youOwn}}contenteditable{{/if}} class='bio'>
+  <div {{#if collection.youOwn}}contenteditable{{/if}} class='bio markdown-about-edit'>
     {{{md collection.about}}}
   </div>
   <small></small>
 
   {{#if collection.youOwn}}
-    <a id='edit' class='btn flat' style='float:right'>edit about me</a>
+    <a id='edit' class='btn flat' style='float:right'>edit collection info</a>
   {{/if}}
 
   <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
