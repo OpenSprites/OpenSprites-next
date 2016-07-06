@@ -516,13 +516,13 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     if(file.mimetype == "image/jpeg") {
         // Remove EXIF data
-        console.log("User is uploading a JPEG, blanking EXIF data")
+        console.log("User is uploading a JPEG, blanking EXIF data") 
+        console.log(file.buffer)      
         let imageOld = "data:image/jpeg;base64," + file.buffer.toString("base64")
-        console.log(imageOld.substr(0, 35))
         let imageNew = piexif.remove(imageOld)
         console.log(new Buffer(imageNew, 'base64'))
-        file.buffer = new Buffer(imageNew, 'base64')
-        
+        file.buffer.write(new Buffer(imageNew, 'base64'))  
+        console.log(file.buffer)      
     }
 
     let name = req.body.name
