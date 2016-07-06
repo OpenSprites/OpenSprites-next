@@ -4,8 +4,8 @@
  * 
  * The server. Obviously.
  */
- console.log("=== OpenSwag Server ===")
- console.log("Loading libraries...")
+ console.log('=== OpenSwag Server ===')
+ console.log('Loading dependencies...')
 
 require('dotenv').config()
 
@@ -77,8 +77,6 @@ function squish(buffer, type) {
 /////////////////////////////////////////////////////////
 
 let app = express()
-
-app.enable('trust proxy')
 
 app.engine('hbs', exprhbs.create({
   defaultLayout: 'main',
@@ -166,6 +164,30 @@ app.use(csrf({
     return req.body.csrf || req.headers['x-csrf-token']
   }
 }))
+
+// log the ip of the logged in user
+app.use(async function logIP(req, res, next) {
+  if(req.session.user) {
+
+    let user = await db.User.findOne({
+      username: req.session.user,
+      ip: {
+        // where User.ip does not contain req.ip
+        $nin: [ req.ip ]
+      }
+    }, 'ip')
+
+    if(user) {
+      user.ip.push(req.ip)
+
+      await user.save()
+    }
+  }
+
+  next()
+})
+
+// error handlers //
 
 app.use(function(err, req, res, next) {
   if(err.code !== 'EBADCSRFTOKEN') return next(err)
@@ -314,6 +336,7 @@ app.post('/signin', async function(req, res) {
     user[0].online = true
     user[0].save()
 
+    console.log(`${req.session.user} signed in`)
     res.redirect(r)
   } catch(e) {
     req.session.signInFailWhy = `Sorry! That username and password doesn't match.`
@@ -324,11 +347,7 @@ app.post('/signin', async function(req, res) {
 // allows for <img src='/signout'> which is *BAD*
 // perhaps use PUT and check the Referrer header?
 app.get('/signout', async function(req, res) {
-  let user = await db.User.findOne({ username: req.session.user })
-  if(user) {
-    user.online = false
-    user.save()
-  }
+  console.log(`${req.session.user} signed out`)
 
   delete req.session.user
   res.redirect('/')
@@ -610,11 +629,10 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
     let buf = await $(image, image.toBuffer, 'png')
     
     res.contentType('image/png').send(buf)
-  } catch(err){
-    console.log(err)
-    res.status(404).render('404', {
-      user: req.session.user
-    })
+  } catch(err) {
+    if(err.message !== 'Invalid source') console.log(err)
+
+    res.redirect('/assets/img/logo/icon.png')
   }
 })
 
