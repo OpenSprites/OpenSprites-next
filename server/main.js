@@ -929,18 +929,22 @@ app.get('/', nocache, async function(req, res) {
     deleted: false
   }, {
     data: false
-  }).sort({ when: -1 }).limit(5)
+  }).sort('-when').limit(5)
+  
+  recent = await callbackToPromise(recent, recent.exec)
 
   let downloaded = db.Resource.find({
     deleted: false
   }, {
     data: false
-  }).sort({ downloaded: -1 }).limit(5)
+  }).sort('-downloaded').limit(5)
+  
+  downloaded = await callbackToPromise(downloaded, dowloaded.exec)
 
   res.render('index', {
     user: req.session.user,
-    recentResources: await recent,
-    downloadedResources: await downloaded
+    recentResources: recent,
+    downloadedResources: downloaded
   })
 })
 
