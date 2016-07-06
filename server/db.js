@@ -1,8 +1,26 @@
 const mongoose = require('mongoose')
 const Grid = require('gridfs-locking-stream')
+const shortid = require('shortid')
 Grid.mongo = mongoose.mongo
 
 /////////////////////////////////////////////////////////
+
+const Reply = mongoose.Schema({
+  _id: { type: String, default: shortid },
+  who: { type: String, required: true },
+  what: { type: String, default: '' },
+  when: { type: Number, default: () => Date.now() }
+})
+
+const Comment = mongoose.Schema({
+  _id: { type: String, default: shortid },
+  who: { type: String, required: true },
+  what: { type: String, default: '' },
+  when: { type: Number, default: () => Date.now() },
+  replies: [
+    Reply
+  ]
+})
 
 const Resource = mongoose.model('Resource', mongoose.Schema({
   _id: String,
@@ -23,10 +41,15 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
   script: Boolean,
   sprite: Boolean,
 
+  when: { type: Number, default: () => Date.now() },
+
   thumbnail: String,
   cover: String,
 
   deleted: { type: Boolean, default: false },
+  comments: [
+    Comment
+  ],
 
   data: String, // db/uploads/_id.dat
   owners: { type: Array, default: [] },
