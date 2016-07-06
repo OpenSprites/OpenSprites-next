@@ -519,9 +519,10 @@ app.put('/share', upload.single('file'), async function(req, res) {
         console.log("User is uploading a JPEG, blanking EXIF data") 
         console.log(file.buffer)      
         let imageOld = "data:image/jpeg;base64," + file.buffer.toString("base64")
-        let imageNew = piexif.remove(imageOld)
-        console.log(new Buffer(imageNew, 'base64'))
-        file.buffer.write(new Buffer(imageNew, 'base64'))  
+        let imageNew = piexif.remove(imageOld).substring(imageOld.indexOf(','))
+        let newBuffer = new Buffer(imageNew, 'base64')
+        console.log(newBuffer)
+        file.buffer.write(newBuffer)
         console.log(file.buffer)      
     }
 
