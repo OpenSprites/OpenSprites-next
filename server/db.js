@@ -53,7 +53,6 @@ const Resource = mongoose.model('Resource', mongoose.Schema({
 
   data: String, // db/uploads/_id.dat
   owners: { type: Array, default: [] },
-  when: Number,
 
   downloads: { type: Number, default: 0 },
   downloaders: [ String ]
@@ -65,6 +64,25 @@ const Collection = mongoose.model('Collection', mongoose.Schema({
   about: { type: String, default: 'Sample Text' },
   resources: [ String ],
   owners: { type: Array, default: [] },
+  curators: { type: Array, default: [] },
+  subscribers: { type: Array, default: [] },
+  permissions : {
+    curators: {
+      addCurators: { type: Boolean, default: false },
+      addItems: { type: Boolean, default: true },
+      removeItems: { type: Boolean, default: true },
+      setTitle: { type: Boolean, default: false },
+      setAbout: { type: Boolean, default: true }
+    },
+    everyone: {
+      addCurators: { type: Boolean, default: false },
+      addItems: { type: Boolean, default: false },
+      removeItems: { type: Boolean, default: false },
+      setTitle: { type: Boolean, default: false },
+      setAbout: { type: Boolean, default: false }
+    }
+  },
+  when: { type: Number, default: () => Date.now() },
   isShared: { type: Boolean, default: false }
 }))
 

@@ -42,8 +42,9 @@ const callbackToPromise = require('./utils/callback-to-promise')
 
 /////////////////////////////////////////////////////////
 
-// yay, our first legit model
+// yay, our second legit model
 const Resource = require('./models/Resource')
+const Collection = require('./models/Collection')
 
 /////////////////////////////////////////////////////////
 
@@ -619,20 +620,23 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
 
 app.put('/collections/:id/about', nocache, async function(req, res) {
   try {
-    let collection = await db.Collection.find({
-      _id: req.params.id
-    })
-  
-    if(!collection[0]) throw "Collection not found: " + req.params.id;
+    let collection = await Collection.findById(req.params.id)
     
-    if(!collection[0].owners.includes(req.session.user)) {
+    if(!collection.owners.includes(req.session.user)) {
       res.status(403).json(false)
     }
     
-    collection[0].about = replaceBadWords(req.body.md)
-    await collection[0].save()
+    if(req.body.md) {
+      collection.updateAbout(req.body.md)
+    }
     
-    res.status(200).json({about: collection[0].about})
+    if(req.body.title) {
+      collection.updateTitle(req.body.title)
+    }
+    
+    await collection.save()
+    
+    res.status(200).json({about: collection.about, title: collection.name})
   } catch(err){
     console.log(err)
     res.status(404).json(false)
