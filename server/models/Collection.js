@@ -1,4 +1,5 @@
 const db = require('../db')
+const Resource = require('./Resource')
 const replaceBadWords = require('../utils/replace-bad-words.js')
 
 class Collection {
@@ -50,6 +51,35 @@ class Collection {
     let name = replaceBadWords(title).replace(/[\r\n]/g, '')
     if(name.length > 256) name = name.substr(0, 256)
     this.name = name
+  }
+  
+  setPermissions(newPermsObj){
+    let self = this
+    let updateFor = function(who, objNode){
+      for(let key of objNode){
+        this.permissions[who][key] = objNode[key]
+      }
+    }
+    if(newPermsObj.curators) updateFor('curators', newPermsObj.curators)
+    if(newPermsObj.everyone) updateFor('everyone', newPermsObj.everyone)
+  }
+  
+  // TODO: make mongo-based group checking operation
+  // instead of downloading the entire user list
+  isPermitted(user, permission){
+    let userObj = db.User.findOne({ username: user })
+    if(userObj.admin) return true
+    
+    if(permission == 'setPermissions'){
+      return this.owners.contains(user)
+    }
+    
+    let group = 'everyone'
+    if(this.curators.contains(user)) {
+      group = 'curators'
+    }
+    
+    return this.permissions[group][permission]
   }
   
   save() {
