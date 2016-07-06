@@ -13,6 +13,7 @@ const resources = require('./resources')
 const resource_page = require('./resource_page')
 const admin = require('./admin')
 const visualizer = require('./visualizer')
+const leaving = require('./leaving')
 
 if('/join' === window.location.pathname)
   join()
@@ -25,6 +26,15 @@ if(document.querySelector('.btn.admin-do'))
 
 if(document.querySelector('.markdown-about-edit'))
   md()
+
+if(document.querySelector('.bio')) {
+  for(let link of Array.from(document.querySelectorAll('.bio a'))) {
+    link.addEventListener("click", function(e){
+      let isSafe = leaving(this.href)
+      if(!isSafe) e.preventDefault()
+    })
+  }
+}
 
 if(window.location.pathname.startsWith('/resource'))
   resource_page()

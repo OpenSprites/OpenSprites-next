@@ -213,6 +213,66 @@ header + hr {
   display none
 }
 
+.dialog {
+  background rgba(0, 0, 0, 0.5)
+  position fixed
+  z-index 999999
+  top 0
+  left 0
+  width 100%
+  height 100%
+  display none
+  opacity 0
+  transition opacity 0.2s
+  
+  &.active {
+    opacity 1
+    display block
+  }
+
+  .dialog-content {
+    position absolute
+    top 50%
+    left 50%
+    transform: translateX(-50%) translateY(-50%)
+    background white
+    border-radius 1em
+    min-width 30%
+    min-height 30%
+    max-width 90%
+    max-height 90%
+    padding 1em 1em
+    display flex
+    flex-direction column
+    box-sizing border-box
+    
+    .dialog-content-inner {
+      flex 1
+      overflow-y auto
+      
+      h2 {
+        margin 0
+        padding 0
+      }
+    }
+    
+    .button-pane {
+      border-top 1px solid gray
+      width 100%
+      display flex
+      flex-direction row
+      align-items flex-end
+      justify-content flex-end
+      height: 5em
+      
+      .btn {
+        display inline-block
+        margin 0.5em
+      }
+    }
+  }
+}
+
 @require 'nav.styl'
 @require 'signup-join.styl'
 @require 'resources.styl'
@@ -220,3 +280,4 @@ header + hr {
 @require 'share.styl'
 @require 'user.styl'
 @require 'visualizer.styl'
+@require 'leaving.styl'
