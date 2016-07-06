@@ -937,7 +937,7 @@ app.get('/', nocache, async function(req, res) {
     deleted: false
   }, {
     data: false
-  }).sort('-downloaded').limit(5)
+  }).sort('-downloads -when').limit(5)
   
   downloaded = await callbackToPromise(downloaded, downloaded.exec)
 
