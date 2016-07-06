@@ -511,6 +511,12 @@ app.put('/share', upload.single('file'), async function(req, res) {
       res.status(400).json({success: false, message: "Missing file"})
       return
     }
+
+    if(file.mimetype == "image/jpeg") {
+        // Remove EXIF data
+        file = piexif.remove(file)
+    }
+
     let name = req.body.name
     let clientid = req.body.clientid
     let id = shortid()
