@@ -94,8 +94,10 @@ const User = mongoose.model('User', mongoose.Schema({
   email: String,
   emailConfirmed: { type: Boolean, default: false },
 
+  joined: { type: String, default: () => Date.now() },
   about: { type: String, default: '# About Me\nHi there!' },
 
+  online: { type: Number, default: () => Date.now() }, // last seen
   ip: [
     String
   ]

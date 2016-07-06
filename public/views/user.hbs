@@ -6,7 +6,10 @@
       {{who.username}}
     </h1>
 
-    <small>Joined <b>{{{timeago who.joined}}}</b></small>
+    <small>
+      Joined {{{timeago who.joined}}} <br>
+      Last seen {{{timeago who.online}}}
+    </small>
   </div>
 
   {{#unless who.exists}}

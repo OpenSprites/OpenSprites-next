@@ -187,6 +187,24 @@ app.use(async function logIP(req, res, next) {
   next()
 })
 
+// set the logged in user's online status
+app.use(async function onlineStatus(req, res, next) {
+  if(req.session.user) {
+
+    let user = await db.User.findOne({
+      username: req.session.user
+    }, 'online')
+
+    if(user) {
+      user.online = Date.now()
+
+      await user.save()
+    }
+  }
+
+  next()
+})
+
 // error handlers //
 
 app.use(function(err, req, res, next) {
