@@ -34,6 +34,8 @@ const hello = require('greetings')
 const trianglify = require('trianglify')
 const lwip = require('lwip')
 
+const piexif = require('piexifjs')
+
 const tada = '🎉'
 const db = require('./db')
 
