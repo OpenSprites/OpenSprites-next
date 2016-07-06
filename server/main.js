@@ -939,7 +939,7 @@ app.get('/', nocache, async function(req, res) {
     data: false
   }).sort('-downloaded').limit(5)
   
-  downloaded = await callbackToPromise(downloaded, dowloaded.exec)
+  downloaded = await callbackToPromise(downloaded, downloaded.exec)
 
   res.render('index', {
     user: req.session.user,
