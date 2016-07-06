@@ -29,6 +29,7 @@ module.exports = function() {
 
   bio.addEventListener('blur', async function(e) {
     bio_raw = bio.innerText
+    bio.style.pointerEvents = 'none'
 
     document.querySelector('.bio ~ small').innerHTML = 'Saving...'
 
@@ -45,10 +46,12 @@ module.exports = function() {
       bio.innerHTML = marked(bio_raw, {
         sanitize: true
       })
-    } catch(err){
+    } catch(err) {
       document.querySelector('.bio ~ small').innerHTML = 'Error'
       console.log(err)
     }
+
+    bio.style.pointerEvents = 'initial'
   })
 
   if(document.getElementById('edit')) {

@@ -16,7 +16,7 @@
   
   flex-flow row wrap
   align-items center
-  
+
   padding 8px 0
   
   a {
@@ -25,6 +25,12 @@
   
   user-select none
   cursor default
+  
+  +below(1127px) {
+    > .resource:last-child {
+      display none
+    }
+  }
 }
 
 .resource {

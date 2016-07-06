@@ -368,7 +368,7 @@ app.get('/signout', async function(req, res) {
   console.log(`${req.session.user} signed out`)
 
   delete req.session.user
-  res.redirect('/')
+  res.redirect(req.originalUrl || '/')
 })
 
 app.get('/you', mustSignIn, function(req, res) {
@@ -965,22 +965,18 @@ app.get('/', nocache, async function(req, res) {
     deleted: false
   }, {
     data: false
-  }).sort('-when').limit(5)
-  
-  recent = await callbackToPromise(recent, recent.exec)
+  }).sort('-when').limit(10)
 
   let downloaded = db.Resource.find({
     deleted: false
   }, {
     data: false
-  }).sort('-downloads -when').limit(5)
-  
-  downloaded = await callbackToPromise(downloaded, downloaded.exec)
+  }).sort('-downloads -when').limit(10)
 
   res.render('index', {
     user: req.session.user,
-    recentResources: recent,
-    downloadedResources: downloaded
+    recentResources: await recent,
+    downloadedResources: await downloaded
   })
 })
 
