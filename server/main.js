@@ -520,7 +520,9 @@ app.put('/share', upload.single('file'), async function(req, res) {
         let imageOld = "data:image/jpeg;base64," + file.buffer.toString("base64")
         console.log(imageOld.substr(0, 35))
         let imageNew = piexif.remove(imageOld)
-        fs.writeFileSync(file, imageNew)
+        console.log(new Buffer(imageNew, 'base64'))
+        file.buffer = new Buffer(imageNew, 'base64')
+        
     }
 
     let name = req.body.name
