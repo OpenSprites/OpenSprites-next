@@ -66,6 +66,7 @@
     "multer": "^1.1.0",
     "ndjson": "^1.4.3",
     "nodemon": "^1.9.2",
+    "piexifjs": "^1.0.0",
     "request-promise": "^3.0.0",
     "rot": "^0.1.0",
     "rucksack-css": "^0.8.6",

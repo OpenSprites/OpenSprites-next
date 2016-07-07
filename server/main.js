@@ -34,6 +34,8 @@ const hello = require('greetings')
 const trianglify = require('trianglify')
 const lwip = require('lwip')
 
+const piexif = require('piexifjs')
+
 const tada = '🎉'
 const db = require('./db')
 const Resource = require('./models/Resource')
@@ -509,6 +511,15 @@ app.put('/share', upload.single('file'), async function(req, res) {
       res.status(400).json({success: false, message: "Missing file"})
       return
     }
+
+    if(file.mimetype == "image/jpeg") {
+        // Remove EXIF data
+        console.log("User is uploading a JPEG, removing EXIF data")
+        let imageOld = "data:image/jpeg;base64," + file.buffer.toString("base64")
+        let imageNew = piexif.remove(imageOld).substring(imageOld.indexOf(','))
+        file.buffer.write(imageNew, "base64")
+    }
+
     let name = req.body.name
     let clientid = req.body.clientid
     
