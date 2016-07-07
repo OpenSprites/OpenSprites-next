@@ -20,4 +20,6 @@ Requests sent from your browser to the OpenSprites website are sent along with a
 #### Cookies
 A cookie is a small and harmless piece of text used commonly by websites to identify users. We use cookies to keep users logged in as they navigate the website and for preventing the need to log-in again for returning users. In addition, we use cookies to prevent showing users a notice more than once. 
 
+--
+
 OpenSprites reserves the right to change, modify, remove and add text to this document without prior notice. This policy is subject to change.
