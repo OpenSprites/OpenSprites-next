@@ -588,7 +588,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       }
 
       if(type === 'svg+xml') {
-        thumb = await squishSVG(file.buffer)
+        thumb = file.buffer // await squishSVG(file.buffer)
       } else {
         thumb = await squish(file.buffer, type)
       }
