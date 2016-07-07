@@ -125,6 +125,8 @@ ResourceSchema.methods.uploadThumbnail = function (thumb) {
 }
 
 ResourceSchema.methods.getThumbnail = function () {
+  let type = this.type === 'image/svg+xml'? 'image/svg+xml' : 'image/png'
+
   return new Promise((function (resolve, reject) {
     if (this.image || this.audio) {
       let location = this.data + '.thumb'
@@ -153,8 +155,9 @@ ResourceSchema.methods.getThumbnail = function () {
             });
             readstream.on('end', function () {
               var buf = Buffer.concat(bufs)
+
               resolve({
-                contentType: 'image/png',
+                contentType: type,
                 data: buf
               })
             })
@@ -163,7 +166,7 @@ ResourceSchema.methods.getThumbnail = function () {
       } else {
         fs.readFile(location, (err, data) => {
           resolve({
-            contentType: 'image/png',
+            contentType: type,
             data: data
           })
         })

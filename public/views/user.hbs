@@ -8,7 +8,7 @@
 
     <small>
       Joined {{{timeago who.joined}}} <br>
-      Last seen {{{timeago who.online}}}
+      {{#unless who.isYou}} Last seen {{{timeago who.online}}} {{/unless}}
     </small>
   </div>
 

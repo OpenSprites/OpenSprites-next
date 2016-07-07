@@ -73,6 +73,20 @@ function squish(buffer, type) {
   })
 }
 
+function squishSVG(svg) {
+  const SVGO = require('svgo')
+  const svgo = new SVGO()
+
+  // convert buffer to string
+  svg = svg.toString('utf8')
+
+  return new Promise(function(done) {
+    svgo.optimize(svg, function(res) {
+      done(new Buffer(res.data))
+    })
+  })
+}
+
 /////////////////////////////////////////////////////////
 
 let app = express()
@@ -445,9 +459,8 @@ app.get('/users/:who/avatar', async function(req, res) {
 
     res.redirect(`https://cdn2.scratch.mit.edu/get_image/user/${avatar}_${size}x${size}.png`)
   } catch(e) {
-    res.status(404).render('404', {
-      user: req.session.user
-    })
+    // fallback to opensprites logo
+    res.redirect('/assets/img/logo/icon.png')
   }
 })
 
@@ -513,11 +526,11 @@ app.put('/share', upload.single('file'), async function(req, res) {
     }
 
     if(file.mimetype == "image/jpeg") {
-        // Remove EXIF data
-        console.log("User is uploading a JPEG, removing EXIF data")
-        let imageOld = "data:image/jpeg;base64," + file.buffer.toString("base64")
-        let imageNew = piexif.remove(imageOld).substring(imageOld.indexOf(','))
-        file.buffer.write(imageNew, "base64")
+      // Remove EXIF data
+      console.log("User is uploading a JPEG, removing EXIF data")
+      let imageOld = "data:image/jpeg;base64," + file.buffer.toString("base64")
+      let imageNew = piexif.remove(imageOld).substring(imageOld.indexOf(','))
+      file.buffer.write(imageNew, "base64")
     }
 
     let name = req.body.name
@@ -560,8 +573,9 @@ app.put('/share', upload.single('file'), async function(req, res) {
         height: 240,
         seed: name
       }).png()
-      let data = pngURI.substr(pngURI.indexOf('base64') + 7);
-      thumb = new Buffer(data, 'base64');
+
+      let data = pngURI.substr(pngURI.indexOf('base64') + 7)
+      thumb = new Buffer(data, 'base64')
     }
   
     if(isImage) {
@@ -572,7 +586,12 @@ app.put('/share', upload.single('file'), async function(req, res) {
       } else {
         type = type[1]
       }
-      thumb = await squish(file.buffer, type)
+
+      if(type === 'svg+xml') {
+        thumb = await squishSVG(file.buffer)
+      } else {
+        thumb = await squish(file.buffer, type)
+      }
     }
     
     await resource.uploadThumbnail(thumb)
@@ -820,7 +839,8 @@ app.get(`/resources/:id/raw`, async function(req, res) {
 
   if(resource.image){
     try {
-      let thumb;
+      let thumb
+      
       if(resource.type == "image/gif") {
         res.contentType("image/gif")
         resource.downloadToResponse(req, res)

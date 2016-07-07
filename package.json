@@ -75,6 +75,7 @@
     "session-file-store": "^0.2.0",
     "shortid": "^2.2.6",
     "source-map-support": "^0.4.0",
+    "svgo": "^0.6.6",
     "traceur": "0.0.111",
     "trianglify": "^0.4.0",
     "uniqid": "^3.0.0"
