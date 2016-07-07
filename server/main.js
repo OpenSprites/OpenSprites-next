@@ -406,7 +406,7 @@ app.get('/users/:who', nocache, async function(req, res) {
       collections,
       who: who[0],
       csrfToken: req.csrfToken(),
-      title: who.username
+      title: who[0].username
     })
   } else {
     try {

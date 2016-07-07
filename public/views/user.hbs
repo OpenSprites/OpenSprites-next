@@ -6,10 +6,12 @@
       {{who.username}}
     </h1>
 
-    <small>
-      Joined {{{timeago who.joined}}} <br>
-      {{#unless who.isYou}} Last seen {{{timeago who.online}}} {{/unless}}
-    </small>
+    {{#if who.exists}}
+      <small>
+        Joined {{{timeago who.joined}}} <br>
+        {{#unless who.isYou}} Last seen {{{timeago who.online}}} {{/unless}}
+      </small>
+    {{/if}}
   </div>
 
   {{#unless who.exists}}

@@ -8,7 +8,7 @@
 .user {
   #row {
     display flex
-    height 128px
+    height 128px + 3px*2 // compensate for border
     
     +mobile() {
       height 64px
@@ -18,6 +18,9 @@
       display inline-block
       height 128px
       width 128px
+      
+      border-radius 3px
+      border 3px solid white
       
       background white
       margin-right 36px
@@ -45,6 +48,15 @@
       +mobile() {
         display none
       }
+    }
+  }
+  
+  h4, h4 ~ .btn {
+    // Sample Text isn't on OpenSprites yet.
+    margin-left 128px + 3px*2 + 36px
+    
+    &:not(.btn) {
+      margin-top -24px
     }
   }
 }

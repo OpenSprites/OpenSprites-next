@@ -5,9 +5,11 @@ async function del(e) {
   let res = btn.parentNode
   let to = btn.attributes['data-to'].value
 
-  if(!window.confirm('Are you sure you\'d like to delete this?')) {
-    btn.innerHTML = 'delete'
-    return
+  if(btn.attributes['data-sure']) {
+    if(!window.confirm('Are you sure you\'d like to delete this?')) {
+      btn.innerHTML = 'delete'
+      return
+    }
   }
 
   await ajax({
