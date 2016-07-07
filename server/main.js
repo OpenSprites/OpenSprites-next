@@ -36,15 +36,12 @@ const lwip = require('lwip')
 
 const tada = '🎉'
 const db = require('./db')
+const Resource = require('./models/Resource')
+db.Resource = Resource
+const Collection = require('./models/Collection')
 
 const replaceBadWords = require('./utils/replace-bad-words')
 const callbackToPromise = require('./utils/callback-to-promise')
-
-/////////////////////////////////////////////////////////
-
-// yay, our second legit model
-const Resource = require('./models/Resource')
-const Collection = require('./models/Collection')
 
 /////////////////////////////////////////////////////////
 
@@ -490,20 +487,21 @@ app.put('/share', upload.single('file'), async function(req, res) {
   }
   
   try {
-     let collection = await db.Collection.find({
+     let collection = await db.Collection.findOne({
       owners: req.session.user,
       isShared: true
-    })
+    }, '_id')
   
-    if(collection[0]) {
-      collection = collection[0]
+    if(collection) {
+      collection = collection
     } else {
       collection = new db.Collection({
-        _id: shortid(),
+        _id: db.mongoose.Types.ObjectId(),
         name: 'Shared',
         owners: [req.session.user],
         isShared: true
       })
+      await collection.save()
     }
   
     let file = req.file
@@ -513,15 +511,37 @@ app.put('/share', upload.single('file'), async function(req, res) {
     }
     let name = req.body.name
     let clientid = req.body.clientid
-    let id = shortid()
-    let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
+    
   
     let isAudio = file.mimetype.substr(0, 5) === 'audio'
+    let isImage = file.mimetype.substr(0, 5) === 'image'
     let thumb
+    
+    let resource = new db.Resource({
+      _id: db.mongoose.Types.ObjectId(),
+      owners: [ req.session.user ],
+      name: name,
+      type: file.mimetype,
+      fname: name,
+      audio: isAudio,
+      image: isImage,
+      loading: false, // unused now
+      when: Date.now(),
+      cover: name,
+      data: '',
+      downloads: 0,
+      thumbnail: ''
+    })
+    
+    let id = resource._id.toString()
+    
+    let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
     if(process.env.db_file_storage == "true"){
       where = 'dbstorage/' + sanitize(id) + '.dat'
     }
-    let isImage = file.mimetype.substr(0, 5) === 'image'
+    
+    resource.data = where
+    resource.thumbnail = where + '.thumb'
   
     if(isAudio) {
       let pngURI = trianglify({
@@ -543,22 +563,6 @@ app.put('/share', upload.single('file'), async function(req, res) {
       }
       thumb = await squish(file.buffer, type)
     }
-  
-    let resource = Resource.create({
-      _id: id,
-      owners: [ req.session.user ],
-      name: name,
-      type: file.mimetype,
-      fname: name,
-      audio: isAudio,
-      image: isImage,
-      loading: false, // unused now
-      when: Date.now(),
-      cover: name,
-      data: where,
-      downloads: 0,
-      thumbnail: where + '.thumb'
-    })
     
     await resource.uploadThumbnail(thumb)
     
@@ -566,8 +570,11 @@ app.put('/share', upload.single('file'), async function(req, res) {
   
     await resource.save()
   
-    collection.resources.push(resource._id)
-    await collection.save()
+    // no need to download the items list
+    await db.Collection.findOneAndUpdate(
+      {_id: collection._id},
+      {$push: {items: {kind: 'Resource', item: resource._id}}},
+      {safe: true, upsert: true})
   
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
     res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resources/' + id})    
@@ -579,36 +586,24 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
 app.get('/collections/:id', nocache, async function(req, res) {
   try {
-    let collection = await db.Collection.find({
-      _id: req.params.id
-    })
-  
-    if(collection[0]) {
-      let rs = []
-  
-      for(let i = 0; i < collection[0].resources.length; i++) {
-        let r = await db.Resource.findOne({ _id: collection[0].resources[i] }, 'name owners audio image')
-        if(r) rs.push(r)
-      }
-  
-      rs.reverse() // order by "latest added to collection"
-      
-      collection[0].youOwn = collection[0].owners.includes(req.session.user || '')
-  
-      res.render('collection', {
-        user: req.session.user,
-        collection: collection[0],
-        resources: rs,
-        csrfToken: req.csrfToken()
-      })
-    } else {
-      res.status(404).render('404', {
-        user: req.session.user
-      })
+    let collection = await Collection.findById(req.params.id)
+    let rsRaw = await collection.getItems()
+    let rs = []
+    for(let resource of rsRaw.items){
+      rs.push(resource.item)
     }
+      
+    collection.youOwn = collection.isPermitted(req.session.user || '', 'owns')
+  
+    res.render('collection', {
+      user: req.session.user,
+      collection: collection,
+      resources: rs,
+      csrfToken: req.csrfToken()
+    })
   } catch(err){
     console.log(err)
-    res.status(500).render('500', {
+    res.status(404).render('404', {
       user: req.session.user
     })
   }
@@ -616,20 +611,13 @@ app.get('/collections/:id', nocache, async function(req, res) {
 
 app.get('/collections/:id/cover', nocache, async function(req, res) {
   try {
-    let collection = await db.Collection.find({
-      _id: req.params.id
-    })
+    let collection = await Collection.findById(req.params.id)
   
-    if(!collection[0]) throw "Collection not found: " + req.params.id;
+    let rsRaw = await collection.getItems(10)
     let rs = []
-    for(let i = 0; i < collection[0].resources.length; i++) {
-      let res = collection[0].resources[i]
-      if(!res) continue
-      let r = await Resource.findById(res)
-      if(r) rs.push(r)
+    for(let resource of rsRaw.items){
+      rs.push(await db.Resource.findById(resource.item._id))
     }
-    rs.reverse()
-    rs = rs.filter(e => !e.deleted)
   
     let $ = callbackToPromise
   
@@ -780,7 +768,7 @@ app.post(`/resources/:id`, mustSignIn, async function(req, res) {
 app.put(`/resources/:id/about`, async function(req, res) {
   let resource
   try {
-    resource = await Resource.findById(req.params.id)
+    resource = await db.Resource.findById(req.params.id)
   } catch(err) {
     console.log(err)
     res.status(404).json(false)
@@ -810,7 +798,7 @@ app.get(`/resources/:id/raw`, async function(req, res) {
   let resource
   
   try {
-    resource = await Resource.findById(req.params.id)
+    resource = await db.Resource.findById(req.params.id)
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
@@ -844,7 +832,7 @@ app.get(`/resources/:id/raw`, async function(req, res) {
 app.get(`/resources/:id/download/:f?`, async function(req, res) {
   let resource
   try {
-    resource = await Resource.findById(req.params.id)
+    resource = await db.Resource.findById(req.params.id)
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
@@ -874,7 +862,7 @@ app.get(`/resources/:id/download/:f?`, async function(req, res) {
 // DEPRECATED
 app.get(`/resources/:id/cover`, async function(req, res) {
  try {
-    let resource = await Resource.findById(req.params.id)
+    let resource = await db.Resource.findById(req.params.id)
     if(resource.audio) {
       let thumb = await resource.getThumbnail()
       res.contentType(thumb.contentType)

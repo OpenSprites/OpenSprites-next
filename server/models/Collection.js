@@ -12,7 +12,7 @@ class Collection {
     } else {
       promise = db.Collection.findOne({
         _id: id
-      })
+      }, 'name about permissions when owners')
     }
     let result = await promise
     if(!result) throw "Collection not found"
@@ -66,20 +66,35 @@ class Collection {
   
   // TODO: make mongo-based group checking operation
   // instead of downloading the entire user list
-  isPermitted(user, permission){
+  async isPermitted(user, permission){
     let userObj = db.User.findOne({ username: user })
     if(userObj.admin) return true
     
-    if(permission == 'setPermissions'){
-      return this.owners.contains(user)
+    if(permission == 'setPermissions' || permission == 'owns'){
+      return !!(await db.Collection.find({_id: this._id, owners: userObj._id}))
     }
     
     let group = 'everyone'
-    if(this.curators.contains(user)) {
+    if(await db.Collection.find({_id: this._id, curators: userObj._id})) {
       group = 'curators'
     }
     
     return this.permissions[group][permission]
+  }
+  
+  getItems(limit, maxDate) {
+    let populateParams = {
+      path: 'items.item',
+      sort: '-when',
+      select: {name:1, audio:1, image:1, deleted:1, _id:1, owners:1}
+    }
+    if(limit){
+      populateParams.options = { limit: limit } // see: http://stackoverflow.com/a/23640287/1021196
+      if(maxDate) {
+        populateParams.select['when'] = { $lte: maxDate }
+      }
+    }
+    return db.Collection.findOne({_id: this._id}, 'items').populate(populateParams)
   }
   
   save() {

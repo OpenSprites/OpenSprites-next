@@ -5,64 +5,15 @@ Grid.mongo = mongoose.mongo
 
 /////////////////////////////////////////////////////////
 
-const Reply = mongoose.Schema({
-  _id: { type: String, default: shortid },
-  who: { type: String, required: true },
-  what: { type: String, default: '' },
-  when: { type: Number, default: () => Date.now() }
-})
-
-const Comment = mongoose.Schema({
-  _id: { type: String, default: shortid },
-  who: { type: String, required: true },
-  what: { type: String, default: '' },
-  when: { type: Number, default: () => Date.now() },
-  replies: [
-    Reply
-  ]
-})
-
-const Resource = mongoose.model('Resource', mongoose.Schema({
-  _id: String,
-  name: { type: String, default: 'Something' },
-  about: { type: String, default: 'Sample Text' },
-  type: { type: String, enum: [
-    'image/png',
-    'image/jpeg',
-    'image/gif',
-    'image/svg+xml',
-    'audio/mp3',
-    'audio/wav',
-    'application/json'
-  ] },
-
-  audio: Boolean,
-  image: Boolean,
-  script: Boolean,
-  sprite: Boolean,
-
-  when: { type: Number, default: () => Date.now() },
-
-  thumbnail: String,
-  cover: String,
-
-  deleted: { type: Boolean, default: false },
-  comments: [
-    Comment
-  ],
-
-  data: String, // db/uploads/_id.dat
-  owners: { type: Array, default: [] },
-
-  downloads: { type: Number, default: 0 },
-  downloaders: [ String ]
-}))
-
 const Collection = mongoose.model('Collection', mongoose.Schema({
-  _id: String,
   name: { type: String, default: 'A Collection' },
   about: { type: String, default: 'Sample Text' },
-  resources: [ String ],
+  items: [
+    {
+      kind: String,
+      item: { type: mongoose.Schema.Types.ObjectId, refPath: 'items.kind' }
+    }
+  ],
   owners: { type: Array, default: [] },
   curators: { type: Array, default: [] },
   subscribers: { type: Array, default: [] },
@@ -107,10 +58,10 @@ const User = mongoose.model('User', mongoose.Schema({
 
 module.exports = {
   User,
-  Resource,
   Collection,
   
   GridFS: null,
+  mongoose: mongoose,
   
   load: function() {
     return new Promise(function(done, reject) {
