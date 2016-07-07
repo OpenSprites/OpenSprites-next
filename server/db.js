@@ -7,7 +7,7 @@ Grid.mongo = mongoose.mongo
 
 const Collection = mongoose.model('Collection', mongoose.Schema({
   name: { type: String, default: 'A Collection' },
-  about: { type: String, default: 'Sample Text' },
+  about: { type: String, default: `Hello there! I'm a collection without a description.` },
   items: [
     {
       kind: String,
@@ -46,7 +46,7 @@ const User = mongoose.model('User', mongoose.Schema({
   emailConfirmed: { type: Boolean, default: false },
 
   joined: { type: String, default: () => Date.now() },
-  about: { type: String, default: '# About Me\nHi there!' },
+  about: { type: String, default: 'Hi there!' },
 
   online: { type: Number, default: () => Date.now() }, // last seen
   ip: [

@@ -59,6 +59,10 @@
   
   padding .5em
   
+  h1 {
+    @extend h2
+  }
+  
   > *:first-child {
     margin-top 0
   }
@@ -74,12 +78,29 @@
   margin-top: 0.2em
   margin-bottom: 0.2em
   
+  height 6em
+  overflow-y auto
+
   &[contenteditable] {
-    &:hover, &:focus {
+    transition height 150ms easing
+             , background 70ms easing
+             , border 70ms easing
+    
+    border 1px solid transparent
+
+    &:hover {
       background rgba(black, 0.02)
-      border: 2px dashed #659593
+      border 1px solid rgba(black, 0.2)
+    }
+    
+    &:focus {
+      height 12em
     }
   }
+}
+
+.bio ~ #edit {
+  margin-top 24px
 }
 
 .resource-title {

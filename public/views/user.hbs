@@ -27,6 +27,7 @@
 
 {{#if who.exists}}
   <main class='user'>
+    <h1>About</h1>
     <div {{#if who.isYou}}contenteditable{{/if}} class='bio markdown-about-edit'>
       {{{md who.about}}}
     </div>
