@@ -74,9 +74,8 @@
     border-left 3px solid #ddd
   }
   
-  border: 2px solid transparent
-  margin-top: 0.2em
-  margin-bottom: 0.2em
+  margin-top 0.2em
+  margin-bottom 0.2em
   
   height 6em
   overflow-y auto
@@ -90,7 +89,7 @@
 
     &:hover {
       background rgba(black, 0.02)
-      border 1px solid rgba(black, 0.2)
+      border 1px solid rgba(black, 0.1)
     }
     
     &:focus {
@@ -104,16 +103,25 @@
 }
 
 .resource-title {
-  max-height: 2.5em
-  overflow: hidden
-  text-overflow: ellipsis
+  max-height 2.5em
+  overflow hidden
+  border-radius 3px
+  text-overflow ellipsis
 
-  border: 2px solid transparent
+  transition border 70ms easing
+           , background 70ms easing
+           
+  border 1px solid transparent
+  
   &[contenteditable] {
+    padding .16em .24em
+
     &:hover, &:focus {
-      overflow-y: auto
+      overflow-y auto
+      outline none
+      
       background rgba(black, 0.02)
-      border: 2px dashed white
+      border 1px solid rgba(black, 0.1)
     }
   }
 }
