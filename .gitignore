@@ -47,4 +47,5 @@ db/users.json
 
 *.sublime-project
 *.sublime-workspace
+*.brackets.json
 ci-log.txt
