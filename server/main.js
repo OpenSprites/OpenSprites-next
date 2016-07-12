@@ -678,6 +678,7 @@ app.put('/collections/:id/about', nocache, async function(req, res) {
     
     if(!collection.owners.includes(req.session.user)) {
       res.status(403).json(false)
+      return
     }
     
     if(req.body.md) {
@@ -802,6 +803,7 @@ app.put(`/resources/:id/about`, async function(req, res) {
   } catch(err) {
     console.log(err)
     res.status(404).json(false)
+    return
   }
 
   if(!resource.owners.includes(req.session.user)) {
