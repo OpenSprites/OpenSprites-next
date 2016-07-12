@@ -64,18 +64,16 @@ class Collection {
     if(newPermsObj.everyone) updateFor('everyone', newPermsObj.everyone)
   }
   
-  // TODO: make mongo-based group checking operation
-  // instead of downloading the entire user list
   async isPermitted(user, permission){
     let userObj = db.User.findOne({ username: user })
     if(userObj.admin) return true
     
     if(permission == 'setPermissions' || permission == 'owns'){
-      return !!(await db.Collection.find({_id: this._id, owners: userObj._id}))
+      return !!(await db.Collection.findOne({_id: this._id, owners: userObj._id}))
     }
     
     let group = 'everyone'
-    if(await db.Collection.find({_id: this._id, curators: userObj._id})) {
+    if(await db.Collection.findOne({_id: this._id, curators: userObj._id})) {
       group = 'curators'
     }
     
