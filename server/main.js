@@ -623,7 +623,7 @@ app.get('/collections/:id', nocache, async function(req, res) {
       rs.push(resource.item)
     }
       
-    collection.youOwn = collection.isPermitted(req.session.user || '', 'owns')
+    collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
   
     res.render('collection', {
       user: req.session.user,
