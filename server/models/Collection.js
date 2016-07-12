@@ -69,11 +69,11 @@ class Collection {
     if(userObj.admin) return true
     
     if(permission == 'setPermissions' || permission == 'owns'){
-      return !!(await db.Collection.findOne({_id: this._id, owners: userObj._id}))
+      return !!(await db.Collection.findOne({_id: this._id, owners: userObj.username}))
     }
     
     let group = 'everyone'
-    if(await db.Collection.findOne({_id: this._id, curators: userObj._id})) {
+    if(await db.Collection.findOne({_id: this._id, curators: userObj.username})) {
       group = 'curators'
     }
     
