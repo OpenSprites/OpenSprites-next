@@ -622,7 +622,7 @@ app.get('/collections/:id', nocache, async function(req, res) {
     for(let resource of rsRaw.items){
       rs.push(resource.item)
     }
-      
+    
     collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
   
     res.render('collection', {

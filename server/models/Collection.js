@@ -65,7 +65,8 @@ class Collection {
   }
   
   async isPermitted(user, permission){
-    let userObj = db.User.findOne({ username: user })
+    let userObj = await db.User.findOne({ username: user });
+    if(!userObj) return false;
     if(userObj.admin) return true
     
     if(permission == 'setPermissions' || permission == 'owns'){
