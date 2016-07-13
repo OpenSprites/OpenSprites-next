@@ -3,19 +3,32 @@
   {{{by collection.owners}}}
   <br>
   <small>Created {{{timeago collection.when}}}</small>
-</main></header>
-
-<main>
+  
   <div {{#if collection.canSetAbout}}contenteditable{{/if}} class='bio markdown-about-edit'>
     {{{md collection.about}}}
   </div>
   <small></small>
 
   {{#if collection.canSetAbout}}
-    <a id='edit' class='btn flat' style='float:right'>edit collection info</a>
+    <a id='edit' class='btn' style='float:right'>edit collection info</a>
+    <br style='clear:both' />
+    <br/>
   {{/if}}
 
   <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
+</main>
+<ul class='collection-ui controls'>
+  <li><input type='checkbox' /> the select all checkbox</li>
+  <li>Some controls here with fancy icons</li>
+  <li>Add</li>
+  <li>Remove Selected</li>
+  <li>Search</li>
+  <li>Display tiles | list</li>
+  <li>Settings</li>
+</ul>
+</header>
+
+<main>
 
   <div class='resources'>
     {{#each resources}}
