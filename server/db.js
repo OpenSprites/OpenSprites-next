@@ -5,28 +5,7 @@ Grid.mongo = mongoose.mongo
 
 /////////////////////////////////////////////////////////
 
-const User = mongoose.model('User', mongoose.Schema({
-  username: String,
-  password: String,
-  admin: { type: Boolean, default: false },
-
-  email: String,
-  emailConfirmed: { type: Boolean, default: false },
-
-  joined: { type: String, default: () => Date.now() },
-  about: { type: String, default: 'Hi there!' },
-
-  online: { type: Number, default: () => Date.now() }, // last seen
-  ip: [
-    String
-  ]
-}))
-
-/////////////////////////////////////////////////////////
-
 module.exports = {
-  User,
-  
   GridFS: null,
   mongoose: mongoose,
   

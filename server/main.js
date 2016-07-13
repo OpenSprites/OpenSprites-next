@@ -42,6 +42,8 @@ const Resource = require('./models/Resource')
 db.Resource = Resource
 const Collection = require('./models/Collection')
 db.Collection = Collection
+const User = require('./models/User')
+db.User = User
 
 const replaceBadWords = require('./utils/replace-bad-words')
 const callbackToPromise = require('./utils/callback-to-promise')
@@ -435,16 +437,18 @@ app.put('/users/:who/about', async function(req, res) {
   if(req.params.who !== req.session.user) {
     res.status(403).json(false)
   } else {
-    let user = (await db.User.find({
+    let user = await db.User.findOne({
       username: req.params.who
-    }))[0]
-
-    let about = replaceBadWords(req.body.md)
-    if(about.length > 1024){
-      about = about.substring(0, 1024)
+    })
+    if(!user){
+      req.status(404).json(false)
+      return
     }
-    user.about = about
-    await user.save()
+
+    if(req.body.md) {
+      user.updateAbout(req.body.md)
+      await user.save()
+    }
 
     res.status(200).json({about: user.about})
   }
