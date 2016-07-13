@@ -41,6 +41,7 @@ const db = require('./db')
 const Resource = require('./models/Resource')
 db.Resource = Resource
 const Collection = require('./models/Collection')
+db.Collection = Collection
 
 const replaceBadWords = require('./utils/replace-bad-words')
 const callbackToPromise = require('./utils/callback-to-promise')
@@ -617,6 +618,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
 app.get('/collections/:id', nocache, async function(req, res) {
   try {
     let collection = await Collection.findById(req.params.id)
+    if(!collection) throw 'Collection not found'
     let rsRaw = await collection.getItems()
     let rs = []
     for(let resource of rsRaw.items){
@@ -641,29 +643,10 @@ app.get('/collections/:id', nocache, async function(req, res) {
 
 app.get('/collections/:id/cover', nocache, async function(req, res) {
   try {
-    let collection = await Collection.findById(req.params.id)
-  
-    let rsRaw = await collection.getItems(10)
-    let rs = []
-    for(let resource of rsRaw.items){
-      rs.push(await db.Resource.findById(resource.item._id))
-    }
-  
-    let $ = callbackToPromise
-  
-    let image = await $(lwip, lwip.create, 240, 240, {r:0, g:0, b:0, a:0})
+    let collection = await db.Collection.findById(req.params.id)
+    if(!collection) throw {message: "Collection not found"};
     
-    for(var i = 0; i < Math.min(rs.length, 4); i++) {
-      let thumbData = await rs[i].getThumbnail()
-      let thumb = await $(lwip, lwip.open, thumbData.data, 'png')
-      thumb = await $(thumb, thumb.cover, 120, 120, "lanczos")
-      let x = (i % 2 == 0) ? 0 : 120
-      let y = (i < 2) ? 0 : 120
-      image = await $(image, image.paste, x, y, thumb)
-    }
-    
-    let buf = await $(image, image.toBuffer, 'png')
-    
+    let buf = await collection.getThumbnail()
     res.contentType('image/png').send(buf)
   } catch(err) {
     if(err.message !== 'Invalid source') console.log(err)
@@ -674,7 +657,7 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
 
 app.put('/collections/:id/about', nocache, async function(req, res) {
   try {
-    let collection = await Collection.findById(req.params.id)
+    let collection = await db.Collection.findById(req.params.id)
     
     if(!collection.owners.includes(req.session.user)) {
       res.status(403).json(false)

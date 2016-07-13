@@ -51,7 +51,9 @@ let ResourceSchema = mongoose.Schema({
 
   downloads: { type: Number, default: 0 },
   downloaders: [ String ]
-});
+})
+
+let Resource
 
 ResourceSchema.methods.updateAbout = function (about) {
   about = replaceBadWords(about)
@@ -247,8 +249,6 @@ ResourceSchema.methods.downloadToResponse = function (req, res) {
   }
 }
 
-const Resource = mongoose.model('Resource', ResourceSchema)
-
 ResourceSchema.statics.findById = async function (id, whichFields) {
   let promise
   if (whichFields) {
@@ -264,5 +264,7 @@ ResourceSchema.statics.findById = async function (id, whichFields) {
   if (!result) throw "Resource not found"
   return result
 }
+
+Resource = mongoose.model('Resource', ResourceSchema)
 
 module.exports = Resource

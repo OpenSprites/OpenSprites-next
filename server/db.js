@@ -5,38 +5,6 @@ Grid.mongo = mongoose.mongo
 
 /////////////////////////////////////////////////////////
 
-const Collection = mongoose.model('Collection', mongoose.Schema({
-  name: { type: String, default: 'A Collection' },
-  about: { type: String, default: `Hello there! I'm a collection without a description.` },
-  items: [
-    {
-      kind: String,
-      item: { type: mongoose.Schema.Types.ObjectId, refPath: 'items.kind' }
-    }
-  ],
-  owners: { type: Array, default: [] },
-  curators: { type: Array, default: [] },
-  subscribers: { type: Array, default: [] },
-  permissions : {
-    curators: {
-      addCurators: { type: Boolean, default: false },
-      addItems: { type: Boolean, default: true },
-      removeItems: { type: Boolean, default: true },
-      setTitle: { type: Boolean, default: false },
-      setAbout: { type: Boolean, default: true }
-    },
-    everyone: {
-      addCurators: { type: Boolean, default: false },
-      addItems: { type: Boolean, default: false },
-      removeItems: { type: Boolean, default: false },
-      setTitle: { type: Boolean, default: false },
-      setAbout: { type: Boolean, default: false }
-    }
-  },
-  when: { type: Number, default: () => Date.now() },
-  isShared: { type: Boolean, default: false }
-}))
-
 const User = mongoose.model('User', mongoose.Schema({
   username: String,
   password: String,
@@ -58,7 +26,6 @@ const User = mongoose.model('User', mongoose.Schema({
 
 module.exports = {
   User,
-  Collection,
   
   GridFS: null,
   mongoose: mongoose,
