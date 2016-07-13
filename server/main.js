@@ -626,6 +626,8 @@ app.get('/collections/:id', nocache, async function(req, res) {
     }
     
     collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
+    collection.canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
+    collection.canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
   
     res.render('collection', {
       user: req.session.user,
@@ -658,18 +660,23 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
 app.put('/collections/:id/about', nocache, async function(req, res) {
   try {
     let collection = await db.Collection.findById(req.params.id)
+    if(!collection) throw 'Collection not found'
     
-    if(!collection.owners.includes(req.session.user)) {
+    let canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
+    let canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
+    
+    if(canSetAbout && req.body.md) {
+      collection.updateAbout(req.body.md)
+    } else if(!canSetAbout) {
       res.status(403).json(false)
       return
     }
     
-    if(req.body.md) {
-      collection.updateAbout(req.body.md)
-    }
-    
-    if(req.body.title) {
+    if(canSetTitle && req.body.title) {
       collection.updateTitle(req.body.title)
+    } else if(!canSetTitle) {
+      res.status(403).json(false)
+      return
     }
     
     await collection.save()

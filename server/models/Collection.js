@@ -68,11 +68,15 @@ CollectionSchema.methods.isPermitted = async function (user, permission) {
   if (!userObj) return false;
   if (userObj.admin) return true
 
+  let isOwner = !!(await Collection.findOne({
+    _id: this._id,
+    owners: userObj.username
+  }))
+  
   if (permission == 'setPermissions' || permission == 'owns') {
-    return !!(await Collection.findOne({
-      _id: this._id,
-      owners: userObj.username
-    }))
+    return isOwner
+  } else if(isOwner) {
+    return true
   }
 
   let group = 'everyone'

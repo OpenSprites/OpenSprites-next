@@ -6,12 +6,12 @@
 </main></header>
 
 <main>
-  <div {{#if collection.youOwn}}contenteditable{{/if}} class='bio markdown-about-edit'>
+  <div {{#if collection.canSetAbout}}contenteditable{{/if}} class='bio markdown-about-edit'>
     {{{md collection.about}}}
   </div>
   <small></small>
 
-  {{#if collection.youOwn}}
+  {{#if collection.canSetAbout}}
     <a id='edit' class='btn flat' style='float:right'>edit collection info</a>
   {{/if}}
 
