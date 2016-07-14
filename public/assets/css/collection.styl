@@ -8,22 +8,26 @@
     li {
       margin 0.5em
       display inline-block
-      
-      height 2em
+      position relative
       
       button {
         border 1px solid os-light
         border-radius 0.5em
         transition all 0.1s
         
-        &:hover {
+        color white
+        
+        &:hover:not(:disabled) {
           background os-light
           color gray
+        }
+        
+        &:disabled {
+          color os-light
         }
       }
       
       &.select-all {
-        position relative
         button {
           padding-left 1em
         }
@@ -76,6 +80,28 @@
           .dropdown {
             max-height 500px
           }
+        }
+      }
+      
+      .tooltip {
+        background rgba(0, 0, 0, 0.5)
+        color white
+        border-radius 0.5em
+        padding 0.5em
+        opacity 0
+        transition all 0.1s
+        font-size 0.7em
+        word-wrap nowrap
+        white-space pre
+        
+        position absolute
+        z-index 99999
+      }
+      
+      &:hover {
+        .tooltip {
+          opacity 1
+          transition all 0.1s 0.5s
         }
       }
     }
