@@ -4,11 +4,11 @@ module.exports = function(){
     if(container.classList.contains('display-tiles')) {
       container.classList.remove('display-tiles')
       container.classList.add('display-list')
-      document.querySelector('.collection-ui.controls .display-switch button').textContent = 'view_list'
+      document.querySelector('.collection-ui.controls .display-switch button').textContent = 'view_module'
     } else {
       container.classList.remove('display-list')
       container.classList.add('display-tiles')
-      document.querySelector('.collection-ui.controls .display-switch button').textContent = 'view_module'
+      document.querySelector('.collection-ui.controls .display-switch button').textContent = 'view_list
     }
   });
 }
