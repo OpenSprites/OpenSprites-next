@@ -1,4 +1,4 @@
-<div class='resource' id='{{_id}}'>
+<div class='resource' id='{{_id}}' data-id='{{_id}}'>
   <input type='checkbox' class='resource-select' />
   <a href='/{{resources}}/{{_id}}' class='to' {{#if loading}}title="We're still loading this, so sit tight!"{{/if}}>
     {{#if audio}}
@@ -15,7 +15,7 @@
       </div>
     {{/if}}
 
-    <h4>{{name}}</h4>
+    <h4 class='resource-name'>{{name}}</h4>
   </a>
   <span>{{{by owners}}}</span>
   <small>

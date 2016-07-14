@@ -7,6 +7,10 @@ function updateView(){
   if(hash == 'collection-settings'){
     updateCollectionSettings()
   }
+  
+  if(hash == 'collection-remove' && (!OS.toRemoveIds || OS.toRemoveIds.length == 0)) {
+    location.hash = ''
+  }
 }
 
 async function saveCollectionSettings(){
@@ -59,6 +63,108 @@ function updateCollectionSettings(){
   document.querySelector(".permissions-save").onclick = saveCollectionSettings
 }
 
+function removeConfirm() {
+  OS.toRemoveIds = []
+  
+  let list = document.querySelector(".collection-ui .collection-remove-list")
+  list.innerHTML = ''
+  
+  for(let check of Array.from(document.querySelectorAll(".resource-select:checked"))) {
+    let id = check.parentElement.id;
+    let name = check.parentElement.querySelector(".resource-name").textContent
+    
+    let li = document.createElement("li")
+    li.textContent = name
+    list.appendChild(li)
+    
+    OS.toRemoveIds.push(id)
+  }
+  
+  location.hash = '#collection-remove'
+}
+
+async function doRemove() {
+  let status = document.querySelector(".collection-ui.dialog-remove small.status")
+  let button = document.querySelector(".collection-ui.dialog-remove .confirm")
+  let cancel = document.querySelector(".collection-ui.dialog-remove .btn.flat")
+  
+  button.disabled = true
+  cancel.disabled = true
+  status.textContent = "Removing..."
+  
+  try {
+    // delete doesn't like csrf for some reason
+    await ajax.post(location.pathname + '/items/delete', {
+        ids: OS.toRemoveIds,
+        csrf: window.csrf
+      }, {
+        'headers': {
+          'X-CSRF-Token': window.csrf
+        }
+    })
+    status.textContent = ""
+    location.hash = "#"
+    
+    for(let id of OS.toRemoveIds) {
+      document.querySelector("[data-id='" + id + "']").remove()
+    }
+    
+    OS.toRemoveIds = []
+  } catch(e){
+    console.log(e)
+    status.textContent = "Error"
+  }
+  
+  button.disabled = false
+  cancel.disabled = false
+}
+
+async function addToCollection(rawItem){
+  let item = null
+  
+  console.log(rawItem)
+  
+  if(rawItem.startsWith("http")) {
+    item = rawItem.match(/[a-f0-9]{24}/gi)
+    if(!item) return
+    item = item[0]
+  } else if(rawItem.match(/^[a-f0-9]{24}$/gi)) {
+    item = rawItem
+  } else {
+    return
+  }
+  
+  let btn = document.querySelector(".collection-ui .add-by-url .submit")
+  btn.disabled = true
+  try {
+    let res = await ajax.put(location.pathname + '/items', {
+        ids: [item]
+      }, {
+        'headers': {
+          'X-CSRF-Token': window.csrf
+        }
+    })
+    
+    //TODO make this nicer
+    location.reload(true)
+  } catch(e){
+    console.log(e)
+    pAlert("Error: " + e)
+  }
+  btn.disabled = false
+}
+
+function pAlert(msg) {
+  return new Promise(function(resolve){
+    document.querySelector(".collection-ui.dialog-alert .alert-content").textContent = msg
+    document.querySelector(".collection-ui.dialog-alert .btn").onclick = function(){
+      location.href = "#"
+      resolve()
+    }
+    location.href = '#collection-alert'
+  })
+}
+
 
 module.exports = function() {
   window.addEventListener('hashchange', function(){
@@ -81,8 +187,40 @@ module.exports = function() {
     }
   })
   
+  let addBtn = document.querySelector('.collection-ui.controls .add-btn')
+  if(addBtn) {
+    addBtn.addEventListener('click', function(){
+      document.querySelector(".collection-ui .add-by-url").classList.toggle("active")
+    })
+    document.querySelector(".collection-ui .add-by-url .submit").addEventListener('click', function(){
+      addToCollection(document.querySelector(".collection-ui .add-by-url input").value)
+    })
+  }
+  
   let settingsBtn = document.querySelector('.collection-ui.controls .settings-btn')
   if(settingsBtn) settingsBtn.addEventListener('click', function(){
-      location.hash = "#collection-settings"
+    location.hash = "#collection-settings"
+  })
+  
+  let removeBtn = document.querySelector('.collection-ui.controls .remove-btn')
+
+  if (removeBtn) {
+    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
+      check.addEventListener('change', function() {
+        let anyChecked = !!document.querySelector(".resource-select:checked")
+        removeBtn.disabled = !anyChecked
+      })
     })
+
+    removeBtn.addEventListener('click', function() {
+      removeConfirm()
+    })
+
+    document.querySelector(".collection-ui.dialog-remove .confirm").addEventListener('click', function() {
+      doRemove();
+    })
+    document.querySelector(".collection-ui.dialog-remove .btn.flat").addEventListener('click', function() {
+      location.hash = '#'
+    })
+  }
 }

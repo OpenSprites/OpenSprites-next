@@ -89,6 +89,7 @@
         border-radius 0.5em
         padding 0.5em
         opacity 0
+        pointer-events none
         transition all 0.1s
         font-size 0.7em
         word-wrap nowrap
@@ -102,6 +103,7 @@
         .tooltip {
           opacity 1
           transition all 0.1s 0.5s
+          pointer-events all
         }
       }
     }
@@ -299,5 +301,37 @@ header.collection-ui main {
   h3 {
     margin 0
     margin-bottom 0.5em
+  }
+}
+
+.collection-ui .add-by-url {
+  max-height 0
+  box-sizing border-box
+  overflow hidden
+  
+  padding-left 5em
+  
+  transition all 0.2s
+  
+  &.active {
+    max-height 100px
+    padding-bottom 0.5em
+  }
+  
+  input {
+    border none
+    outline none
+    
+    width 300px
+    max-width 100%
+    @extend .body
+    line-height 2
+    
+    color os-grey
+    border-bottom 1px dotted #C3C3C3
+    
+    &:focus {
+      border-bottom 1px solid #AAAAAA
+    }
   }
 }

@@ -653,7 +653,7 @@ app.post('/collections/create', nocache, async function(req, res){
       _id: db.mongoose.Types.ObjectId(),
       name: req.body.collectionName || 'Untitled Collection',
       owners: [req.session.user],
-      isShared: true
+      isShared: false
     })
     await collection.save()
     
@@ -680,6 +680,10 @@ app.get('/collections/:id', nocache, async function(req, res) {
     collection.canAddItems = await collection.isPermitted(req.session.user || '', 'addItems')
     collection.canRemoveItems = await collection.isPermitted(req.session.user || '', 'removeItems')
     
+    if(collection.isShared) {
+      collection.canRemoveItems = false
+    }
+    
     res.render('collection', {
       user: req.session.user,
       collection: collection,
@@ -691,6 +695,71 @@ app.get('/collections/:id', nocache, async function(req, res) {
     res.status(404).render('404', {
       user: req.session.user
     })
+  }
+})
+
+app.post('/collections/:id/items/delete', nocache, async function(req, res) {
+  try {
+    let collection = await db.Collection.findById(req.params.id)
+    if(!collection) throw {message: "Collection not found"};
+    
+    let permitted = await collection.isPermitted(req.session.user || '', 'removeItems')
+    if(collection.isShared || !permitted){
+      res.status(403).json(false)
+      return
+    }
+    
+    let items = req.body.ids
+    if(!items){
+      res.status(400).json(false)
+      return
+    }
+    
+    for(let item of items){
+      await db.Collection.findOneAndUpdate(
+        {_id: collection._id},
+        {$pull: {items: {kind: 'Resource', item: item }}}
+      )
+    }
+    
+    res.status(200).json(true)
+  } catch(err) {
+    if(err.message !== 'Invalid source') console.log(err)
+
+    res.status(500).json(false)
+  }
+})
+
+app.put('/collections/:id/items', nocache, async function(req, res) {
+  try {
+    let collection = await db.Collection.findById(req.params.id)
+    if(!collection) throw {message: "Collection not found"};
+    
+    let permitted = await collection.isPermitted(req.session.user || '', 'addItems')
+    if(collection.isShared || !permitted){
+      res.status(403).json(false)
+      return
+    }
+    
+    let items = req.body.ids
+    if(!items){
+      res.status(400).json(false)
+      return
+    }
+    
+    for(let item of items){
+      await db.Collection.findOneAndUpdate(
+        {_id: collection._id},
+        {$push: {items: {kind: 'Resource', item: item }}},
+        {safe: true, upsert: true}
+      )
+    }
+    
+    res.status(200).json(true)
+  } catch(err) {
+    if(err.message !== 'Invalid source') console.log(err)
+
+    res.status(500).json(false)
   }
 })
 
@@ -798,7 +867,7 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       resource: resource[0],
       csrfToken: req.csrfToken(),
       title: resource[0].name,
-      youOwn: resource[0].owners.includes(req.session.user||''),
+      youOwn: resource[0].owners.indexOf(req.session.user||'') > -1,
       head: `<!-- Social: Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:creator" content=${JSON.stringify(resource[0].owners[0])}>

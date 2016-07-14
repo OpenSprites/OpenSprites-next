@@ -25,18 +25,25 @@
       <li>invert</li>
     </ul>
   </li>
-  <li><button class="material-icons">add_box</button> <div class='tooltip'>Add items</div></li>
-  {{#if collection.canRemoveItems}}
-  <li><button class="material-icons" disabled>delete</button> <div class='tooltip'>Remove selected</div></li>
-  {{/if}}
   {{#if collection.canAddItems}}
-  <li><button class="material-icons">search</button> <div class='tooltip'>Find items</div></li>
+  <li><button class="material-icons add-btn">add_box</button> <div class='tooltip'>Add items</div></li>
   {{/if}}
+  {{#if collection.canRemoveItems}}
+  <li><button class="material-icons remove-btn" disabled>delete</button> <div class='tooltip'>Remove selected</div></li>
+  {{/if}}
+  <li><button class="material-icons">search</button> <div class='tooltip'>Find items</div></li>
   <li><button class="material-icons display-switch">view_list</button> <div class='tooltip'>Switch view</div></li>
   {{#if collection.youOwn}}
   <li><button class="material-icons settings-btn">settings</button> <div class='tooltip'>Collection settings</div></li>
   {{/if}}
+  
+  <li><button class="material-icons">file_download</button> <div class='tooltip'>Download collection</div></li>
 </ul>
+<div class='add-by-url'>
+  <label for='url-add-input'>Add by URL:</label>
+  <input type='url' placeholder='http://opensprites.org/something' id='url-add-input' />
+  <button type='button' class='btn white-border submit'>Add</button>
+</div>
 </header>
 
 <main class='collection-ui resource-container display-tiles'>
@@ -52,8 +59,23 @@
     {{#each resources}}
       {{> resource this}}
     {{/each}}
+    
+    {{#unless resources.length}}
+      This collection is empty. Add some items to get started!
+    {{/unless}}
   </div>
 </main>
+
+<div class='collection-ui collection-dialog-container dialog-alert' id='collection-alert'>
+  <div class='collection-ui collection-dialog'>
+    <div class='collection-ui collection-dialog-content'>
+      <p class='alert-content'></p>
+    </div>
+    <div class='collection-ui collection-dialog-buttons'>
+      <button class='btn'>ok</button>
+    </div>
+  </div>
+</div>
 
 <div class='collection-ui collection-dialog-container dialog-settings' id='collection-settings'>
   <div class='collection-ui collection-dialog'>
@@ -119,6 +141,24 @@
   </div>
 </div>
 
+
+<div class='collection-ui collection-dialog-container dialog-remove' id='collection-remove'>
+  <div class='collection-ui collection-dialog'>
+    <div class='collection-ui collection-dialog-content'>
+      <h2>Are you sure?</h2>
+      <p>You are about to remove the following from this collection:</p>
+      <ul class='collection-remove-list'>
+        
+      </ul>
+    </div>
+    <div class='collection-ui collection-dialog-buttons'>
+      <small class='status'></small>
+      <button class='btn flat'>cancel</button>
+      <button class='btn confirm'>confirm</button>
+    </div>
+  </div>
+</div>
+    
 <script>
   window.OS = window.OS || {}
   
