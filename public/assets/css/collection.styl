@@ -7,13 +7,76 @@
     
     li {
       margin 0.5em
-      padding 0.2em
-      border 1px solid os-light
-      border-radius 0.5em
       display inline-block
       
-      input[type=checkbox] {
-        vertical-align middle
+      height 2em
+      
+      button {
+        border 1px solid os-light
+        border-radius 0.5em
+        transition all 0.1s
+        
+        &:hover {
+          background os-light
+          color gray
+        }
+      }
+      
+      &.select-all {
+        position relative
+        button {
+          padding-left 1em
+        }
+        
+        input[type=checkbox] {
+          position absolute
+          top 50%
+          left 0.5em
+          transform translateY(-50%)
+        }
+        
+        .dropdown {
+          list-style-type none
+          
+          position absolute
+          top calc(2em - 2px)
+          margin 0
+          padding 0
+          
+          background os-light
+          border-bottom-right-radius 0.5em
+          border-bottom-left-radius 0.5em
+          border-top-right-radius 0.5em
+          z-index 9999
+          max-height 0
+          overflow hidden
+          box-sizing border-box
+          transition max-height 0.2s
+          
+          li {
+            display block
+            background os-light
+            color gray !important
+            transition all 0.1s
+            margin 0
+            padding-left 1em
+            padding-right 1em
+            &:hover {
+              background os-dark
+              color white !important
+            }
+          }
+        }
+        
+        &:hover {
+          button {
+            border-bottom-right-radius 0
+            border-bottom-left-radius 0
+          }
+          .dropdown {
+            max-height 500px
+          }
+        }
       }
     }
   }
@@ -21,6 +84,20 @@
   &.header {
     display none
   }
+}
+
+@media only screen and (max-width: 1127px) {
+  .collection-ui .resources > .resource:last-child {
+    display block
+  }
+  
+  .collection-ui.display-list .resources > .resource:last-child {
+    display table-row
+  }
+}
+
+.collection-ui.display-tiles .resources {
+  justify-content center
 }
 
 .collection-ui.display-list {

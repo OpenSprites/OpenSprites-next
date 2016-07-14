@@ -18,13 +18,18 @@
   <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
 </main>
 <ul class='collection-ui controls'>
-  <li><input type='checkbox' /> the select all checkbox</li>
-  <li>Some controls here with fancy icons</li>
-  <li>Add</li>
-  <li>Remove Selected</li>
-  <li>Search</li>
-  <li class='display-switch'>Display tiles | list</li>
-  <li>Settings</li>
+  <li class='select-all'><button class='material-icons'><input type='checkbox' />arrow_drop_down</button>
+    <ul class='dropdown'>
+      <li>all</li>
+      <li>none</li>
+      <li>invert</li>
+    </ul>
+  </li>
+  <li><button class="material-icons">add_box</button></li>
+  <li><button class="material-icons">delete</button></li>
+  <li><button class="material-icons">search</button></li>
+  <li class='display-switch'><button class="material-icons">view_module</button></li>
+  <li><button class="material-icons">settings</button></li>
 </ul>
 </header>
 
@@ -33,6 +38,7 @@
     <li>Name</li>
     <li>By</li>
     <li>Type</li>
+    <li>When</li>
   </ul>
 
   <div class='resources'>
