@@ -17,9 +17,76 @@
       }
     }
   }
+  
+  &.header {
+    display none
+  }
+}
+
+.collection-ui.display-list {
+  margin-top 0
+  padding-top 0
+  
+  display table
+
+  .header {
+    list-style-type none
+    color os-light
+    margin 0
+    padding 0
+    padding-bottom 0.5em
+    display table-row
+    
+    li {
+      border 1px solid gray
+      padding-left 0.5em
+      border-left none
+      display table-cell
+      &:first-child {
+        border-left 1px solid gray
+      }
+    }
+  }
+  
+  .resources {
+    display table-row-group
+  }
+  
+  .resource {
+    display table-row
+    white-space nowrap
+    
+    transition all 0.1s
+    
+    &:hover {
+      background os-light
+    }
+    
+    .to {
+      width 100%
+    }
+    
+    .to, span, small {
+      display table-cell
+      padding 0.5em
+    }
+    
+    small {
+      margin 0
+    }
+    
+    .to .audio, .to .img {
+      width 2em
+      height 2em
+      overflow hidden
+      float left
+    }
+  }
 }
 
 header.collection-ui main {
   margin-bottom 0
   padding-bottom 0
+  margin-top 0
+  padding-top 0
 }

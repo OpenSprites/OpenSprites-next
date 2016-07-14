@@ -23,12 +23,17 @@
   <li>Add</li>
   <li>Remove Selected</li>
   <li>Search</li>
-  <li>Display tiles | list</li>
+  <li class='display-switch'>Display tiles | list</li>
   <li>Settings</li>
 </ul>
 </header>
 
-<main>
+<main class='collection-ui resource-container display-tiles'>
+  <ul class='collection-ui header'>
+    <li>Name</li>
+    <li>Type</li>
+    <li>By</li>
+  </ul>
 
   <div class='resources'>
     {{#each resources}}

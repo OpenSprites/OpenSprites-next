@@ -14,6 +14,7 @@ const resource_page = require('./resource_page')
 const admin = require('./admin')
 const visualizer = require('./visualizer')
 const leaving = require('./leaving')
+const collection = require('./collection')
 
 require('./cookieconsent')
 
@@ -24,6 +25,9 @@ if('/join' === window.location.pathname)
 
 if('/share' === window.location.pathname)
   share()
+
+if(window.location.pathname.startsWith('/collections'))
+  collection()
 
 if(document.querySelector('.btn.admin-do'))
   admin()
