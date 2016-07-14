@@ -506,6 +506,11 @@ app.put('/share', upload.single('file'), async function(req, res) {
     return
   }
   
+  if(requireEmailConfirmedToShare && !req.session.udata.emailConfirmed) {
+    res.status(403).json({success: false, message: "Email not confirmed"})
+    return
+  }
+  
   try {
      let collection = await db.Collection.findOne({
       owners: req.session.user,
@@ -616,6 +621,46 @@ app.put('/share', upload.single('file'), async function(req, res) {
   } catch(err){
     console.log(err)
     res.status(500).json({success: false, message: err})
+  }
+})
+
+app.get('/collections/create', async function(req, res) {
+  if(!req.session.user) {
+    req.session.r = req.originalUrl
+    res.redirect('/signin')
+
+    return
+  }
+
+  req.session.csrf = req.csrfToken() // bit hacky
+  res.render('collection_create', {
+    user: req.session.user,
+    title: 'Create Collection',
+    csrfToken: req.csrfToken()
+  })
+})
+
+app.post('/collections/create', nocache, async function(req, res){
+  if(!req.session.user) {
+    req.session.r = req.originalUrl
+    res.redirect('/signin')
+
+    return
+  }
+  
+  try {
+    let collection = new db.Collection({
+      _id: db.mongoose.Types.ObjectId(),
+      name: req.body.collectionName || 'Untitled Collection',
+      owners: [req.session.user],
+      isShared: true
+    })
+    await collection.save()
+    
+    res.redirect('/collections/' + collection._id)
+  } catch(e){
+    console.log(e)
+    res.status('500').render('500', {user: req.session.user})
   }
 })
 

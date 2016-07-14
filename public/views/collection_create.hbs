@@ -1,0 +1,18 @@
+<main>
+  <h1>Create Collection</h1>
+  
+  <form method='post'>
+    <table id='join'>
+      <tbody>
+        <tr>
+          <td>Collection name</td>
+          <td>
+            <input type='text' required name='collectionName' class='collections-ui collection-create-name' />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <input type='hidden' style='display: none' name='csrf' value='{{csrfToken}}' />
+    <button type='submit' id='submit' class='btn'>go</button>
+  </form>
+</main>
