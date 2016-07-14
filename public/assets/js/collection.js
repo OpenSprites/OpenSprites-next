@@ -8,7 +8,7 @@ module.exports = function(){
     } else {
       container.classList.remove('display-list')
       container.classList.add('display-tiles')
-      document.querySelector('.collection-ui.controls .display-switch button').textContent = 'view_list
+      document.querySelector('.collection-ui.controls .display-switch button').textContent = 'view_list'
     }
   });
 }
