@@ -1,4 +1,5 @@
 <div class='resource' id='{{_id}}'>
+  <input type='checkbox' class='resource-select' />
   <a href='/{{resources}}/{{_id}}' class='to' {{#if loading}}title="We're still loading this, so sit tight!"{{/if}}>
     {{#if audio}}
       <div class='audio' style='background-image: url("/{{resources}}/{{_id}}/cover");'>
@@ -26,4 +27,5 @@
       Costume
     {{/if}}
   </small>
+  <span class='when'>{{{timeago when}}}</span>
 </div>

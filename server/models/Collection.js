@@ -53,8 +53,8 @@ CollectionSchema.methods.updateTitle = function (title) {
 CollectionSchema.methods.setPermissions = function (newPermsObj) {
   let self = this
   let updateFor = function (who, objNode) {
-    for (let key of objNode) {
-      this.permissions[who][key] = objNode[key]
+    for (let key in objNode) {
+      self.permissions[who][key] = objNode[key]
     }
   }
   if (newPermsObj.curators) updateFor('curators', newPermsObj.curators)
@@ -100,7 +100,8 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
       image: 1,
       deleted: 1,
       _id: 1,
-      owners: 1
+      owners: 1,
+      when: 1
     }
   }
   if (limit) {

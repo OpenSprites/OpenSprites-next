@@ -25,12 +25,6 @@
   
   user-select none
   cursor default
-  
-  +below(1127px) {
-    > .resource:last-child {
-      display none
-    }
-  }
 }
 
 .resource {
@@ -47,7 +41,15 @@
   
   width 240px
   
-  > a:first-child {
+  input[type=checkbox] {
+    display none
+  }
+  
+  .when {
+    display none
+  }
+  
+  > a.to {
     display block
     
     width 240px

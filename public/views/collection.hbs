@@ -26,15 +26,22 @@
     </ul>
   </li>
   <li><button class="material-icons">add_box</button> <div class='tooltip'>Add items</div></li>
+  {{#if collection.canRemoveItems}}
   <li><button class="material-icons" disabled>delete</button> <div class='tooltip'>Remove selected</div></li>
+  {{/if}}
+  {{#if collection.canAddItems}}
   <li><button class="material-icons">search</button> <div class='tooltip'>Find items</div></li>
-  <li class='display-switch'><button class="material-icons">view_list</button> <div class='tooltip'>Switch view</div></li>
-  <li><button class="material-icons">settings</button> <div class='tooltip'>Collection settings</div></li>
+  {{/if}}
+  <li><button class="material-icons display-switch">view_list</button> <div class='tooltip'>Switch view</div></li>
+  {{#if collection.youOwn}}
+  <li><button class="material-icons settings-btn">settings</button> <div class='tooltip'>Collection settings</div></li>
+  {{/if}}
 </ul>
 </header>
 
 <main class='collection-ui resource-container display-tiles'>
   <ul class='collection-ui header'>
+    <li></li>
     <li>Name</li>
     <li>By</li>
     <li>Type</li>
@@ -47,3 +54,75 @@
     {{/each}}
   </div>
 </main>
+
+<div class='collection-ui collection-dialog-container dialog-settings' id='collection-settings'>
+  <div class='collection-ui collection-dialog'>
+    <div class='collection-ui collection-dialog-content'>
+    <h2>Collection settings</h2>
+    <div class='permissions-editor'>
+      <h3>Allowed actions</h3>
+      <table class='permissions-table'>
+        <tr>
+          <th></th>
+          <th>Everyone</th>
+          <th>Curators and Owners</th>
+          <th>Owners only</th>
+        </tr>
+        <tr class='permission' data-permission='setAbout'>
+          <td class='field'>Change description</td>
+          <td><input class='permission-input' type='radio' name='setAbout' value='everyone' /></td>
+          <td><input class='permission-input' type='radio' name='setAbout' value='curators' /></td>
+          <td><input class='permission-input' type='radio' name='setAbout' value='owners' /></td>
+        </tr>
+        <tr class='permission' data-permission='setTitle'>
+          <td class='field'>Change collection name</td>
+          <td><input class='permission-input' type='radio' name='setTitle' value='everyone' /></td>
+          <td><input class='permission-input' type='radio' name='setTitle' value='curators' /></td>
+          <td><input class='permission-input' type='radio' name='setTitle' value='owners' /></td>
+        </tr>
+        <tr class='permission' data-permission='addItems'>
+          <td class='field'>Add items</td>
+          <td><input class='permission-input' type='radio' name='addItems' value='everyone' /></td>
+          <td><input class='permission-input' type='radio' name='addItems' value='curators' /></td>
+          <td><input class='permission-input' type='radio' name='addItems' value='owners' /></td>
+        </tr>
+        <tr class='permission' data-permission='removeItems'>
+          <td class='field'>Remove items</td>
+          <td><input class='permission-input' type='radio' name='removeItems' value='everyone' /></td>
+          <td><input class='permission-input' type='radio' name='removeItems' value='curators' /></td>
+          <td><input class='permission-input' type='radio' name='removeItems' value='owners' /></td>
+        </tr>
+        <tr class='permission' data-permission='addCurators'>
+          <td class='field'>Add curators</td>
+          <td></td>
+          <td><input class='permission-input' type='radio' name='addCurators' value='curators' /></td>
+          <td><input class='permission-input' type='radio' name='addCurators' value='owners' /></td>
+        </tr>
+      </table>
+      <button class='permissions-save btn'>Save</button>
+      <small class='permissions-status'></small>
+    </div>
+    <div class='visibility'>
+      <h3>Visibility settings</h3>
+      <p>This collection is currently <span class='collection-visibility-status'>shared</span></p>
+      <button class='btn flat'>Unshare</button>
+    </div>
+    <hr />
+    <div class='danger-zone'>
+      <h3 class='danger'>Danger zone</h3>
+      <button class='btn danger'>Delete collection</button>
+    </div>
+    </div>
+    <div class='collection-ui collection-dialog-buttons'>
+      <a href='#' class='btn'>done</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.OS = window.OS || {}
+  
+  OS.collectionPermissions = {{collection.permissions}};
+  
+  var csrf = "{{csrfToken}}";
+</script>

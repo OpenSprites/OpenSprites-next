@@ -124,6 +124,27 @@
 
 .collection-ui.display-tiles .resources {
   justify-content center
+  
+  .resource {
+    position relative
+    
+    .resource-select {
+      position absolute
+      top 0px 
+      left 0px
+      z-index 10
+      
+      &:checked {
+        display block
+      }
+    }
+  
+    &:hover {
+      .resource-select {
+        display block
+      }
+    }
+  }
 }
 
 .collection-ui.display-list {
@@ -169,9 +190,10 @@
       width 100%
     }
     
-    .to, span, small {
+    .resource-select, .to, span, small, .when {
       display table-cell
       padding 0.5em
+      color os-grey
     }
     
     small {
@@ -192,4 +214,90 @@ header.collection-ui main {
   padding-bottom 0
   margin-top 0
   padding-top 0
+}
+
+.collection-ui.collection-dialog-container {
+  background rgba(0, 0, 0, 0.5)
+  z-index 9999
+  position fixed
+  top 0
+  left 0
+  width 100%
+  height 100%
+  pointer-events none
+  opacity 0
+  justify-content center
+  align-items center
+  display flex
+  
+  transition all 0.2s
+  
+  &:target {
+    pointer-events all
+    opacity 1
+    .collection-ui.collection-dialog {
+      transform scale(1)
+    }
+  }
+  
+  .collection-ui.collection-dialog {
+    background white
+    border-radius 1em
+    max-width 95%
+    max-height 95%
+    box-sizing border-box
+    min-width 50%
+    min-height 50%
+    display flex
+    flex-direction column
+    
+    transform scale(0)
+    transition all 0.2s
+    
+    .collection-dialog-content {
+      overflow auto
+      padding 1em
+      flex 1
+    }
+    
+    .collection-dialog-buttons {
+      text-align right
+      border-top 1px solid lightgray
+      padding 0.5em
+    }
+    
+    h2 {
+      margin 0
+    }
+  }
+}
+
+.collection-ui .permissions-table {
+  width 100%
+  
+  th {
+    padding-left 0.5em
+    padding-right 0.5em
+  }
+  
+  td:not(.field) {
+    text-align center
+  }
+}
+
+.collection-ui .danger-zone {
+  border 10px solid red
+  border-image repeating-linear-gradient(
+    45deg,
+    #900,
+    #900 10px,
+    #f00 10px,
+    #f00 20px
+  ) 10 10
+  padding 0.5em
+  
+  h3 {
+    margin 0
+    margin-bottom 0.5em
+  }
 }

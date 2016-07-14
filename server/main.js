@@ -677,7 +677,9 @@ app.get('/collections/:id', nocache, async function(req, res) {
     collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
     collection.canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
     collection.canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
-  
+    collection.canAddItems = await collection.isPermitted(req.session.user || '', 'addItems')
+    collection.canRemoveItems = await collection.isPermitted(req.session.user || '', 'removeItems')
+    
     res.render('collection', {
       user: req.session.user,
       collection: collection,
@@ -733,6 +735,33 @@ app.put('/collections/:id/about', nocache, async function(req, res) {
     res.status(200).json({about: collection.about, title: collection.name})
   } catch(err){
     console.log(err)
+    res.status(404).json(false)
+  }
+})
+
+app.put('/collections/:id/permissions', nocache, async function(req, res){
+  try {
+    let collection = await Collection.findById(req.params.id)
+    if(!collection) throw "Collection not found"
+    
+    let permissions = req.body.permissions
+    if(permissions){
+      let permitted = await collection.isPermitted(req.session.user, 'setPermissions')
+      if(!permitted){
+        res.status(403).json(false)
+        return
+      }
+      
+      
+      collection.setPermissions(permissions)
+      
+      await collection.save()
+      res.status(200).json(true)
+    } else {
+      res.status(400).json(false)
+    }
+  } catch(e){
+    console.log(e)
     res.status(404).json(false)
   }
 })
