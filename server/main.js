@@ -47,6 +47,8 @@ db.User = User
 
 const replaceBadWords = require('./utils/replace-bad-words')
 const callbackToPromise = require('./utils/callback-to-promise')
+const scratchBuilder = require('./utils/scratch-builder.js')
+scratchBuilder.init()
 
 /////////////////////////////////////////////////////////
 
@@ -749,14 +751,26 @@ app.get('/collections/:id', nocache, async function(req, res) {
   }
 })
 
-app.get('/collections/:id/download', nocache, async function(req, res) {
+app.post('/collections/:id/download', nocache, async function(req, res) {
   try {
     let collection = await Collection.findById(req.params.id)
     if(!collection) throw 'Collection not found'
-    collection.downloadPlainZip(req, res)
+    let preparedFile = await scratchBuilder.prepare(collection, req.body)
+    res.json({success: true, message: 'ok', downloadId: preparedFile})
   } catch(e){
     console.log(e)
-    res.render('404', {user: req.session.user})
+    res.status(404).json({success: false, message: e})
+  }
+})
+
+app.get('/collections/:id/download/:downloadId', nocache, async function(req, res){
+  try {
+    let collection = await Collection.findById(req.params.id)
+    if(!collection) throw 'Collection not found'
+    scratchBuilder.download(req.params.downloadId, collection.name, req, res)
+  } catch(e){
+    console.log(e)
+    res.status(404).render('404', {user: req.session.user})
   }
 })
 

@@ -49,3 +49,5 @@ db/users.json
 *.sublime-workspace
 *.brackets.json
 ci-log.txt
+
+scratch-builder-files/**/*

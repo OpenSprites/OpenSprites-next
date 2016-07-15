@@ -153,10 +153,25 @@ async function doDownload(){
   cancel.disabled = true
   status.textContent = "Preparing..."
   
+  let selectedOnly = document.querySelector(".collection-ui.dialog-download input[name=dl-which][value=selected]").checked
+  let typeSprite = document.querySelector(".collection-ui.dialog-download input[name=dl-type][value=sprite]").checked
+  
   try {
     // stupid way
     // eventually AJAX a prepare url then go to download
-    window.open(location.pathname + '/download')
+    let res = await ajax.post(location.pathname + '/download', {
+        noOptions: 'top kek'
+      }, {
+        'headers': {
+          'X-CSRF-Token': window.csrf
+        }
+    })
+    
+    if(res.data.downloadId){
+      document.querySelector("#dlframe").src = location.pathname + '/download/' + res.data.downloadId
+    } else {
+      throw "Didn't get a response"
+    }
     
     status.textContent = ""
     location.href = '#_'
