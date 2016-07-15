@@ -124,6 +124,7 @@ CollectionSchema.methods.getThumbnail = async function(){
   let rs = []
   const Resource = mongoose.models.Resource
   for(let resource of rsRaw.items){
+    if(resource.kind != 'Resource') continue
     rs.push(await Resource.findById(resource.item._id))
   }
   

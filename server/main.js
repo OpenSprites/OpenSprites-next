@@ -649,6 +649,22 @@ app.post('/collections/create', nocache, async function(req, res){
   }
   
   try {
+    let shared = await db.Collection.findOne({
+      owners: req.session.user,
+      isShared: true
+    }, '_id')
+  
+    if(!shared) {
+      shared = new db.Collection({
+        _id: db.mongoose.Types.ObjectId(),
+        name: 'Shared',
+        owners: [req.session.user],
+        isShared: true
+      })
+      await shared.save()
+    }
+    
+    
     let collection = new db.Collection({
       _id: db.mongoose.Types.ObjectId(),
       name: req.body.collectionName || 'Untitled Collection',
@@ -656,6 +672,11 @@ app.post('/collections/create', nocache, async function(req, res){
       isShared: false
     })
     await collection.save()
+    
+    await db.Collection.findOneAndUpdate(
+      {_id: shared._id},
+      {$push: {items: {kind: 'Collection', item: collection._id}}},
+      {safe: true, upsert: true})
     
     res.redirect('/collections/' + collection._id)
   } catch(e){
