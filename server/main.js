@@ -59,7 +59,12 @@ function squish(buffer, type) {
   return new Promise(function(done, reject) {
     // the best nodejs library ever written
     lwip.open(buffer, type, (err, imag) => {
-      imag.contain(240, 240, function(err, imag) {
+      if(err){
+        reject(err)
+        return
+      }
+      
+      function complete(err, imag) {
         if(err) {
           reject(err)
           return
@@ -71,7 +76,19 @@ function squish(buffer, type) {
           if(err) reject(err)
           else done(buff)
         })
-      })
+      }
+      
+      
+      if(imag.width() >= 240 || imag.height >= 240) imag.contain(240, 240, complete)
+      else {
+        lwip.create(240, 240, {r:0, g:0, b:0, a:0}, function(err, image){
+          if(err){
+            reject(err)
+            return
+          }
+          image.paste((240 - imag.width())/2, (240 - imag.height())/2, imag, complete)
+        })
+      }
     })
   })
 }
