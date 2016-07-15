@@ -1,0 +1,11 @@
+{{#each resources}}
+  {{#if isResource}}
+    {{> resource item}}
+  {{else}}
+    {{> collection item}}
+  {{/if}}
+{{/each}}
+    
+{{#unless resources.length}}
+  This collection is empty. Add some items to get started!
+{{/unless}}

@@ -671,7 +671,8 @@ app.get('/collections/:id', nocache, async function(req, res) {
     let rsRaw = await collection.getItems()
     let rs = []
     for(let resource of rsRaw.items){
-      rs.push(resource.item)
+      let isResource = resource.kind == 'Resource'
+      rs.push({ isResource, item: resource.item })
     }
     
     collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
@@ -697,6 +698,43 @@ app.get('/collections/:id', nocache, async function(req, res) {
     })
   }
 })
+
+app.get('/collections/:id/items', nocache, async function(req, res) {
+  try {
+    let collection = await Collection.findById(req.params.id)
+    if(!collection) throw 'Collection not found'
+    let rsRaw = await collection.getItems()
+    let rs = []
+    for(let resource of rsRaw.items){
+      let isResource = resource.kind == 'Resource'
+      rs.push({ isResource, item: resource.item })
+    }
+    
+    collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
+    collection.canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
+    collection.canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
+    collection.canAddItems = await collection.isPermitted(req.session.user || '', 'addItems')
+    collection.canRemoveItems = await collection.isPermitted(req.session.user || '', 'removeItems')
+    
+    if(collection.isShared) {
+      collection.canRemoveItems = false
+    }
+    
+    res.render('partials/collection_items', {
+      user: req.session.user,
+      collection: collection,
+      resources: rs,
+      csrfToken: req.csrfToken(),
+      layout: false
+    })
+  } catch(err){
+    console.log(err)
+    res.status(404).render('404', {
+      user: req.session.user
+    })
+  }
+})
+
 
 app.post('/collections/:id/items/delete', nocache, async function(req, res) {
   try {
@@ -747,15 +785,32 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
       return
     }
     
-    for(let item of items){
+    let added = []
+    
+    for(let item of items) {
+      let type = 'Resource'
+      try {
+        let resource = await db.Resource.findById(item)
+        if(!resource) throw "Resource not found"
+      } catch(e) {
+        try {
+          let collection = await db.Collection.findById(item)
+          if(!collection) throw "Collection not found"
+          type = 'Collection'
+        } catch(e){
+          continue;
+        }
+      }
+      
       await db.Collection.findOneAndUpdate(
         {_id: collection._id},
-        {$push: {items: {kind: 'Resource', item: item }}},
+        {$push: {items: {kind: type, item: item }}},
         {safe: true, upsert: true}
       )
+      added.push(item)
     }
     
-    res.status(200).json(true)
+    res.status(200).json(added)
   } catch(err) {
     if(err.message !== 'Invalid source') console.log(err)
 

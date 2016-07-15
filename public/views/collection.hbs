@@ -56,13 +56,7 @@
   </ul>
 
   <div class='resources'>
-    {{#each resources}}
-      {{> resource this}}
-    {{/each}}
-    
-    {{#unless resources.length}}
-      This collection is empty. Add some items to get started!
-    {{/unless}}
+    {{> collection_items this}}
   </div>
 </main>
 
@@ -131,7 +125,7 @@
     </div>
     </div>
     <div class='collection-ui collection-dialog-buttons'>
-      <a href='#' class='btn'>done</a>
+      <a href='#_' class='btn'>done</a>
     </div>
   </div>
 </div>

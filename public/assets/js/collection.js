@@ -1,5 +1,7 @@
 const ajax = require('axios')
 
+let addBtn, removeBtn
+
 function updateView(){
   let hash = location.hash
   if(hash.startsWith('#')) hash = hash.substring(1)
@@ -9,8 +11,21 @@ function updateView(){
   }
   
   if(hash == 'collection-remove' && (!OS.toRemoveIds || OS.toRemoveIds.length == 0)) {
-    location.hash = ''
+    location.hash = '#_'
   }
+  
+  // update resource item handlers
+  Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
+    check.onchange = function() {
+      let anyChecked = !!document.querySelector(".resource-select:checked")
+      removeBtn.disabled = !anyChecked
+    }
+  })
+}
+
+async function reloadResources() {
+  let res = await ajax.get(location.pathname + '/items', {})
+  document.querySelector(".resources").innerHTML = res.data
 }
 
 async function saveCollectionSettings(){
@@ -103,11 +118,9 @@ async function doRemove() {
         }
     })
     status.textContent = ""
-    location.hash = "#"
+    location.hash = '#_'
     
-    for(let id of OS.toRemoveIds) {
-      document.querySelector("[data-id='" + id + "']").remove()
-    }
+    reloadResources()
     
     OS.toRemoveIds = []
   } catch(e){
@@ -121,8 +134,6 @@ async function doRemove() {
 
 async function addToCollection(rawItem){
   let item = null
-  
-  console.log(rawItem)
   
   if(rawItem.startsWith("http")) {
     item = rawItem.match(/[a-f0-9]{24}/gi)
@@ -144,9 +155,13 @@ async function addToCollection(rawItem){
           'X-CSRF-Token': window.csrf
         }
     })
+    if(!res.data || !res.data.length) {
+      pAlert("Uh oh! We couldn't add that item")
+      btn.disabled = false
+      return
+    }
     
-    //TODO make this nicer
-    location.reload(true)
+    reloadResources()
   } catch(e){
     console.log(e)
     pAlert("Error: " + e)
@@ -158,10 +173,10 @@ function pAlert(msg) {
   return new Promise(function(resolve){
     document.querySelector(".collection-ui.dialog-alert .alert-content").textContent = msg
     document.querySelector(".collection-ui.dialog-alert .btn").onclick = function(){
-      location.href = "#"
+      location.hash = "#_"
       resolve()
     }
-    location.href = '#collection-alert'
+    location.hash = '#collection-alert'
   })
 }
 
@@ -187,7 +202,7 @@ module.exports = function() {
     }
   })
   
-  let addBtn = document.querySelector('.collection-ui.controls .add-btn')
+  addBtn = document.querySelector('.collection-ui.controls .add-btn')
   if(addBtn) {
     addBtn.addEventListener('click', function(){
       document.querySelector(".collection-ui .add-by-url").classList.toggle("active")
@@ -202,16 +217,9 @@ module.exports = function() {
     location.hash = "#collection-settings"
   })
   
-  let removeBtn = document.querySelector('.collection-ui.controls .remove-btn')
+  removeBtn = document.querySelector('.collection-ui.controls .remove-btn')
 
   if (removeBtn) {
-    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
-      check.addEventListener('change', function() {
-        let anyChecked = !!document.querySelector(".resource-select:checked")
-        removeBtn.disabled = !anyChecked
-      })
-    })
-
     removeBtn.addEventListener('click', function() {
       removeConfirm()
     })
@@ -220,7 +228,7 @@ module.exports = function() {
       doRemove();
     })
     document.querySelector(".collection-ui.dialog-remove .btn.flat").addEventListener('click', function() {
-      location.hash = '#'
+      location.hash = '#_'
     })
   }
 }
