@@ -35,14 +35,22 @@ function init() {
 async function prepare(coll, options) {
   let zip = new NodeZip()
   
-  let id = shortid() + ".sb2"
+  let id = shortid() + ".sprite2"
   let fileName = dir + id
   let output = fs.createWriteStream(fileName)
   
-  async function addItems(coll, path) {
+  let seenCollections = []
+  let seenResources = []
+  
+  async function addItems(coll) {
+    seenCollections.push(coll._id)
     let items = (await coll.getItems()).items
     for(let item of items){
+      if(seenCollections.indexOf(item.item._id) > -1) continue
+      if(seenResources.indexOf(item.item._id) > -1) continue
+      
       if(item.kind == 'Resource') {
+        seenResources.push(item.item._id)
         let location = item.item.data
         
         let file = await $(db.GridFS.files, db.GridFS.files.findOne, {filename: location})
@@ -56,11 +64,9 @@ async function prepare(coll, options) {
         if(ext == 'svg+xml') ext = 'svg'
         if(ext == 'jpeg') ext = 'jpg'
         
-        await $(zip, zip.entry, readstream, { name: path + item.item.name + '.' + ext })
+        await $(zip, zip.entry, readstream, { name: item.item.name + '.' + ext })
       } else if(item.kind == 'Collection') {
-        path = path + item.item.name + '/'
-        await $(zip, zip.entry, null, { name: path })
-        await addItems(await Collection.findOne({_id: item.item._id}), path)
+        await addItems(await Collection.findOne({_id: item.item._id}))
       }
     }
   }
@@ -79,7 +85,7 @@ async function prepare(coll, options) {
   })
   
   try {
-    await addItems(coll, '')
+    await addItems(coll)
     zip.finish()
     
     await promise
