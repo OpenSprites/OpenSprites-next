@@ -754,9 +754,22 @@ app.post('/collections/:id/items/delete', nocache, async function(req, res) {
     }
     
     for(let item of items){
+      let type = 'Resource'
+      try {
+        let resource = await db.Resource.findById(item)
+        if(!resource) throw "Resource not found"
+      } catch(e) {
+        try {
+          let collection = await db.Collection.findById(item)
+          if(!collection) throw "Collection not found"
+          type = 'Collection'
+        } catch(e){
+          continue
+        }
+      }
       await db.Collection.findOneAndUpdate(
         {_id: collection._id},
-        {$pull: {items: {kind: 'Resource', item: item }}}
+        {$pull: {items: { item:item, kind: type} }}
       )
     }
     
@@ -785,7 +798,7 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
       return
     }
     
-    let added = []
+    let added = {}
     
     for(let item of items) {
       let type = 'Resource'
@@ -798,8 +811,17 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
           if(!collection) throw "Collection not found"
           type = 'Collection'
         } catch(e){
-          continue;
+          added[item] = {status: false, message: "That item doesn't exist"}
+          continue
         }
+      }
+      let exists = await db.Collection.findOne({
+        _id: collection._id,
+        'items.item': item
+      })
+      if(exists) {
+        added[item] = {status: false, message: "That item is already in the collection"}
+        continue
       }
       
       await db.Collection.findOneAndUpdate(
@@ -807,7 +829,7 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
         {$push: {items: {kind: type, item: item }}},
         {safe: true, upsert: true}
       )
-      added.push(item)
+      added[item] = {status: true, message: "ok"}
     }
     
     res.status(200).json(added)

@@ -1,4 +1,5 @@
 const ajax = require('axios')
+const timeago = require('./timeago')
 
 let addBtn, removeBtn
 
@@ -26,6 +27,10 @@ function updateView(){
 async function reloadResources() {
   let res = await ajax.get(location.pathname + '/items', {})
   document.querySelector(".resources").innerHTML = res.data
+  for (let el of document.querySelectorAll('.timeago')) {
+    el.innerHTML = timeago(parseInt(el.innerHTML))
+  }
+  updateView()
 }
 
 async function saveCollectionSettings(){
@@ -85,8 +90,8 @@ function removeConfirm() {
   list.innerHTML = ''
   
   for(let check of Array.from(document.querySelectorAll(".resource-select:checked"))) {
-    let id = check.parentElement.id;
-    let name = check.parentElement.querySelector(".resource-name").textContent
+    let id = check.parentElement.dataset.id
+    let name = check.parentElement.dataset.name
     
     let li = document.createElement("li")
     li.textContent = name
@@ -155,8 +160,8 @@ async function addToCollection(rawItem){
           'X-CSRF-Token': window.csrf
         }
     })
-    if(!res.data || !res.data.length) {
-      pAlert("Uh oh! We couldn't add that item")
+    if(!res.data || !res.data[item].status) {
+      pAlert("Uh oh! We couldn't add that item: " + res.data[item].message)
       btn.disabled = false
       return
     }
@@ -164,7 +169,7 @@ async function addToCollection(rawItem){
     reloadResources()
   } catch(e){
     console.log(e)
-    pAlert("Error: " + e)
+    pAlert("Error: " + e.statusText)
   }
   btn.disabled = false
 }
@@ -187,6 +192,10 @@ module.exports = function() {
   })
   
   updateView()
+  
+  if(location.hash == 'collection-alert') {
+    location.hash = '#_'
+  }
   
   // event handlers for buttons
   document.querySelector('.collection-ui.controls .display-switch').addEventListener('click', function(){

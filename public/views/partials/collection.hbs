@@ -1,11 +1,11 @@
-<div class='resource'>
+<div class='resource' data-id='{{_id}}' data-name='{{name}}'>
   <input type='checkbox' class='resource-select' />
   <a href='/collections/{{_id}}' class='to'>
     <div class='img' style='background:white'>
       <img src='/collections/{{_id}}/cover' />
     </div>
         
-    <h4>{{name}}</h4>
+    <h4 class='resource-name'>{{name}}</h4>
   </a>
   
   <span>{{{by owners}}}</span>
