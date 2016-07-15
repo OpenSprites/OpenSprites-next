@@ -732,6 +732,7 @@ app.get('/collections/:id', nocache, async function(req, res) {
     
     if(collection.isShared) {
       collection.canRemoveItems = false
+      collection.canAddItems = false
     }
     
     res.render('collection', {
@@ -778,6 +779,7 @@ app.get('/collections/:id/items', nocache, async function(req, res) {
     
     if(collection.isShared) {
       collection.canRemoveItems = false
+      collection.canAddItems = false
     }
     
     res.render('partials/collection_items', {

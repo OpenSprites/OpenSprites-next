@@ -1,7 +1,7 @@
 const ajax = require('axios')
 const timeago = require('./timeago')
 
-let addBtn, removeBtn
+let addBtn, removeBtn, selectAllCheck
 
 function updateView(){
   let hash = location.hash
@@ -19,7 +19,14 @@ function updateView(){
   Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
     check.onchange = function() {
       let anyChecked = !!document.querySelector(".resource-select:checked")
-      removeBtn.disabled = !anyChecked
+      if(removeBtn) removeBtn.disabled = !anyChecked
+      
+      if(document.querySelectorAll(".resource-select:checked").length == document.querySelectorAll(".resource-select").length){
+        selectAllCheck.checked = true
+      } else {
+        selectAllCheck.checked = false
+        selectAllCheck.indeterminate = anyChecked
+      }
     }
   })
 }
@@ -186,6 +193,21 @@ function pAlert(msg) {
 }
 
 
+function setView(view){
+  let container = document.querySelector('.resource-container')
+  if(view == 'list') {
+    container.classList.remove('display-tiles')
+    container.classList.add('display-list')
+    document.querySelector('.collection-ui.controls .display-switch').textContent = 'view_module'
+  } else {
+    container.classList.remove('display-list')
+    container.classList.add('display-tiles')
+    document.querySelector('.collection-ui.controls .display-switch').textContent = 'view_list'
+  }
+    
+  localStorage['collection_view'] = view
+}
+
 module.exports = function() {
   window.addEventListener('hashchange', function(){
     updateView()
@@ -197,17 +219,44 @@ module.exports = function() {
     location.hash = '#_'
   }
   
+  setView(localStorage['collection_view'] || 'tiles')
+  
   // event handlers for buttons
+  selectAllCheck = document.querySelector('.collection-ui .select-all input')
+  selectAllCheck.addEventListener('change', function(){
+    let val = this.checked
+    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
+      check.checked = val
+    })
+  })
+  
+  document.querySelector('.collection-ui .select-all .all').addEventListener('click', function(){
+    selectAllCheck.checked = true
+    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
+      check.checked = true
+    })
+  })
+  
+  document.querySelector('.collection-ui .select-all .none').addEventListener('click', function(){
+    selectAllCheck.checked = false
+    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
+      check.checked = false
+    })
+  })
+  
+  document.querySelector('.collection-ui .select-all .invert').addEventListener('click', function(){
+    selectAllCheck.indeterminate = true
+    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
+      check.checked = !check.checked
+    })
+  })
+  
   document.querySelector('.collection-ui.controls .display-switch').addEventListener('click', function(){
     let container = document.querySelector('.resource-container')
     if(container.classList.contains('display-tiles')) {
-      container.classList.remove('display-tiles')
-      container.classList.add('display-list')
-      document.querySelector('.collection-ui.controls .display-switch').textContent = 'view_module'
+      setView('list')
     } else {
-      container.classList.remove('display-list')
-      container.classList.add('display-tiles')
-      document.querySelector('.collection-ui.controls .display-switch').textContent = 'view_list'
+      setView('tiles')
     }
   })
   
