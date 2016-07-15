@@ -41,22 +41,15 @@
       <a id='edit' class='btn flat' style='float:right'>edit about me</a>
     {{/if}}
 
-    <h1>Collections</h1>
+    <h1>
+      Shared
+      {{#if sharedId}}
+        <a href="/collections/{{sharedId}}" class='btn flat'>More...</a>
+      {{/if}}
+    </h1>
 
     <div class='resources'>
-      {{#each collections}}
-        <div class='resource'>
-          <a href='/collections/{{_id}}'>
-            <div class='img' style='background:white'>
-              <img src='/collections/{{_id}}/cover' />
-            </div>
-
-            <h4>{{name}}</h4>
-          </a>
-
-          <span>{{{by owners}}}</span>
-        </div>
-      {{/each}}
+      {{> collection_items this}}
     </div>
   </main>
 {{/if}}

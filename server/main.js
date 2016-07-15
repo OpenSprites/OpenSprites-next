@@ -400,13 +400,24 @@ app.get('/users/:who', nocache, async function(req, res) {
     who[0].exists = true
     who[0].isYou = who[0].username === req.session.user
 
-    let collections = await db.Collection.find({
-      owners: who[0].username
+    let shared = await db.Collection.findOne({
+      owners: who[0].username,
+      isShared: true
     })
+    
+    let rs = []
+    if(shared) {
+      let rsRaw = await shared.getItems()
+      for(let resource of rsRaw.items){
+        let isResource = resource.kind == 'Resource'
+        rs.push({ isResource, item: resource.item })
+      }
+    }
 
     res.render('user', {
       user: req.session.user,
-      collections,
+      resources: rs,
+      sharedId: shared ? shared._id : false,
       who: who[0],
       csrfToken: req.csrfToken(),
       title: who[0].username
