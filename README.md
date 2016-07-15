@@ -10,6 +10,7 @@ To start, install:
 - [Node.js](https://nodejs.org/)
 - [node-gyp](https://github.com/nodejs/node-gyp#installation)
 - [MongoDB](https://www.mongodb.com/download-center#community) (or use [mLab](https://mlab.com/))
+- [sox](http://sox.sourceforge.net/) with the [mp3 format for sox](http://superuser.com/a/421168) [(windows)](http://stackoverflow.com/a/23939403)
 
 Follow the prerequisites for building node-canvas. Find the instructions for your OS [here](https://github.com/Automattic/node-canvas/wiki)  
 If you have Python 3 installed already, you can install a portable version of python 2.7 and replace the PATH entry.
