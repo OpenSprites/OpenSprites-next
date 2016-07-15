@@ -3,6 +3,7 @@ const db = require('../db')
 const replaceBadWords = require('../utils/replace-bad-words.js')
 const lwip = require('lwip')
 const callbackToPromise = require('../utils/callback-to-promise')
+const NodeZip = require('zip-stream')
 
 let CollectionSchema = mongoose.Schema({
   name: { type: String, default: 'A Collection' },
@@ -101,7 +102,9 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
       deleted: 1,
       _id: 1,
       owners: 1,
-      when: 1
+      when: 1,
+      data: 1,
+      type: 1
     }
   }
   if (limit) {
@@ -119,8 +122,50 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
   }, 'items').populate(populateParams)
 }
 
-CollectionSchema.methods.download = async function(req, res){
+CollectionSchema.methods.downloadPlainZip = async function(req, res){
+  let zip = new NodeZip()
   
+  let $ = callbackToPromise
+  
+  async function addItems(coll, path) {
+    let items = (await coll.getItems()).items
+    for(let item of items){
+      if(item.kind == 'Resource') {
+        let location = item.item.data
+        
+        let file = await $(db.GridFS.files, db.GridFS.files.findOne, {filename: location})
+        
+        let rsParams = {
+          _id: file._id
+        }
+        let readstream = await $(db.GridFS, db.GridFS.createReadStream, rsParams)
+        
+        let ext = item.item.type.split('/')[1]
+        if(ext == 'svg+xml') ext = 'svg'
+        if(ext == 'jpeg') ext = 'jpg'
+        
+        await $(zip, zip.entry, readstream, { name: path + item.item.name + '.' + ext })
+      } else if(item.kind == 'Collection') {
+        path = path + item.item.name + '/'
+        await $(zip, zip.entry, null, { name: path })
+        await addItems(await Collection.findOne({_id: item.item._id}), path)
+      }
+    }
+  }
+  
+  res.contentType('application/zip')
+  res.set('content-disposition', 'attachment; filename="' + this.name + '.zip"')
+  
+  zip.pipe(res)
+  zip.on('end', function(){
+    res.end()
+  })
+  try {
+    await addItems(this, '')
+  } catch(e){
+    console.log(e)
+  }
+  zip.finish()
 }
 
 CollectionSchema.methods.getThumbnail = async function(){

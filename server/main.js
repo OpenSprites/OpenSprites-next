@@ -731,6 +731,17 @@ app.get('/collections/:id', nocache, async function(req, res) {
   }
 })
 
+app.get('/collections/:id/download', nocache, async function(req, res) {
+  try {
+    let collection = await Collection.findById(req.params.id)
+    if(!collection) throw 'Collection not found'
+    collection.downloadPlainZip(req, res)
+  } catch(e){
+    console.log(e)
+    res.render('404', {user: req.session.user})
+  }
+})
+
 app.get('/collections/:id/items', nocache, async function(req, res) {
   try {
     let collection = await Collection.findById(req.params.id)
