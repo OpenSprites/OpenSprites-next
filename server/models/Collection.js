@@ -119,6 +119,10 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
   }, 'items').populate(populateParams)
 }
 
+CollectionSchema.methods.download = async function(req, res){
+  
+}
+
 CollectionSchema.methods.getThumbnail = async function(){
   let rsRaw = await this.getItems(10)
   let rs = []
