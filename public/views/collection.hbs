@@ -37,7 +37,7 @@
   <li><button class="material-icons settings-btn">settings</button> <div class='tooltip'>Collection settings</div></li>
   {{/if}}
   
-  <li><button class="material-icons">file_download</button> <div class='tooltip'>Download collection</div></li>
+  <li><button class="material-icons dl-btn">file_download</button> <div class='tooltip'>Download collection</div></li>
 </ul>
 <div class='add-by-url'>
   <label for='url-add-input'>Add by URL:</label>
@@ -144,6 +144,28 @@
       <small class='status'></small>
       <button class='btn flat'>cancel</button>
       <button class='btn confirm'>confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class='collection-ui collection-dialog-container dialog-download' id='collection-download'>
+  <div class='collection-ui collection-dialog'>
+    <div class='collection-ui collection-dialog-content'>
+      <h2>Download this collection</h2>
+      <p>Options:</p>
+      <hr />
+      <p>Which items?</p>
+      <label><input type='radio' name='dl-which' value='all' /> All items</label></br>
+      <label><input type='radio' name='dl-which' value='selected' /> Selected only</label>
+      <hr />
+      <p>What format?</p>
+      <label><input type='radio' name='dl-type' value='sprite' /> Sprite</label></br>
+      <label><input type='radio' name='dl-type' value='project' /> Project</label>
+    </div>
+    <div class='collection-ui collection-dialog-buttons'>
+      <small class='status'></small>
+      <button class='btn flat'>cancel</button>
+      <button class='btn confirm'>download</button>
     </div>
   </div>
 </div>

@@ -144,6 +144,31 @@ async function doRemove() {
   cancel.disabled = false
 }
 
+async function doDownload(){
+  let status = document.querySelector(".collection-ui.dialog-download small.status")
+  let button = document.querySelector(".collection-ui.dialog-download .confirm")
+  let cancel = document.querySelector(".collection-ui.dialog-download .btn.flat")
+  
+  button.disabled = true
+  cancel.disabled = true
+  status.textContent = "Preparing..."
+  
+  try {
+    // stupid way
+    // eventually AJAX a prepare url then go to download
+    window.open(location.pathname + '/download')
+    
+    status.textContent = ""
+    location.href = '#_'
+  } catch(e){
+    console.log(e)
+    status.textContent = "Error"
+  }
+  
+  button.disabled = false
+  cancel.disabled = false
+}
+
 async function addToCollection(rawItem){
   let item = null
   
@@ -289,4 +314,16 @@ module.exports = function() {
       location.hash = '#_'
     })
   }
+  
+  let dlBtn = document.querySelector('.collection-ui.controls .dl-btn')
+  dlBtn.addEventListener('click', function(){
+    location.hash = '#collection-download'
+  })
+  
+  document.querySelector(".collection-ui.dialog-download .confirm").addEventListener('click', function() {
+      doDownload();
+  })
+  document.querySelector(".collection-ui.dialog-download .btn.flat").addEventListener('click', function() {
+    location.hash = '#_'
+  })
 }
