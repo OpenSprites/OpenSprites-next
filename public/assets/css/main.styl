@@ -336,11 +336,12 @@ header + hr {
   user-select none
   
   .dropdowncheck-box {
-    border 1px solid os
-    border-radius 0.5em
+    border 2px solid os
+    border-radius 3px
     cursor default
     display flex
     transition background 0.1s, color 0.1s
+    overflow hidden
     
     &:hover {
       background os
@@ -348,14 +349,21 @@ header + hr {
     }
     
     span {
-      padding-left 0.5em
-      padding-right 0.5em
+      padding .55em 1em;
     }
     
     i {
       border-left 1px solid os
+      padding-top .4em
     }
   }
+  
+  &.white-border {
+    .dropdowncheck-box {
+      border 2px solid white
+    }
+  }
+    
   
   .dropdowncheck-dropdown {
     display none
@@ -371,6 +379,7 @@ header + hr {
     overflow-y auto
     
     input.filter {
+      background white
       box-sizing border-box
       display block
       max-width 100%
@@ -379,6 +388,7 @@ header + hr {
       padding-left 0.2em
       padding-right
       user-select initial
+      color os-grey
     }
     
     .dropdowncheck-item {
@@ -399,6 +409,7 @@ header + hr {
         text-overflow ellipsis
         padding-left 0.5em
         box-sizing border-box
+        color os-grey
       }
     }
   }
