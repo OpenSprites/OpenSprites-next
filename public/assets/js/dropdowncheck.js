@@ -4,11 +4,28 @@ module.exports = function(name, items, existingDom){
   dom.innerHTML = `
   <div class='dropdowncheck-box'><span class='dropdowncheck-name'></span> <i class='material-icons'>arrow_drop_down</i></div>
   <div class='dropdowncheck-dropdown'>
+    <input class='filter' type='text' placeholder='Filter...' />
     <small class='status'>&nbsp;</small>
   </div>
   `
   
   dom.querySelector('.dropdowncheck-name').textContent = name
+  
+  dom.querySelector('.filter').addEventListener('keyup', (function(e){
+    let text = e.target.value.trim().toLowerCase()
+    let items = Array.from(this.dom.querySelectorAll('.dropdowncheck-item'))
+    if(text == '') {
+      items.forEach(item => item.style.display = 'flex')
+    } else {
+      items.forEach(function(item){
+        if(item.dataset.name.toLowerCase().indexOf(text) > -1){
+          item.style.display = 'flex'
+        } else {
+          item.style.display = 'none'
+        }
+      })
+    }
+  }).bind(this))
   
   this.name = name
   this.items = items

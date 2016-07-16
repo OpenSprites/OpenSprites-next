@@ -443,7 +443,6 @@ app.get('/you/collections', nocache, mustSignIn, async function(req, res){
       )
       
       for(let item of collectionsWithItem) {
-        console.log(item)
         if(allHash[item._id.toString()]) {
           allHash[item._id.toString()].has = true
         } else {

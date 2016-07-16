@@ -333,6 +333,7 @@ header + hr {
 .dropdowncheck {
   display inline-block
   position relative
+  user-select none
   
   .dropdowncheck-box {
     border 1px solid os
@@ -361,8 +362,7 @@ header + hr {
     position absolute
     z-index 9999
     background white
-    padding 1em
-    padding-top 0.2em
+    padding 0
     border 1px solid os
     width 100%
     max-width 100%
@@ -370,11 +370,23 @@ header + hr {
     max-height 200px
     overflow-y auto
     
+    input.filter {
+      box-sizing border-box
+      display block
+      max-width 100%
+      border-bottom 2px solid os
+      font-size 1.2em
+      margin-top 0.2em
+      user-select initial
+    }
+    
     .dropdowncheck-item {
       display flex
       align-items flex-start
       white-space nowrap
       max-width 100%
+      margin-left 1em
+      margin-right 1em
       
       input {
         margin-right 0.5em
