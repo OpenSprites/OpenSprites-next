@@ -428,6 +428,86 @@ header + hr {
   }
 }
 
+.bottom-main {
+  background rgba(os, 0.9)
+  position fixed
+  z-index 1
+  left 0
+  bottom 0
+  width 16em
+  height 2em
+  
+  transition all 0.3s
+  
+  .bottom-bar {
+    position absolute
+    bottom 0
+    left 0
+    
+    button {
+      @extend .body
+      border-radius 3px
+      padding 0
+      margin 0.2em 0.5em
+  
+      color white
+      background transparent
+      outline none
+      cursor pointer
+      user-select none
+      transition all .1s
+      border 0
+      
+      i {
+        vertical-align middle
+      }
+      
+      &.selected {
+        text-shadow 0px 0px 5px white
+      }
+    }
+    
+    .expanded-btns {
+      display none
+    }
+  }
+  
+  .bottom-expand {
+    display none
+    color white
+    width 100%
+    height 100%
+    
+    >div:not(.active) {
+      display none
+    }
+  }
+  
+  &.active {
+    width 100%
+    height 25%
+    z-index 5
+    
+    &.fullscreen {
+      height 90%
+      width 90%
+      bottom 5%
+      left 5%
+      border 2px solid white
+    }
+    
+    .bottom-bar {
+      .expanded-btns {
+        display inline-block
+      }
+    }
+    
+    .bottom-expand {
+      display block
+    }
+  }
+}
+
 @require 'nav.styl'
 @require 'signup-join.styl'
 @require 'resources.styl'

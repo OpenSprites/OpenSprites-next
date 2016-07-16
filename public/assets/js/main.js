@@ -102,3 +102,69 @@ for (let el of document.querySelectorAll('.timeago')) {
 }
 
 resources.parse()
+
+let bottomBar = document.querySelector('.bottom-main')
+let expanded = false
+let messages = bottomBar.querySelector('.messages-ui')
+let backpack = bottomBar.querySelector('.backpack-ui')
+let messagesBtn = bottomBar.querySelector('.messages-btn')
+let backpackBtn = bottomBar.querySelector('.backpack-btn')
+let closeBtn = bottomBar.querySelector('.close-btn')
+let fullscreenBtn = bottomBar.querySelector('.fullscreen-btn')
+
+messagesBtn.addEventListener('click', function(){
+  backpackBtn.classList.remove('selected')
+  backpack.classList.remove('active')
+  if(this.classList.contains('selected')) {
+    expanded = false
+    bottomBar.classList.remove('active')
+    bottomBar.classList.remove('fullscreen')
+    this.classList.remove('selected')
+    fullscreenBtn.classList.remove('selected')
+    messages.classList.remove('active')
+  } else {
+    expanded = true
+    bottomBar.classList.add('active')
+    this.classList.add('selected')
+    messages.classList.add('active')
+  }
+})
+
+backpackBtn.addEventListener('click', function(){
+  messagesBtn.classList.remove('selected')
+  messages.classList.remove('active')
+  if(this.classList.contains('selected')) {
+    expanded = false
+    bottomBar.classList.remove('active')
+    bottomBar.classList.remove('fullscreen')
+    this.classList.remove('selected')
+    fullscreenBtn.classList.remove('selected')
+    backpack.classList.remove('active')
+  } else {
+    expanded = true
+    bottomBar.classList.add('active')
+    this.classList.add('selected')
+    backpack.classList.add('active')
+  }
+})
+
+closeBtn.addEventListener('click', function(){
+  expanded = false
+  bottomBar.classList.remove('active')
+  bottomBar.classList.remove('fullscreen')
+  backpackBtn.classList.remove('selected')
+  messagesBtn.classList.remove('selected')
+  fullscreenBtn.classList.remove('selected')
+  backpack.classList.remove('active')
+  messages.classList.remove('active')
+})
+
+fullscreenBtn.addEventListener('click', function(){
+  if(this.classList.contains('selected')) {
+    this.classList.remove('selected')
+    bottomBar.classList.remove('fullscreen')
+  } else {
+    this.classList.add('selected')
+    bottomBar.classList.add('fullscreen')
+  }
+})
