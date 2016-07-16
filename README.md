@@ -8,12 +8,11 @@ OpenSprites is the place where [Scratchers](https://wiki.scratch.mit.edu/wiki/Sc
 ## Installation
 To start, install:
 - [Node.js](https://nodejs.org/)
-- [node-gyp](https://github.com/nodejs/node-gyp#installation)
 - [MongoDB](https://www.mongodb.com/download-center#community) (or use [mLab](https://mlab.com/))
+- [node-gyp](https://github.com/nodejs/node-gyp#installation)
+- [node-canvas](https://github.com/Automattic/node-canvas/wiki) prerequisites
+- Python 2.7 (if you have Python 3 installed already, you can install a portable version of python 2.7 and replace the `$PATH` entry)
 - [sox](http://sox.sourceforge.net/) with the [mp3 format for sox](http://superuser.com/a/421168) [(windows)](http://stackoverflow.com/a/23939403)
-
-Follow the prerequisites for building node-canvas. Find the instructions for your OS [here](https://github.com/Automattic/node-canvas/wiki)  
-If you have Python 3 installed already, you can install a portable version of python 2.7 and replace the PATH entry.
 
 Then, in a Terminal or Command Prompt window:
 
@@ -33,27 +32,40 @@ npm rebuild canvas
 Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:
 
 ```yaml
+# MongoDB credentials
 db_host=localhost
 db_name=next
 db_user=username
 db_pass=password
 
+# Use database to store files?
+# `false` to use local filesystem
 db_file_storage=true
 
+# project id (on Scratch) for sign up page
+# (remove if you don't want to require an
+# existing Scratch account to sign up)
 project_id=115307769
-session_secret=thisandagainplsexplain
 
+session_secret=thisandagainplsexplain
 server_port=3000
 ```
 
-(Don't set `project_id` to not require a Scratch account to join.)
-
-(Set `db_file_storage` to false to store uploads on the local filesystem instead of in mongo.)
-
 # Usage
 
-To *transpile and minify* assets, use `npm run build`.  
+## Transpile & minify assets
+```sh
+npm run build
+```
 
-To *watch for file changes*, use `npm run watch`. This will watch for file changes and then transpile and minify assets.  
+## Watch for file changes
+And then transpile & minify assets on filechange:
+```sh
+npm run watch
+```
 
-To *run the server*, use `npm start` and open up [localhost:3000](http://localhost:3000/). **Make sure you have MongoDB running**, too.
+## Run the server
+```sh
+npm start
+```
+And then open up [localhost:3000](http://localhost:3000/) (or whatever port you've set it to).
