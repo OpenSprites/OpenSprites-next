@@ -135,6 +135,10 @@ app.engine('hbs', exprhbs.create({
       })
       return res
     },
+    
+    jsonify: str => {
+      return JSON.stringify(str)
+    },
 
     lower: upper => upper.toLowerCase(),
 

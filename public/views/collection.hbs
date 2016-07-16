@@ -185,7 +185,7 @@
   
   OS.collection = {
     id: "{{collection._id}}",
-    name: "{{collection.name}}"
+    name: {{{jsonify collection.name}}}
   }
   
   var csrf = "{{csrfToken}}";
