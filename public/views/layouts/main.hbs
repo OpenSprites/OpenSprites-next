@@ -124,6 +124,7 @@
     </span>
   </footer>
   
+  {{#if user}}
   <div class='bottom-ui bottom-main'>
     <div class='bottom-expand'>
       <div class='messages-ui'>
@@ -134,7 +135,7 @@
       </div>
     </div>
     <div class='bottom-bar'>
-      <button class='messages-btn'><i class='material-icons'>message</i> Messages</button>
+      <button class='messages-btn'><i class='material-icons'>message<div class='count' data-count='0'></div></i> Messages</button>
       <button class='backpack-btn'><i class='material-icons'>storage</i> Backpack</button>
       <div class='expanded-btns'>
         <button class='fullscreen-btn' title='Fullscreen'><i class='material-icons'>fullscreen</i></button>
@@ -142,6 +143,7 @@
       </div>
     </div>
   </div>
+  {{/if}}
   
   <!-- leaving dialog -->
   {{>leaving this}}

@@ -460,6 +460,27 @@ header + hr {
       
       i {
         vertical-align middle
+        position relative
+      }
+      
+      .count {
+        background white
+        color os
+        border 1px solid os
+        border-radius 1em
+        font-size 0.5em
+        position absolute
+        top -0.4em
+        right -0.4em
+        padding 0.1em
+        &[data-count='0'] {
+          display none
+        }
+      }
+      
+      .count::after {
+        content: attr(data-count)
+        font-family: 'Lato',sans-serif;
       }
       
       &.selected {
