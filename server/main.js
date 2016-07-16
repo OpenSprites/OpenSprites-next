@@ -410,6 +410,30 @@ app.get('/you', mustSignIn, function(req, res) {
   res.redirect('/users/' + req.session.user)
 })
 
+app.get('/you/collections', nocache, mustSignIn, async function(req, res){
+  try {
+    let who = await db.User.findOne({
+      username: req.session.user
+    })
+    if(!who) throw "User not found"
+    
+    let ownedCollections = await db.Collection.find(
+      {owners: who.username, isShared: false},
+      {_id: 1, name: 1})
+    let curatedCollections = await db.Collection.find(
+      {curators: who.username, 'permissions.curators.addItems': true, isShared: false},
+      {_id: 1, name: 1})
+    
+    let all = ownedCollections.slice().concat(curatedCollections.slice())
+    
+    res.status(200).json(all)
+  } catch(e){
+    console.log(e)
+    res.status(500).json(false)
+  }
+})
+
+
 app.get('/users/:who', nocache, async function(req, res) {
   let who = await db.User.find({
     username: req.params.who

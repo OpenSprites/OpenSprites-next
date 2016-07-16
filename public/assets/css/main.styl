@@ -330,6 +330,61 @@ header + hr {
   }
 }
 
+.dropdowncheck {
+  display inline-block
+  position relative
+  
+  .dropdowncheck-box {
+    border 1px solid os
+    border-radius 0.5em
+    cursor default
+    display flex
+    transition all 0.1s
+    
+    &:hover {
+      background os
+      color white
+    }
+    
+    span {
+      padding-left 0.5em
+      padding-right 0.5em
+    }
+    
+    i {
+      border-left 1px solid os
+    }
+  }
+  
+  .dropdowncheck-dropdown {
+    display none
+    position absolute
+    z-index 9999
+    background white
+    padding 1em
+    border 1px solid os
+    width 100%
+    box-sizing border-box
+    
+    .dropdowncheck-item {
+      display flex
+    }
+  }
+  
+  &.active {
+    .dropdowncheck-box {
+      border-bottom-right-radius 0
+      border-bottom-left-radius 0
+      background os
+      color white
+    }
+    
+    .dropdowncheck-dropdown {
+      display block
+    }
+  }
+}
+
 @require 'nav.styl'
 @require 'signup-join.styl'
 @require 'resources.styl'
