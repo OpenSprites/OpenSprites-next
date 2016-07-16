@@ -34,7 +34,7 @@ function updateView(){
 async function reloadResources() {
   let res = await ajax.get(location.pathname + '/items', {})
   document.querySelector(".resources").innerHTML = res.data
-  for (let el of document.querySelectorAll('.timeago')) {
+  for (let el of document.querySelectorAll('.resources .timeago')) {
     el.innerHTML = timeago(parseInt(el.innerHTML))
   }
   updateView()

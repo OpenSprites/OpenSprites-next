@@ -25,6 +25,22 @@ const cheerio = require('cheerio')
 const request = require('request-promise')
 
 const marked = require('marked')
+
+const markedRenderer = new marked.Renderer();
+
+// make header links like github
+// eg /about#team
+markedRenderer.heading = function (text, level) {
+  var escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
+
+  return '<h' + level + '><a name="' +
+                escapedText +
+                 '" class="anchor" href="#' +
+                 escapedText +
+                 '"><span class="header-link"></span></a>' +
+                  text + '</h' + level + '>';
+}
+
 const sanitize = require('sanitize-filename')
 const shortid = require('shortid').generate
 const uniqid = require('uniqid').process
@@ -120,7 +136,7 @@ app.engine('hbs', exprhbs.create({
   partialsDir: 'public/views/partials/',
 
   helpers: {
-    md: raw => marked(raw || '', { sanitize: true }),
+    md: raw => marked(raw || '', { sanitize: true, renderer: markedRenderer }),
     json: raw => JSON.stringify(raw),
     timeago: raw => `<span class='timeago'>${raw}</span>`,
 
@@ -1342,6 +1358,18 @@ app.get('/', nocache, async function(req, res) {
 })
 
 /////////////////////////////////////////////////////////
+
+app.get('/about', function(req, res) {
+  let f = path.join(__dirname, '../', 'about.md')
+
+  fs.readFile(f, 'utf8', function(err, file) {
+    res.render('md-page', {
+      user: req.session.user,
+      title: 'About',
+      markdown: file || 'Not found!'
+    })
+  })
+})
 
 app.get('/dmca', function(req, res) {
   let f = path.join(__dirname, '../', 'DMCA.md')
