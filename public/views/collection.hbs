@@ -13,7 +13,7 @@
   <div {{#if collection.canSetAbout}}contenteditable{{/if}} class='bio markdown-about-edit'>
     {{{md collection.about}}}
   </div>
-  <small></small>
+  <small>&nbsp;</small>
 
   <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
 </main>
