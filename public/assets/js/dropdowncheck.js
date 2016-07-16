@@ -4,13 +4,15 @@ module.exports = function(name, items, existingDom){
   dom.innerHTML = `
   <div class='dropdowncheck-box'><span class='dropdowncheck-name'></span> <i class='material-icons'>arrow_drop_down</i></div>
   <div class='dropdowncheck-dropdown'>
-  </div>`
+    <small class='status'>&nbsp;</small>
+  </div>
+  `
   
   dom.querySelector('.dropdowncheck-name').textContent = name
   
   this.name = name
   this.items = items
-  this._onChange = function(item, e){
+  this._onChange = function(e){
     let checked = e.target.checked
     let value = e.target.value
     
@@ -21,15 +23,20 @@ module.exports = function(name, items, existingDom){
   for(let item of items){
     let domItem = document.createElement('label')
     domItem.classList.add('dropdowncheck-item')
+    domItem.dataset.value = item.value
+    domItem.dataset.name = item.name
     let check = document.createElement('input')
     check.type = 'checkbox'
     check.value = item.value
-    check.classList.add('dropdowncheck-item')
+    check.classList.add('dropdowncheck-check')
     
-    check.addEventListener('change', this._onChange)
+    check.addEventListener('change', this._onChange.bind(this))
     
     domItem.appendChild(check)
-    domItem.appendChild(document.createTextNode(item.name))
+    let span = document.createElement('span')
+    span.textContent = item.name
+    domItem.appendChild(span)
+    domItem.setAttribute('title', item.name)
     domItems.appendChild(domItem)
   }
   
@@ -40,6 +47,15 @@ module.exports = function(name, items, existingDom){
   
   this.setEnabled = function(enabled) {
     Array.from(this.dom.querySelectorAll('input')).forEach(item => item.disabled = !enabled)
+  }
+  
+  this.setStatus = function(status){
+    if(status == "") this.dom.querySelector('small.status').innerHTML = "&nbsp;"
+    else this.dom.querySelector('small.status').textContent = status
+  }
+  
+  this.set = function(item, value) {
+    this.dom.querySelector(`[value="${item}"]`).checked = value
   }
   
   this.dom = dom

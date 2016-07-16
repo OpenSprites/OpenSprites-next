@@ -429,8 +429,31 @@ app.get('/you/collections', nocache, mustSignIn, async function(req, res){
       {_id: 1, name: 1})
     
     let all = ownedCollections.slice().concat(curatedCollections.slice())
+    let allHash = {}
+    for(let item of all){
+      allHash[item._id.toString()] = { name: item.name, _id: item._id, has: false}
+    }
     
-    res.status(200).json(all)
+    let what = req.query.what
+    
+    if(what) {
+      let collectionsWithItem = await db.Collection.find(
+        {isShared: false, 'items.item': what},
+        {_id: 1, name: 1}
+      )
+      
+      for(let item of collectionsWithItem) {
+        console.log(item)
+        if(allHash[item._id.toString()]) {
+          allHash[item._id.toString()].has = true
+        } else {
+          allHash[item._id.toString()] = { name: item.name, _id: item._id, has: true}
+        }
+      }
+      res.status(200).json(allHash)
+    } else {
+      res.status(200).json(allHash)
+    }
   } catch(e){
     console.log(e)
     res.status(500).json(false)
@@ -853,6 +876,8 @@ app.post('/collections/:id/items/delete', nocache, async function(req, res) {
       return
     }
     
+    let removed = {}
+    
     for(let item of items){
       let type = 'Resource'
       try {
@@ -864,6 +889,7 @@ app.post('/collections/:id/items/delete', nocache, async function(req, res) {
           if(!collection) throw "Collection not found"
           type = 'Collection'
         } catch(e){
+          removed[item] = {status: false, message: "not found"}
           continue
         }
       }
@@ -871,9 +897,10 @@ app.post('/collections/:id/items/delete', nocache, async function(req, res) {
         {_id: collection._id},
         {$pull: {items: { item:item, kind: type} }}
       )
+      removed[item] = {status: true, message: "ok"}
     }
     
-    res.status(200).json(true)
+    res.status(200).json(removed)
   } catch(err) {
     if(err.message !== 'Invalid source') console.log(err)
 

@@ -349,4 +349,8 @@ module.exports = function() {
   document.querySelector(".collection-ui.dialog-download .btn.flat").addEventListener('click', function() {
     location.hash = '#_'
   })
+  
+  document.querySelector('.collection-ui.controls .refresh-btn').addEventListener('click', function(){
+    reloadResources()
+  })
 }

@@ -50,11 +50,43 @@ if(document.querySelector('.bio')) {
 let addToCollectionBtn = document.querySelector('.add-to-collection')
 if(addToCollectionBtn) {
   (async function(){
-    let dataRaw = (await ajax.get('/you/collections')).data
-    let data = dataRaw.map(item => ({name: item.name, value: item._id}))
+    let what = OS.resource ? OS.resource.id : OS.collection.id
+    let dataRaw = (await ajax.get('/you/collections?what=' + what)).data
+    let data = []
+    for(let id in dataRaw){
+      data.push({name: dataRaw[id].name, value: id})
+    }
+    
     let collectionAddDropdown = new ddc('Add to collections', data, addToCollectionBtn)
-    collectionAddDropdown.cb = function(item, value, check) {
+    
+    for(let id in dataRaw) {
+      collectionAddDropdown.set(id, !!dataRaw[id].has)
+    }
+    
+    collectionAddDropdown.cb = async function(item, value, check) {
+      collectionAddDropdown.setEnabled(false)
+      collectionAddDropdown.setStatus("Loading")
       
+      let url = value ? `/collections/${item}/items` : `/collections/${item}/items/delete`
+      let method = value ? 'put' : 'post'
+      
+      try {
+        let res = await (ajax[method])(url, {
+          ids: [what]
+        }, {
+          'headers': {
+            'X-CSRF-Token': window.csrf
+          }
+        })
+        if(!res.data || !res.data[what]) throw "Didn't get response"
+        collectionAddDropdown.setEnabled(true)
+        collectionAddDropdown.setStatus("")
+      } catch(e){
+        console.log(e)
+        collectionAddDropdown.set(item, !value)
+        collectionAddDropdown.setEnabled(true)
+        collectionAddDropdown.setStatus("Error")
+      }
     }
   })()
 }

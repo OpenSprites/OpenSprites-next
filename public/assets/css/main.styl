@@ -339,7 +339,7 @@ header + hr {
     border-radius 0.5em
     cursor default
     display flex
-    transition all 0.1s
+    transition background 0.1s, color 0.1s
     
     &:hover {
       background os
@@ -362,12 +362,31 @@ header + hr {
     z-index 9999
     background white
     padding 1em
+    padding-top 0.2em
     border 1px solid os
     width 100%
+    max-width 100%
     box-sizing border-box
+    max-height 200px
+    overflow-y auto
     
     .dropdowncheck-item {
       display flex
+      align-items flex-start
+      white-space nowrap
+      max-width 100%
+      
+      input {
+        margin-right 0.5em
+        min-width 16px
+      }
+      
+      span {
+        overflow hidden
+        text-overflow ellipsis
+        padding-left 0.5em
+        box-sizing border-box
+      }
     }
   }
   

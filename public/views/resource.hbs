@@ -65,7 +65,15 @@
     {{/if}}
   </div>
 
-  <script>var csrf = {{{json csrfToken}}};</script>
+  <script>
+    var csrf = {{{json csrfToken}}};
+    window.OS = window.OS || {}
+    
+    OS.resource = {
+      name: {{{jsonify resource.name}}},
+      id: {{{jsonify resource._id}}}
+    }
+  </script>
 </main>
 
 <main class='slim'>
