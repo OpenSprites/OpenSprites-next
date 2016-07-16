@@ -156,15 +156,22 @@ async function doDownload(){
   let selectedOnly = document.querySelector(".collection-ui.dialog-download input[name=dl-which][value=selected]").checked
   let typeSprite = document.querySelector(".collection-ui.dialog-download input[name=dl-type][value=sprite]").checked
   
+  let which = 'all'
+  if(selectedOnly){
+    which = []
+    Array.from(document.querySelectorAll(".resource-select:checked")).forEach(function(check) {
+      which.push(check.parentElement.dataset.id)
+    })
+  }
+  
   try {
-    // stupid way
-    // eventually AJAX a prepare url then go to download
     let res = await ajax.post(location.pathname + '/download', {
-        noOptions: 'top kek'
-      }, {
-        'headers': {
-          'X-CSRF-Token': window.csrf
-        }
+      type: typeSprite ? 'sprite' : 'project',
+      which
+    }, {
+      'headers': {
+        'X-CSRF-Token': window.csrf
+      }
     })
     
     if(res.data.downloadId){

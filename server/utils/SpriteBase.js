@@ -8,7 +8,7 @@ module.exports = () => ({
   "scratchX": 0,
   "scratchY": 0,
   "scale": 1,
-  "direction": 0,
+  "direction": 90,
   "rotationStyle": "normal",
   "isDraggable": false,
   "indexInLibrary": 0,

@@ -3,6 +3,6 @@ module.exports = () => ({
   "baseLayerID": -1,
   "baseLayerMD5": "",
   "bitmapResolution": 1,
-  "rotationCenterX": 47,
-  "rotationCenterY": 55
+  "rotationCenterX": 0,
+  "rotationCenterY": 0
 })

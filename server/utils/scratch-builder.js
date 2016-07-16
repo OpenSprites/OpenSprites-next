@@ -41,6 +41,8 @@ function init() {
 async function prepare(coll, options) {
   let zip = new NodeZip()
   
+  let type = options.type
+  
   let id = shortid() + ".sprite2"
   let fileName = dir + id
   let output = fs.createWriteStream(fileName)
@@ -56,98 +58,128 @@ async function prepare(coll, options) {
   let costumeCounter = 0
   let soundCounter = 0
   
+  async function addItem(item) {
+    if (seenCollections.indexOf(item.item._id.toString()) > -1) return
+    if (seenResources.indexOf(item.item._id.toString()) > -1) return
+
+    for (let owner of item.item.owners) {
+      if (contributors.indexOf(owner) < 0) contributors.push(owner)
+    }
+    
+    if (item.kind == 'Resource') {
+      seenResources.push(item.item._id.toString())
+      let location = item.item.data
+
+      let file = await $(db.GridFS.files, db.GridFS.files.findOne, {
+        filename: location
+      })
+
+      let rsParams = {
+        _id: file._id
+      }
+      let readstream = await $(db.GridFS, db.GridFS.createReadStream, rsParams)
+
+      let ext = item.item.type.split('/')[1]
+      if (ext == 'svg+xml') ext = 'svg'
+      if (ext == 'jpeg') ext = 'jpg'
+
+      let name = Math.floor(Math.random() * 10000) + 100
+      if (item.item.image) {
+        name = costumeCounter
+        costumeCounter++
+
+        let costume = new Costume()
+        costume.costumeName = item.item.name
+        costume.baseLayerID = name
+        // scratch doesn't care about the md5 it seems
+        // but we need the extension there
+        // it's kind of a roundabout way of storing the extension
+        costume.baseLayerMD5 = '00000000000000000000000000000000.' + ext
+        scratchJson.costumes.push(costume)
+      } else if (item.item.audio) {
+        name = soundCounter
+        soundCounter++
+
+        let sound = new Sound()
+        sound.soundName = item.item.name
+        sound.soundID = name
+        sound.md5 = '00000000000000000000000000000000.wav'
+
+        let orig = dir + shortid() + "." + ext
+        ext = 'wav'
+        let transcoded = dir + shortid() + ".wav"
+
+        let audioWrite = fs.createWriteStream(orig)
+
+        await new Promise(function (resolve, reject) {
+          readstream.on('error', function (err) {
+            console.log(err)
+            reject(err)
+          })
+          readstream.on('end', function () {
+            audioWrite.end()
+            resolve()
+          })
+          readstream.pipe(audioWrite)
+        })
+
+        await new Promise(function (resolve, reject) {
+          var job = sox.transcode(orig, transcoded, {
+            format: 'wav',
+            channelCount: 1,
+            sampleRate: 22050
+          })
+          job.on('error', function (err) {
+            console.error(err)
+            reject(err)
+          });
+          job.on('dest', function (info) {
+            sound.sampleCount = info.sampleCount
+            sound.rate = info.sampleRate
+          })
+          job.on('end', function () {
+            resolve()
+          })
+          job.start()
+        })
+
+        readstream = fs.createReadStream(transcoded)
+        scratchJson.sounds.push(sound)
+
+      } else if (item.item.script) {
+        // TODO: unsupported
+        // do this :P
+      }
+
+      await $(zip, zip.entry, readstream, {
+        name: '' + name + '.' + ext
+      })
+    } else if (item.kind == 'Collection') {
+      await addItems(await Collection.findOne({
+        _id: item.item._id
+      }))
+    }
+  }
+  
   async function addItems(coll) {
-    seenCollections.push(coll._id)
+    seenCollections.push(coll._id.toString())
     let items = (await coll.getItems()).items
     for(let item of items){
-      if(seenCollections.indexOf(item.item._id) > -1) continue
-      if(seenResources.indexOf(item.item._id) > -1) continue
-      
-      for(let owner of item.item.owners){
-        if(contributors.indexOf(owner) < 0) contributors.push(owner)
-      }
-      
-      if(item.kind == 'Resource') {
-        seenResources.push(item.item._id)
-        let location = item.item.data
-        
-        let file = await $(db.GridFS.files, db.GridFS.files.findOne, {filename: location})
-        
-        let rsParams = {
-          _id: file._id
-        }
-        let readstream = await $(db.GridFS, db.GridFS.createReadStream, rsParams)
-        
-        let ext = item.item.type.split('/')[1]
-        if(ext == 'svg+xml') ext = 'svg'
-        if(ext == 'jpeg') ext = 'jpg'
-        
-        let name = Math.floor(Math.random()*10000)+100
-        if(item.item.image){
-          name = costumeCounter
-          costumeCounter++
-          
-          let costume = new Costume()
-          costume.costumeName = item.item.name
-          costume.baseLayerID = name
-          costume.baseLayerMD5 = '00000000000000000000000000000000.' + ext
-          scratchJson.costumes.push(costume)
-        } else if(item.item.audio){
-          name = soundCounter
-          soundCounter++
-          
-          let sound = new Sound()
-          sound.soundName = item.item.name
-          sound.soundID = name
-          sound.md5 = '00000000000000000000000000000000.wav'
-          
-          let orig = dir + shortid() + "." + ext
-          ext = 'wav'
-          let transcoded = dir + shortid() + ".wav"
-          
-          let audioWrite = fs.createWriteStream(orig)
-          
-          await new Promise(function(resolve, reject){
-            readstream.on('error', function(err){
-              console.log(err)
-              reject(err)
-            })
-            readstream.on('end', function(){
-              audioWrite.end()
-              resolve()
-            })
-            readstream.pipe(audioWrite)
-          })
-          
-          await new Promise(function(resolve, reject){
-            var job = sox.transcode(orig, transcoded, {format: 'wav', channelCount: 1, sampleRate: 22050})
-            job.on('error', function(err) {
-              console.error(err)
-              reject(err)
-            });
-            job.on('dest', function(info) {
-              sound.sampleCount = info.sampleCount
-              sound.rate = info.sampleRate
-            })
-            job.on('end', function() {
-              resolve()
-            })
-            job.start()
-          })
-          
-          readstream = fs.createReadStream(transcoded)
-          scratchJson.sounds.push(sound)
-          
-        } else if(item.item.script){
-          // TODO: unsupported
-          // do this :P
-        }
-        
-        await $(zip, zip.entry, readstream, { name: '' + name + '.' + ext })
-      } else if(item.kind == 'Collection') {
-        await addItems(await Collection.findOne({_id: item.item._id}))
-      }
+      await addItem(item)
     }
+  }
+  
+  async function fixCostumes(){
+    // Scratch refuses to recognize that the sprite exists if there
+    // are 0 costumes...time for a shameless plug! :P
+    let costume = new Costume()
+    costume.costumeName = 'OpenSprites'
+    costume.baseLayerID = costumeCounter
+    costume.baseLayerMD5 = '00000000000000000000000000000000.svg'
+    scratchJson.costumes.push(costume)
+    
+    await $(zip, zip.entry, fs.createReadStream('public/assets/img/logo/filled.svg'),
+            { name: '' + costumeCounter + '.svg' })
   }
   
   zip.pipe(output)
@@ -164,7 +196,31 @@ async function prepare(coll, options) {
   })
   
   try {
-    await addItems(coll)
+    if(options.which != 'all') {
+      for(let id of options.which){
+        let item
+        let kind
+        try {
+          item = await Resource.findById(id)
+          kind = 'Resource'
+        } catch(e){
+          try {
+            item = await Collection.findById(id)
+            kind = 'Collection'
+          } catch(e){
+            continue
+          }
+        }
+        
+        await addItem({kind, item})
+      }
+    } else {
+      await addItems(coll)
+    }
+    
+    if(costumeCounter == 0){
+      await fixCostumes()
+    }
     
     scratchJson.scriptComments[0][6] = `Generated by OpenSprites (http://opensprites.org)
 
