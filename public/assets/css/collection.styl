@@ -1,4 +1,8 @@
 .collection-ui {
+  .dropdowncheck input[type=checkbox] {
+    margin-top: 4px;
+  }
+  
   &.controls {
     list-style-type none
     color os-light
@@ -190,7 +194,12 @@
     }
     
     .to {
+      max-width 50vw
       width 100%
+    }
+    
+    span {
+      max-width 25vw
     }
     
     .resource-select, .to, span, small, .when {

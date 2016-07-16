@@ -1,3 +1,4 @@
+require('source-map-support').install()
 require('traceur/bin/traceur-runtime')
 require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, {
   experimental: true,
@@ -7,10 +8,9 @@ require('traceur').require.makeDefault(f => f.indexOf('node_modules') === -1, {
   asyncFunctions: true,
   asyncGenerators: true,
   forOn: true,
-  generatorComprehension: true
+  generatorComprehension: true,
+  sourceMaps: 'inline'
 })
-
-require('source-map-support').install()
 
 process.on('unhandledRejection', function(err) {
   console.error(err)

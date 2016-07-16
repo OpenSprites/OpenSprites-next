@@ -1,6 +1,6 @@
 module.exports = () => ({
   "objName": "",
-  "scriptComments": [[6, 5, 317, 223, true, -1, "Created by OpenSprites"]],
+  "scriptComments": [[5, 5, 500, 500, true, -1, "Created by OpenSprites"]],
   "scripts": [],
   "sounds": [],
   "costumes": [],
