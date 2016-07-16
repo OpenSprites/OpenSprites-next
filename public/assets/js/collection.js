@@ -156,7 +156,8 @@ async function doDownload(){
   let selectedOnly = document.querySelector(".collection-ui.dialog-download input[name=dl-which][value=selected]").checked
   let typeSprite = document.querySelector(".collection-ui.dialog-download input[name=dl-type][value=sprite]").checked
   
-  let which = 'all'
+  let which = OS.collection.id
+  let name = OS.collection.name
   if(selectedOnly){
     which = []
     Array.from(document.querySelectorAll(".resource-select:checked")).forEach(function(check) {
@@ -165,7 +166,7 @@ async function doDownload(){
   }
   
   try {
-    let res = await ajax.post(location.pathname + '/download', {
+    let res = await ajax.post('/collections/download', {
       type: typeSprite ? 'sprite' : 'project',
       which
     }, {
@@ -175,7 +176,7 @@ async function doDownload(){
     })
     
     if(res.data.downloadId){
-      document.querySelector("#dlframe").src = location.pathname + '/download/' + res.data.downloadId
+      document.querySelector("#dlframe").src = '/collections/download/' + res.data.downloadId + '/' + encodeURIComponent(name)
     } else {
       throw "Didn't get a response"
     }

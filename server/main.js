@@ -739,6 +739,25 @@ app.post('/collections/create', nocache, async function(req, res){
   }
 })
 
+app.post('/collections/download', nocache, async function(req, res) {
+  try {
+    let preparedFile = await scratchBuilder.prepare(req.body)
+    res.json({success: true, message: 'ok', downloadId: preparedFile})
+  } catch(e){
+    console.log(e)
+    res.status(500).json({success: false, message: e})
+  }
+})
+
+app.get('/collections/download/:downloadId/:name', nocache, async function(req, res){
+  try {
+    scratchBuilder.download(req.params.downloadId, req.params.name, req, res)
+  } catch(e){
+    console.log(e)
+    res.status(404).render('404', {user: req.session.user})
+  }
+})
+
 app.get('/collections/:id', nocache, async function(req, res) {
   try {
     let collection = await Collection.findById(req.params.id)
@@ -772,29 +791,6 @@ app.get('/collections/:id', nocache, async function(req, res) {
     res.status(404).render('404', {
       user: req.session.user
     })
-  }
-})
-
-app.post('/collections/:id/download', nocache, async function(req, res) {
-  try {
-    let collection = await Collection.findById(req.params.id)
-    if(!collection) throw 'Collection not found'
-    let preparedFile = await scratchBuilder.prepare(collection, req.body)
-    res.json({success: true, message: 'ok', downloadId: preparedFile})
-  } catch(e){
-    console.log(e)
-    res.status(404).json({success: false, message: e})
-  }
-})
-
-app.get('/collections/:id/download/:downloadId', nocache, async function(req, res){
-  try {
-    let collection = await Collection.findById(req.params.id)
-    if(!collection) throw 'Collection not found'
-    scratchBuilder.download(req.params.downloadId, collection.name, req, res)
-  } catch(e){
-    console.log(e)
-    res.status(404).render('404', {user: req.session.user})
   }
 })
 

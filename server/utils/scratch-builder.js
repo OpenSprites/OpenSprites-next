@@ -38,7 +38,7 @@ function init() {
   job = new CronJob('0 0 0 * * *', clean, null, true, 'America/New_York');
 }
 
-async function prepare(coll, options) {
+async function prepare(options) {
   let zip = new NodeZip()
   
   let type = options.type
@@ -51,9 +51,9 @@ async function prepare(coll, options) {
   let seenResources = []
   
   let scratchJson = new SpriteBase()
-  scratchJson.objName = coll.name
+  scratchJson.objName = "OpenSprites sprite"
   
-  let contributors = coll.owners.slice()
+  let contributors = []
 
   let costumeCounter = 0
   let soundCounter = 0
@@ -196,7 +196,8 @@ async function prepare(coll, options) {
   })
   
   try {
-    if(options.which != 'all') {
+    let extraComment = ''
+    if(typeof options.which != 'string') {
       for(let id of options.which){
         let item
         let kind
@@ -215,7 +216,13 @@ async function prepare(coll, options) {
         await addItem({kind, item})
       }
     } else {
+      let coll = await Collection.findById(options.which)
       await addItems(coll)
+      extraComment = `This collection is located at: http://opensprites.org/collections/${coll._id}
+Original name: ${coll.name}
+By:
+  ${coll.owners.join('\n  ')}`
+      scratchJson.objName = coll.name
     }
     
     if(costumeCounter == 0){
@@ -226,8 +233,7 @@ async function prepare(coll, options) {
 
 Make sure to give credit in the notes and credits!
 ---
-This collection is located at: http://opensprites.org/collections/${coll._id}
-Original name: ${coll.name}
+${extraComment}
 Contributors:
   ${contributors.join('\n  ')}
 

@@ -50,4 +50,4 @@ db/users.json
 *.brackets.json
 ci-log.txt
 
-scratch-builder-files/**/*
+scratch-builder-files/
