@@ -11,6 +11,21 @@ module.exports = {
         let audio = el.querySelector('.audio')
         let image = el.querySelector('.img')
         let a = el.querySelector('a.to')
+        
+        el.addEventListener('dragstart', function(e){
+          let img = this.querySelector('img')
+          
+          let itemJson = {
+            name: this.dataset.name,
+            id: this.dataset.id,
+            type: this.dataset.type
+          }
+    
+          e.dataTransfer.clearData();
+          e.dataTransfer.setDragImage(img, 0, 0)
+          e.dataTransfer.setData('application/opensprites-item+json', JSON.stringify(itemJson))
+          e.dataTransfer.setData('application/opensprites-item-origin-resource-list+text', "yep")
+        })
 
         if(audio) {
           AudioThumb(id, (function(audio, dataurl){

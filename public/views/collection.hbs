@@ -1,5 +1,5 @@
 <header class='collection-ui'><main class='collection-ui'>
-  <h1 {{#if collection.canSetTitle}}contenteditable{{/if}} class='collection-title' style='white-space: nowrap'>{{collection.name}}</h1>
+  <h1 {{#if collection.canSetTitle}}contenteditable{{/if}} class='collection-title limit-width scrollbar-adjust' style='white-space: nowrap' title='{{collection.name}}'>{{collection.name}}</h1>
   <small>&nbsp;</small><br/>
   
   {{#if collection.canSetAbout}}
@@ -189,7 +189,10 @@
   
   OS.collection = {
     id: {{{json collection._id}}},
-    name: {{{json collection.name}}}
+    name: {{{json collection.name}}},
+    canAddItems: {{{json collection.canAddItems}}},
+    canRemoveItems: {{{json collection.canRemoveItems}}},
+    youOwn: {{{json collection.youOwn}}}
   }
   
   var csrf = {{{json csrfToken}}};

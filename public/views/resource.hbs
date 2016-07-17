@@ -1,5 +1,5 @@
 <header><main>
-  <h1 {{#if youOwn}}contenteditable{{/if}} class='resource-title'>{{resource.name}}</h1>
+  <h1 {{#if youOwn}}contenteditable{{/if}} class='resource-title limit-width scrollbar-adjust' title='{{resource.name}}'>{{resource.name}}</h1>
   <small></small><br/>
   {{{by resource.owners}}}
 

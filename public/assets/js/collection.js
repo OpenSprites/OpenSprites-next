@@ -193,7 +193,7 @@ async function doDownload(){
   cancel.disabled = false
 }
 
-async function addToCollection(rawItem){
+async function addToCollectionRaw(rawItem){
   let item = null
   
   if(rawItem.startsWith("http")) {
@@ -257,132 +257,139 @@ function setView(view){
   localStorage['collection_view'] = view
 }
 
-module.exports = function() {
-  window.addEventListener('hashchange', function(){
+module.exports = {
+  refresh: reloadResources,
+  init: function () {
+    window.addEventListener('hashchange', function () {
+      updateView()
+    })
+
     updateView()
-  })
-  
-  updateView()
-  
-  if(location.hash == 'collection-alert') {
-    location.hash = '#_'
-  }
-  
-  setView(localStorage['collection_view'] || 'tiles')
-  
-  // event handlers for buttons
-  selectAllCheck = document.querySelector('.collection-ui .select-all input')
-  selectAllCheck.addEventListener('change', function(){
-    let val = this.checked
-    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
-      check.checked = val
-    })
-  })
-  
-  document.querySelector('.collection-ui .select-all .all').addEventListener('click', function(){
-    selectAllCheck.checked = true
-    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
-      check.checked = true
-    })
-  })
-  
-  document.querySelector('.collection-ui .select-all .none').addEventListener('click', function(){
-    selectAllCheck.checked = false
-    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
-      check.checked = false
-    })
-  })
-  
-  document.querySelector('.collection-ui .select-all .invert').addEventListener('click', function(){
-    selectAllCheck.indeterminate = true
-    Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
-      check.checked = !check.checked
-    })
-  })
-  
-  document.querySelector('.collection-ui.controls .display-switch').addEventListener('click', function(){
-    let container = document.querySelector('.resource-container')
-    if(container.classList.contains('display-tiles')) {
-      setView('list')
-    } else {
-      setView('tiles')
+
+    if (location.hash == 'collection-alert') {
+      location.hash = '#_'
     }
-  })
-  
-  addBtn = document.querySelector('.collection-ui.controls .add-btn')
-  if(addBtn) {
-    addBtn.addEventListener('click', function(){
-      document.querySelector(".collection-ui .add-by-url").classList.toggle("active")
-    })
-    document.querySelector(".collection-ui .add-by-url .submit").addEventListener('click', function(){
-      addToCollection(document.querySelector(".collection-ui .add-by-url input").value)
-    })
-  }
-  
-  let settingsBtn = document.querySelector('.collection-ui.controls .settings-btn')
-  if(settingsBtn) settingsBtn.addEventListener('click', function(){
-    location.hash = "#collection-settings"
-  })
-  
-  removeBtn = document.querySelector('.collection-ui.controls .remove-btn')
 
-  if (removeBtn) {
-    removeBtn.addEventListener('click', function() {
-      removeConfirm()
+    setView(localStorage['collection_view'] || 'tiles')
+
+    // event handlers for buttons
+    selectAllCheck = document.querySelector('.collection-ui .select-all input')
+    selectAllCheck.addEventListener('change', function () {
+      let val = this.checked
+      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
+        check.checked = val
+      })
+      removeBtn.disabled = !val
     })
 
-    document.querySelector(".collection-ui.dialog-remove .confirm").addEventListener('click', function() {
-      doRemove();
+    document.querySelector('.collection-ui .select-all .all').addEventListener('click', function () {
+      selectAllCheck.checked = true
+      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
+        check.checked = true
+      })
+      removeBtn.disabled = false
     })
-    document.querySelector(".collection-ui.dialog-remove .btn.flat").addEventListener('click', function() {
+
+    document.querySelector('.collection-ui .select-all .none').addEventListener('click', function () {
+      selectAllCheck.checked = false
+      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
+        check.checked = false
+      })
+      removeBtn.disabled = true
+    })
+
+    document.querySelector('.collection-ui .select-all .invert').addEventListener('click', function () {
+      selectAllCheck.indeterminate = true
+      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
+        check.checked = !check.checked
+      })
+      removeBtn.disabled = document.querySelectorAll(".resource-select:checked").length == 0
+    })
+
+    document.querySelector('.collection-ui.controls .display-switch').addEventListener('click', function () {
+      let container = document.querySelector('.resource-container')
+      if (container.classList.contains('display-tiles')) {
+        setView('list')
+      } else {
+        setView('tiles')
+      }
+    })
+
+    addBtn = document.querySelector('.collection-ui.controls .add-btn')
+    if (addBtn) {
+      addBtn.addEventListener('click', function () {
+        document.querySelector(".collection-ui .add-by-url").classList.toggle("active")
+      })
+      document.querySelector(".collection-ui .add-by-url .submit").addEventListener('click', function () {
+        addToCollection(document.querySelector(".collection-ui .add-by-url input").value)
+      })
+    }
+
+    let settingsBtn = document.querySelector('.collection-ui.controls .settings-btn')
+    if (settingsBtn) settingsBtn.addEventListener('click', function () {
+      location.hash = "#collection-settings"
+    })
+
+    removeBtn = document.querySelector('.collection-ui.controls .remove-btn')
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function () {
+        removeConfirm()
+      })
+
+      document.querySelector(".collection-ui.dialog-remove .confirm").addEventListener('click', function () {
+        doRemove();
+      })
+      document.querySelector(".collection-ui.dialog-remove .btn.flat").addEventListener('click', function () {
+        location.hash = '#_'
+      })
+    }
+
+    let dlBtn = document.querySelector('.collection-ui.controls .dl-btn')
+    dlBtn.addEventListener('click', function () {
+      location.hash = '#collection-download'
+    })
+
+    document.querySelector(".collection-ui.dialog-download .confirm").addEventListener('click', function () {
+      doDownload();
+    })
+    document.querySelector(".collection-ui.dialog-download .btn.flat").addEventListener('click', function () {
       location.hash = '#_'
     })
+
+    document.querySelector('.collection-ui.controls .refresh-btn').addEventListener('click', function () {
+      reloadResources()
+    })
+
+    let title = document.querySelector(".collection-title")
+
+    title.addEventListener('keyup', function (e) {
+      if (e.which == 13 && e.ctrlKey) {
+        this.blur()
+      }
+    })
+
+    title.addEventListener("blur", async function () {
+      this.scrollTop = 0
+      let title_raw = title.innerText
+
+      document.querySelector('.collection-title ~ small').innerHTML = 'Saving...'
+
+      try {
+        let csrfToken = window.csrf
+
+        let res = await ajax.put(window.location.pathname + '/about', {
+          title: title_raw,
+          csrf: csrfToken
+        })
+        title_raw = JSON.parse(res.request.responseText).title
+        title.innerText = title_raw
+
+        document.querySelector('.collection-title ~ small').innerHTML = 'Saved'
+      } catch (err) {
+        document.querySelector('.collection-title ~ small').innerHTML = 'Error'
+        console.log(err)
+      }
+    })
   }
-  
-  let dlBtn = document.querySelector('.collection-ui.controls .dl-btn')
-  dlBtn.addEventListener('click', function(){
-    location.hash = '#collection-download'
-  })
-  
-  document.querySelector(".collection-ui.dialog-download .confirm").addEventListener('click', function() {
-      doDownload();
-  })
-  document.querySelector(".collection-ui.dialog-download .btn.flat").addEventListener('click', function() {
-    location.hash = '#_'
-  })
-  
-  document.querySelector('.collection-ui.controls .refresh-btn').addEventListener('click', function(){
-    reloadResources()
-  })
-  
-  let title = document.querySelector(".collection-title")
-  
-  title.addEventListener('keyup', function(e){
-    if(e.which == 13 && e.ctrlKey){
-      this.blur()
-    }
-  })
-  
-  title.addEventListener("blur", async function(){
-    this.scrollTop = 0
-    let title_raw = title.innerText
-
-    document.querySelector('.collection-title ~ small').innerHTML = 'Saving...'
-
-    try {
-      let csrfToken = window.csrf
-      
-      let res = await ajax.put(window.location.pathname + '/about', {
-        title: title_raw,
-        csrf: csrfToken
-      })
-      title_raw = JSON.parse(res.request.responseText).title
-      title.innerText = title_raw
-      
-      document.querySelector('.collection-title ~ small').innerHTML = 'Saved'
-    } catch(err){
-      document.querySelector('.collection-title ~ small').innerHTML = 'Error'
-      console.log(err)
-    }
-  })
 }

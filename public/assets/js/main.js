@@ -31,7 +31,7 @@ if('/share' === window.location.pathname)
   share()
 
 if(window.location.pathname.startsWith('/collections'))
-  collection()
+  collection.init()
 
 if(document.querySelector('.btn.admin-do'))
   admin()
@@ -107,7 +107,6 @@ resources.parse()
 
 let bottomBar = document.querySelector('.bottom-main')
 if (bottomBar) {
-  let expanded = false
   let messages = bottomBar.querySelector('.messages-ui')
   let backpack = bottomBar.querySelector('.backpack-ui')
   let messagesBtn = bottomBar.querySelector('.messages-btn')
@@ -119,14 +118,12 @@ if (bottomBar) {
     backpackBtn.classList.remove('selected')
     backpack.classList.remove('active')
     if (this.classList.contains('selected')) {
-      expanded = false
       bottomBar.classList.remove('active')
       bottomBar.classList.remove('fullscreen')
       this.classList.remove('selected')
       fullscreenBtn.classList.remove('selected')
       messages.classList.remove('active')
     } else {
-      expanded = true
       bottomBar.classList.add('active')
       this.classList.add('selected')
       messages.classList.add('active')
@@ -137,14 +134,12 @@ if (bottomBar) {
     messagesBtn.classList.remove('selected')
     messages.classList.remove('active')
     if (this.classList.contains('selected')) {
-      expanded = false
       bottomBar.classList.remove('active')
       bottomBar.classList.remove('fullscreen')
       this.classList.remove('selected')
       fullscreenBtn.classList.remove('selected')
       backpack.classList.remove('active')
     } else {
-      expanded = true
       bottomBar.classList.add('active')
       this.classList.add('selected')
       backpack.classList.add('active')
@@ -152,7 +147,6 @@ if (bottomBar) {
   })
 
   closeBtn.addEventListener('click', function () {
-    expanded = false
     bottomBar.classList.remove('active')
     bottomBar.classList.remove('fullscreen')
     backpackBtn.classList.remove('selected')

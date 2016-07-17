@@ -136,7 +136,9 @@
             <input type='checkbox' class='select-all' />
           </div>
           <button class='backpack-delete' title='Delete selected' disabled><i class='material-icons'>delete</i></button>
+          <button class='backpack-add' title='Add this page to backpack' disabled><i class='material-icons'>move_to_inbox</i></button>
           <div class='divider'></div>
+          <button class='backpack-to-collection' title='Add to this collection' disabled><i class='material-icons'>open_in_new</i></button>
           <div class='backpack-dl dropdown-container'>
             <i class='material-icons'>file_download</i>
             <i class='material-icons'>arrow_drop_down</i>
@@ -149,7 +151,6 @@
               </li>
             </ul>
           </div>
-          <button class='backpack-to-collection' title='Add to collection'><i class='material-icons'>move_to_inbox</i></button>
           <div class='backpack-open dropdown-container'>
             <i class='material-icons'>open_in_browser</i>
             <i class='material-icons'>arrow_drop_down</i>
@@ -159,11 +160,12 @@
               <li><button class='to-pixie'>open in pixie</button></li>
             </ul>
           </div>
+          <div class='status'></div>
         </div>
         <div class='backpack-content'>
           <div class='nothing'>&nbsp;Hmm, nothing here</div>
         </div>
-        <div class='backpack-item template'>
+        <label class='backpack-item template'>
           <input type='checkbox' class='backpack-select' />
           <img class='backpack-thumb' />
           <h4 class='backpack-name' title=''>
@@ -171,16 +173,16 @@
             <br/>
             <span class='type'></span>
           </h4>
-        </div>
+        </label>
       </div>
     </div>
     <div class='bottom-bar'>
-      <button class='messages-btn'><i class='material-icons'>message<div class='count' data-count='0'></div></i> Messages</button>
-      <button class='backpack-btn'><i class='material-icons'>storage</i> Backpack</button>
       <div class='expanded-btns'>
         <button class='fullscreen-btn' title='Fullscreen'><i class='material-icons'>fullscreen</i></button>
         <button class='close-btn' title='Close'><i class='material-icons'>expand_more</i></button>
       </div>
+      <button class='messages-btn'><i class='material-icons'>message<div class='count' data-count='0'></div></i> Messages</button>
+      <button class='backpack-btn'><i class='material-icons'>storage</i> Backpack</button>
     </div>
   </div>
   {{/if}}

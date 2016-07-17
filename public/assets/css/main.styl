@@ -432,7 +432,7 @@ header + hr {
   background rgba(os, 0.9)
   position fixed
   z-index 1
-  left 0
+  right 0
   bottom 0
   width 16em
   height 2em
@@ -442,7 +442,7 @@ header + hr {
   .bottom-bar {
     position absolute
     bottom 0
-    left 0
+    right 0
     
     button {
       @extend .body
@@ -559,6 +559,13 @@ header + hr {
       width 100%
       padding-top 0.3em
       
+      .status {
+        vertical-align top
+        &:after {
+          content: " "
+        }
+      }
+      
       >button, >div {
         display inline-block
         height 2em
@@ -657,6 +664,14 @@ header + hr {
       overflow-x auto
       overflow-y hidden
       white-space nowrap
+      transition background 0.3s
+      box-sizing border-box
+      
+      &.drag {
+        background rgba(white 0.3)
+        border-radius 1em
+        border 5px dashed white
+      }
       
       &::-webkit-scrollbar {
         width: 10px;
@@ -734,6 +749,20 @@ header + hr {
       }
     }
   }
+}
+
+.limit-width {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:focus {
+    overflow: auto
+    text-overflow initial
+  }
+}
+
+.scrollbar-adjust {
+  height: calc(1em + 32px);
 }
 
 @require 'nav.styl'
