@@ -151,9 +151,16 @@ app.engine('hbs', exprhbs.create({
       })
       return res
     },
-    
-    jsonify: str => {
-      return JSON.stringify(str)
+    byRaw: owners => {
+      let res = ''
+      owners.forEach((owner, i) => {
+        let add = ', '
+        if(owners.length-1 === i) add = ' and '
+        if(i === 0) add = 'by '
+
+        res += add + owner
+      })
+      return res
     },
 
     lower: upper => upper.toLowerCase(),

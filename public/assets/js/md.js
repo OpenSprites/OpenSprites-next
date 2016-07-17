@@ -14,8 +14,7 @@ module.exports = function() {
       bio_raw = bio_raw.substr(1, bio_raw.length - 2)
   let bio = document.querySelector('.bio')
 
-  let csrfToken = htmldec(window.csrfToken)
-      csrfToken = csrfToken.substr(1, csrfToken.length - 2)
+  let csrfToken = window.csrf
 
   bio.addEventListener('keyup', function(e){
     if(e.which == 13 && e.ctrlKey){

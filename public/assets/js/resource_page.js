@@ -30,8 +30,7 @@ module.exports = function(){
     document.querySelector('.resource-title ~ small').innerHTML = 'Saving...'
 
     try {
-      let csrfToken = htmldec(window.csrfToken)
-      csrfToken = csrfToken.substr(1, csrfToken.length - 2)
+      let csrfToken = window.csrf
       
       let res = await ajax.put(window.location.pathname + '/about', {
         title: title_raw,

@@ -1,5 +1,6 @@
 <header class='collection-ui'><main class='collection-ui'>
-  <h1>{{collection.name}}</h1>
+  <h1 {{#if collection.canSetTitle}}contenteditable{{/if}} class='collection-title' style='white-space: nowrap'>{{collection.name}}</h1>
+  <small>&nbsp;</small><br/>
   
   {{#if collection.canSetAbout}}
     <a id='edit' class='btn white-border' style='float:right'>edit collection info</a>
@@ -187,9 +188,9 @@
   OS.collectionPermissions = {{collection.permissions}};
   
   OS.collection = {
-    id: "{{collection._id}}",
-    name: {{{jsonify collection.name}}}
+    id: {{{json collection._id}}},
+    name: {{{json collection.name}}}
   }
   
-  var csrf = "{{csrfToken}}";
+  var csrf = {{{json csrfToken}}};
 </script>

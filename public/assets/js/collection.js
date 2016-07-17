@@ -36,6 +36,7 @@ async function reloadResources() {
   document.querySelector(".resources").innerHTML = res.data
   for (let el of document.querySelectorAll('.resources .timeago')) {
     el.innerHTML = timeago(parseInt(el.innerHTML))
+    el.setAttribute('title', el.innerHTML)
   }
   updateView()
 }
@@ -352,5 +353,36 @@ module.exports = function() {
   
   document.querySelector('.collection-ui.controls .refresh-btn').addEventListener('click', function(){
     reloadResources()
+  })
+  
+  let title = document.querySelector(".collection-title")
+  
+  title.addEventListener('keyup', function(e){
+    if(e.which == 13 && e.ctrlKey){
+      this.blur()
+    }
+  })
+  
+  title.addEventListener("blur", async function(){
+    this.scrollTop = 0
+    let title_raw = title.innerText
+
+    document.querySelector('.collection-title ~ small').innerHTML = 'Saving...'
+
+    try {
+      let csrfToken = window.csrf
+      
+      let res = await ajax.put(window.location.pathname + '/about', {
+        title: title_raw,
+        csrf: csrfToken
+      })
+      title_raw = JSON.parse(res.request.responseText).title
+      title.innerText = title_raw
+      
+      document.querySelector('.collection-title ~ small').innerHTML = 'Saved'
+    } catch(err){
+      document.querySelector('.collection-title ~ small').innerHTML = 'Error'
+      console.log(err)
+    }
   })
 }

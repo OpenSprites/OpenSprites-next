@@ -99,6 +99,7 @@ if(document.querySelector("#vis-canvas"))
 
 for (let el of document.querySelectorAll('.timeago')) {
   el.innerHTML = timeago(parseInt(el.innerHTML))
+  el.setAttribute('title', el.innerHTML)
 }
 
 resources.parse()
