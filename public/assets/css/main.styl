@@ -571,9 +571,13 @@ header + hr {
         transition all 0.1s
         border-radius 3px
         
-        &:hover:not(.select-all-container) {
+        &:hover:not(.select-all-container):not(:disabled) {
           background os-light
           color #444
+        }
+        
+        &:disabled {
+          color #bbb
         }
       }
       
@@ -718,6 +722,7 @@ header + hr {
           margin 0
           font-size 0.7em
           padding .2em
+          box-sizing border-box
         }
         
         .backpack-thumb {
