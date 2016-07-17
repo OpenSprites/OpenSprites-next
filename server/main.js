@@ -1378,6 +1378,13 @@ app.get('/about', function(req, res) {
   })
 })
 
+app.get('/contact-us', function(req, res) {
+  res.render('contact-us', {
+    user: req.session.user,
+    title: 'Contact OpenSprites'
+  })
+})
+
 app.get('/dmca', function(req, res) {
   let f = path.join(__dirname, '../', 'DMCA.md')
 
