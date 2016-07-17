@@ -502,11 +502,16 @@ header + hr {
     >div:not(.active) {
       display none
     }
+    
+    >div {
+      height calc(100% - 2em)
+      width 100%
+    }
   }
   
   &.active {
     width 100%
-    height 25%
+    height 200px
     z-index 5
     
     &.fullscreen {
@@ -515,6 +520,24 @@ header + hr {
       bottom 5%
       left 5%
       border 2px solid white
+      
+      .backpack-ui {
+        .backpack-content {
+          overflow-x hidden
+          overflow-y auto
+          white-space initial
+          
+          display flex
+          flex-direction row
+          justify-content: center;
+          align-content flex-start
+          flex-wrap wrap
+          
+          .backpack-item {
+            margin-bottom 1em
+          }
+        }
+      }
     }
     
     .bottom-bar {
@@ -525,6 +548,185 @@ header + hr {
     
     .bottom-expand {
       display block
+    }
+  }
+  
+  .backpack-ui {
+    display flex
+    flex-direction column
+    
+    .backpack-bar {
+      width 100%
+      padding-top 0.3em
+      
+      >button, >div {
+        display inline-block
+        height 2em
+        background transparent
+        border 0
+        color white
+        padding 0 0
+        margin 0 0.5em
+        cursor default
+        transition all 0.1s
+        border-radius 3px
+        
+        &:hover:not(.select-all-container) {
+          background os-light
+          color #444
+        }
+      }
+      
+      .divider {
+        width 1px
+        height 1.3em
+        background white
+      }
+      
+      .select-all-container {
+        vertical-align top
+        line-height 1.5em
+        .select-all {
+          vertical-align middle
+        }
+      }
+      
+      .dropdown-container {
+        .dropdown {
+          list-style-type none
+          
+          position absolute
+          top calc(2em - 2px)
+          margin 0
+          padding 0
+          
+          background os-light
+          border-bottom-right-radius 0.5em
+          border-bottom-left-radius 0.5em
+          border-top-right-radius 0.5em
+          z-index 9999
+          max-height 0
+          overflow hidden
+          box-sizing border-box
+          transition max-height 0.2s
+          
+          li {
+            display block
+            cursor default
+            background os-light
+            color #444 !important
+            transition all 0.1s
+            margin 0
+            padding-left 1em
+            padding-right 1em
+            &:hover {
+              background os-dark
+              color white !important
+              button {
+                color white
+              }
+            }
+            
+            button {
+              background transparent
+              border 0
+              color #444
+            }
+          }
+        }
+        
+        &:hover {
+          button {
+            border-bottom-right-radius 0
+            border-bottom-left-radius 0
+          }
+          .dropdown {
+            max-height 500px
+          }
+        }
+      }
+    }
+    
+    .backpack-content {
+      width 100%
+      flex 1
+      overflow-x auto
+      overflow-y hidden
+      white-space nowrap
+      
+      &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      &::-webkit-scrollbar-button {
+        width: 0px;
+        height: 0px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+        border: 0px none #ffffff;
+        border-radius: 50px;
+      }
+      &::-webkit-scrollbar-thumb:hover {
+        background: #ffffff;
+      }
+      &::-webkit-scrollbar-thumb:active {
+        background: #ffffff;
+      }
+      &::-webkit-scrollbar-track {
+        background: #666666;
+        border: 0px none #ffffff;
+        border-radius: 50px;
+      }
+      &::-webkit-scrollbar-track:hover {
+        background: #666666;
+      }
+      &::-webkit-scrollbar-track:active {
+        background: #666666;
+      }
+      &::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+      
+      .backpack-item {
+        width 100px
+        height 100px
+        overflow hidden
+        border 2px solid white
+        border-radius 3px
+        box-sizing content-box
+        position relative
+        display inline-block
+        margin 0 0.5em
+        
+        .backpack-select {
+          position absolute
+          top 0
+          left 0
+        }
+        
+        .backpack-name {
+          position absolute
+          left 0
+          bottom 0
+          background rgba(black, 0.6)
+          color white
+          width 100%
+          white-space nowrap
+          overflow hidden
+          text-overflow ellipsis
+          margin 0
+          font-size 0.7em
+          padding .2em
+        }
+        
+        .backpack-thumb {
+          width 100px
+          max-height 100px
+          background-repeat repeat
+          background-image url("/assets/img/tile.png")
+        }
+      }
     }
   }
 }

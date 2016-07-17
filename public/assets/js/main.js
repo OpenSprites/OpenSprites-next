@@ -18,6 +18,7 @@ const visualizer = require('./visualizer')
 const leaving = require('./leaving')
 const collection = require('./collection')
 const ddc = require('./dropdowncheck')
+const backpack = require('./backpack')
 
 require('./cookieconsent')
 

@@ -131,7 +131,47 @@
         Messages content goes here
       </div>
       <div class='backpack-ui'>
-        Backpack goes here
+        <div class='backpack-bar'>
+          <div class='select-all-container'>
+            <input type='checkbox' class='select-all' />
+          </div>
+          <button class='backpack-delete' title='Delete selected'><i class='material-icons'>delete</i></button>
+          <div class='divider'></div>
+          <div class='backpack-dl dropdown-container'>
+            <i class='material-icons'>file_download</i>
+            <i class='material-icons'>arrow_drop_down</i>
+            <ul class='dropdown'>
+              <li>
+                <button class='as-sprite'>as sprite</button>
+              </li>
+              <li>
+                <button class='as-project'>as project</button>
+              </li>
+            </ul>
+          </div>
+          <button class='backpack-to-collection' title='Add to collection'><i class='material-icons'>move_to_inbox</i></button>
+          <div class='backpack-open dropdown-container'>
+            <i class='material-icons'>open_in_browser</i>
+            <i class='material-icons'>arrow_drop_down</i>
+            <ul class='dropdown'>
+              <li><button class='to-scratch'>open in scratch</button></li>
+              <li><button class='to-tosh'>open in tosh</button></li>
+              <li><button class='to-pixie'>open in pixie</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class='backpack-content'>
+          
+        </div>
+        <div class='backpack-item template'>
+          <input type='checkbox' class='backpack-select' />
+          <img class='backpack-thumb' />
+          <h4 class='backpack-name' title=''>
+            <span class='name'></span>
+            <br/>
+            <span class='type'></span>
+          </h4>
+        </div>
       </div>
     </div>
     <div class='bottom-bar'>

@@ -482,6 +482,19 @@ app.get('/you/collections', nocache, mustSignIn, async function(req, res){
   }
 })
 
+app.get('/you/messages', nocache, mustSignIn, async function(req, res){
+  try {
+    let who = await db.User.findOne({
+      username: req.session.user
+    }, 'messages alerts')
+    if(!who) throw "User not found"
+    
+    res.status(200).json(who)
+  } catch(e){
+    console.log(e)
+    res.status(500).json(false)
+  }
+})
 
 app.get('/users/:who', nocache, async function(req, res) {
   let who = await db.User.find({
