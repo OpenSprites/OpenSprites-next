@@ -1,6 +1,6 @@
 <div class='resource' id='{{_id}}' data-id='{{_id}}' data-name='{{name}}' data-type='resource'>
   <input type='checkbox' class='resource-select' />
-  <a href='/{{resources}}/{{_id}}' class='to' {{#if loading}}title="We're still loading this, so sit tight!"{{/if}}>
+  <a href='/{{resources}}/{{_id}}' class='to'>
     {{#if audio}}
       <div class='audio' style='background-image: url("/{{resources}}/{{_id}}/cover");'>
         <img class='audio-img' src='/{{resources}}/{{_id}}/cover' />
