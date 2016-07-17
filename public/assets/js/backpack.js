@@ -327,5 +327,15 @@ if(window.localStorage) {
 }
 
 module.exports = {
-  BackpackItem
+  BackpackItem,
+  addItem: function(item){
+    if(isInBackpack(item.id)) {
+      return false
+    }
+    
+    backpack.items.push(item)
+    save()
+    addItemDom(item)
+    nothing.style.display = 'none'
+  }
 }
