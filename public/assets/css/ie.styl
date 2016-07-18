@@ -3,11 +3,8 @@ IE specific styles
 Currently only tested on IE11
 */
 @supports (-ms-accelerator:true) {
-@media screen and (min-width:0) and (min-resolution: +72dpi) {
-
-  /* * {
-   font-feature-settings normal !important
-  } */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+@media screen and (min-width:0\0) and (min-resolution: .001dpcm) {
   
   html {
    overflow-x hidden /* no idea what's causing the extra width */
@@ -17,11 +14,6 @@ Currently only tested on IE11
   nav .logo {
     background-image url("/assets/img/logo/ie-icon.png") !important
   }
-  
-  /*header main {
-    display inline-block !important
-    margin: 0 !important
-  }*/
   
   main {
     background-color transparent !important
@@ -40,5 +32,6 @@ Currently only tested on IE11
     font-feature-settings "liga" 1 !important
   }
   
+}
 }
 }
