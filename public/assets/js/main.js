@@ -5,6 +5,8 @@
  * The main website script.
  */
 
+require('./polyfills')
+
 const ajax = require('axios')
 
 const join = require('./join')
