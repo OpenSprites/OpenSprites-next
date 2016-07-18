@@ -1,5 +1,6 @@
 const ajax = require('axios')
 const timeago = require('./timeago')
+const resourcesManager = require('./resources')
 
 let addBtn, removeBtn, selectAllCheck
 
@@ -34,9 +35,12 @@ function updateView(){
 async function reloadResources() {
   let res = await ajax.get(location.pathname + '/items', {})
   document.querySelector(".resources").innerHTML = res.data
-  for (let el of document.querySelectorAll('.resources .timeago')) {
-    el.innerHTML = timeago(parseInt(el.innerHTML))
-    el.setAttribute('title', el.innerHTML)
+  resourcesManager.parse()
+  
+  for (let el of document.querySelectorAll('.resource')) {
+    let ta = el.querySelector('.timeago')
+    ta.innerHTML = timeago(parseInt(ta.innerHTML))
+    ta.setAttribute('title', ta.innerHTML)
   }
   updateView()
 }
@@ -269,6 +273,55 @@ module.exports = {
     if (location.hash == 'collection-alert') {
       location.hash = '#_'
     }
+    
+    let content = document.querySelector('main.collection-ui.resource-container')
+    
+    content.addEventListener('dragover', function(e) {
+      if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-resource-list+text") < 0) {
+        e.preventDefault()
+        this.classList.add('drag')
+        e.dataTransfer.dropEffect = 'copy'
+        return false
+      } else {
+        this.classList.remove('drag')
+      }
+    })
+  
+    content.addEventListener('dragleave', function(e){
+      this.classList.remove('drag')
+    })
+  
+    content.addEventListener('drop', function(e){
+      e.preventDefault()
+      this.classList.remove('drag')
+      if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-resource-list+text") < 0) {
+        let ids = []
+        let items = JSON.parse(e.dataTransfer.getData('application/opensprites-items+json'))
+        
+        for(let item of items) {
+          if(item.type == 'collection' || item.type == 'resource')
+            ids.push(item.id)
+        }
+        
+        (async function(){
+          try {
+            await ajax.put(location.pathname + '/items', {
+              ids
+            }, {
+              'headers': {
+                'X-CSRF-Token': window.csrf
+              }
+            })
+            reloadResources()
+          } catch(e){
+            console.log(e)
+            pAlert("Error adding resources: " + e)
+          }
+        })()
+      }
+      return false
+    })
+  
 
     setView(localStorage['collection_view'] || 'tiles')
 

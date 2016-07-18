@@ -13,9 +13,10 @@ let backpack = {
   items: []
 }
 
-let bottomBar, backpackUI, backpackContent, nothing, template, selectAll, deleteBtn, addBtn, dlSprite, dlProject, addToCollectionBtn, openScratch, openTosh, openPixie, status, backpackBtn
+let bottomBar, backpackUI, backpackContent, nothing, template, deleteBtn, addBtn, dlSprite, dlProject, openScratch, openTosh, openPixie, status, backpackBtn
 
 let dragBarWasTarget = false
+let firstSelectedItem
 
 function load() {
   if(localStorage.backpack) {
@@ -33,43 +34,6 @@ function isInBackpack(thing) {
     if(item.id == thing) return true
   }
   return false
-}
-
-async function addToCollection(){
-  status.textContent = "Adding..."
-  try {
-    let items = backpackContent.querySelectorAll('.backpack-select:checked')
-    if(items.length == 0){
-      items = backpackContent.querySelectorAll('.backpack-select')
-    }
-    
-    items = Array.from(items).map(e => e.parentElement._parentItem)
-    
-    let res = await ajax.put(location.pathname + '/items', {
-        ids: items.map(e => e.id)
-      }, {
-        'headers': {
-          'X-CSRF-Token': window.csrf
-        }
-    })
-    if(!res.data) {
-      status.textContent = "Error"
-      return
-    }
-    
-    status.textContent = ""
-    
-    for(let item of items) {
-       if(!res.data[item.id].status) {
-         status.textContent = "Some items not added"
-       }
-    }
-    
-    collection.refresh()
-  } catch(e) {
-    console.log(e)
-    status.textContent = "Error"
-  }
 }
 
 function render(){
@@ -93,7 +57,6 @@ function addItemDom(item) {
   itemDom._parentItem = item
 
   let thumb = itemDom.querySelector('.backpack-thumb')
-  let check = itemDom.querySelector('.backpack-select')
   let name = itemDom.querySelector('.backpack-name .name')
   let type = itemDom.querySelector('.backpack-name .type')
 
@@ -106,32 +69,61 @@ function addItemDom(item) {
   }
 
   name.textContent = item.name
-
-  check.addEventListener('change', function () {
-    let allChecks = Array.from(backpackContent.querySelectorAll('.backpack-select'))
-    let selectedChecks = Array.from(backpackContent.querySelectorAll('.backpack-select:checked'))
-
-    if (allChecks.length == selectedChecks.length && selectedChecks.length > 0) {
-      selectAll.indeterminate = false
-      selectAll.checked = true
-      deleteBtn.disabled = false
-    } else if (selectedChecks.length > 0) {
-      selectAll.indeterminate = true
-      deleteBtn.disabled = false
-    } else {
-      selectAll.indeterminate = false
-      selectAll.checked = false
-      deleteBtn.disabled = true
-    }
-  })
+  itemDom.title = item.name
   
   itemDom.addEventListener('dragstart', function(e){
     let img = this.querySelector('.backpack-thumb')
     
-    e.dataTransfer.clearData();
-    e.dataTransfer.setDragImage(img, 0, 0)
-    e.dataTransfer.setData('application/opensprites-item+json', JSON.stringify(this._parentItem))
+    this.classList.add('selected')
+    
+    let items = Array.from(backpackContent.querySelectorAll('.backpack-item.selected')).map(e=> e._parentItem)
+    
+    e.dataTransfer.clearData()
+    e.dataTransfer.setDragImage(img, img.width / 2, img.height / 2)
+    e.dataTransfer.setData('application/opensprites-items+json', JSON.stringify(items))
     e.dataTransfer.setData('application/opensprites-item-origin-backpack+text', "yep")
+  })
+  
+  itemDom.addEventListener('dblclick', function(e){
+    let item = this._parentItem
+    switch(item.type){
+      case 'resource':
+      case 'collection':
+        window.open(`/${item.type}s/${item.id}`, '_blank')
+        break
+    }
+  })
+  
+  itemDom.addEventListener('click', function(e){
+    if(e.ctrlKey || e.metaKey) {
+      if(this.classList.contains('selected')) {
+        this.classList.remove('selected')
+      } else {
+        let sel = Array.from(backpackContent.querySelectorAll('.backpack-item.selected'))
+        sel.push(this)
+        Array.from(backpackContent.querySelectorAll('.backpack-item.selected')).forEach(item => item.classList.remove('selected'))
+        sel.forEach(item => item.classList.add('selected'))
+      }
+    } else if(e.shiftKey) {
+      let all = Array.from(backpackContent.querySelectorAll('.backpack-item'))
+      let firstIndex = all.indexOf(firstSelectedItem)
+      let myIndex = all.indexOf(this)
+      Array.from(backpackContent.querySelectorAll('.backpack-item.selected')).forEach(item => item.classList.remove('selected'))
+      
+      if(firstIndex < 0 || firstIndex == myIndex) {
+        this.classList.add('selected')
+        firstSelectedItem = this
+        return
+      }
+      
+      for(let i = firstIndex; firstIndex < myIndex ? i <= myIndex : i >= myIndex; firstIndex < myIndex ? i++ : i--) {
+        all[i].classList.add('selected')
+      }
+    } else {
+      Array.from(backpackContent.querySelectorAll('.backpack-item.selected')).forEach(item => item.classList.remove('selected'))
+      this.classList.add('selected')
+      firstSelectedItem = this
+    }
   })
   
   backpackContent.insertBefore(itemDom, backpackContent.children[0])
@@ -145,11 +137,6 @@ function update(){
 function registerListeners() {
   window.addEventListener('storage', function(e) {
     if(e.key == 'backpack') update()
-  })
-  
-  selectAll.addEventListener('change', function(e){
-    Array.from(backpackContent.querySelectorAll('.backpack-select')).forEach(item => item.checked = e.target.checked)
-    deleteBtn.disabled = !e.target.value
   })
   
   backpackContent.addEventListener('dragover', function(e) {
@@ -171,15 +158,16 @@ function registerListeners() {
     e.preventDefault()
     this.classList.remove('drag')
     if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-backpack+text") < 0) {
-      let item = JSON.parse(e.dataTransfer.getData('application/opensprites-item+json'))
-      if(isInBackpack(item.id)) {
-        return false
-      }
+      JSON.parse(e.dataTransfer.getData('application/opensprites-items+json')).forEach(function(item){
+        if(isInBackpack(item.id)) {
+          return false
+        }
       
-      backpack.items.push(item)
-      save()
-      addItemDom(item)
-      nothing.style.display = 'none'
+        backpack.items.push(item)
+        save()
+        addItemDom(item)
+        nothing.style.display = 'none'
+      })
     }
     
     return false
@@ -254,8 +242,10 @@ function registerListeners() {
   })
   
   deleteBtn.addEventListener('click', function(){
-    let selectedItems = Array.from(backpackContent.querySelectorAll('.backpack-select:checked'))
-        .map(item => item.parentElement)
+    let selectedItems = Array.from(backpackContent.querySelectorAll('.backpack-item.selected'))
+    if(selectedItems.length == 0){
+      selectedItems = Array.from(backpackContent.querySelectorAll('.backpack-item'))
+    }
     for(let itemDom of selectedItems){
       let id = itemDom._parentItem.id
       
@@ -270,13 +260,8 @@ function registerListeners() {
       
       if(backpack.items.length == 0) {
         nothing.style.display = 'block'
-        deleteBtn.disabled = true
       }
     }
-  })
-  
-  addToCollectionBtn.addEventListener('click', function(){
-    addToCollection()
   })
 }
 
@@ -288,12 +273,10 @@ function init(){
   backpackContent = backpackUI.querySelector('.backpack-content')
   nothing = backpackContent.querySelector('.nothing')
   template = backpackUI.querySelector('.backpack-item.template')
-  selectAll = backpackUI.querySelector('.select-all')
   deleteBtn = backpackUI.querySelector('.backpack-delete')
   addBtn = backpackUI.querySelector('.backpack-add')
   dlSprite = backpackUI.querySelector('.as-sprite')
   dlProject = backpackUI.querySelector('.as-project')
-  addToCollectionBtn = backpackUI.querySelector('.backpack-to-collection')
   openScratch = backpackUI.querySelector('.to-scratch')
   openTosh = backpackUI.querySelector('.to-tosh')
   openPixie = backpackUI.querySelector('.to-pixie')
@@ -306,14 +289,6 @@ function init(){
     addBtn.disabled = false
   } else {
     addBtn.title = "Add this page to backpack (Not a resource or collection)"
-  }
-  
-  if(OS.collection && OS.collection.canAddItems) {
-    addToCollectionBtn.disabled = false
-  } else if(OS.collection) {
-    addToCollectionBtn.title = "Add to this collection (Not allowed)"
-  } else {
-    addToCollectionBtn.title = "Add to this collection (Not a collection)"
   }
   
   load()

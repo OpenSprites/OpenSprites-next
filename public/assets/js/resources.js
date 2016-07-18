@@ -22,8 +22,8 @@ module.exports = {
           }
     
           e.dataTransfer.clearData();
-          e.dataTransfer.setDragImage(img, 0, 0)
-          e.dataTransfer.setData('application/opensprites-item+json', JSON.stringify(itemJson))
+          e.dataTransfer.setDragImage(img, img.width / 2, img.height / 2)
+          e.dataTransfer.setData('application/opensprites-items+json', JSON.stringify([itemJson]))
           e.dataTransfer.setData('application/opensprites-item-origin-resource-list+text', "yep")
         })
 

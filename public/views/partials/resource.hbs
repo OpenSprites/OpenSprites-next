@@ -2,8 +2,8 @@
   <input type='checkbox' class='resource-select' />
   <a href='/{{resources}}/{{_id}}' class='to'>
     {{#if audio}}
-      <div class='audio' style='background-image: url("/{{resources}}/{{_id}}/cover");'>
-        <img class='audio-img' src='/{{resources}}/{{_id}}/cover' />
+      <div class='audio'>
+        <img class='audio-img' src='/{{resources}}/{{_id}}/cover' style='background-image: url("/{{resources}}/{{_id}}/cover");' />
         <div class='play icon'>play_arrow</div>
         <audio preload="none" src='/{{resources}}/{{_id}}/raw'></audio>
       </div>

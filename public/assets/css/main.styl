@@ -443,6 +443,9 @@ header + hr {
     position absolute
     bottom 0
     right 0
+    width 100%
+    display flex
+    justify-content space-around
     
     button {
       @extend .body
@@ -568,7 +571,6 @@ header + hr {
       
       >button, >div {
         display inline-block
-        height 2em
         background transparent
         border 0
         color white
@@ -577,8 +579,16 @@ header + hr {
         cursor default
         transition all 0.1s
         border-radius 3px
+        position relative
         
-        &:hover:not(.select-all-container):not(:disabled) {
+        .label {
+          font-size 12px
+          position relative
+          top -.6em
+          padding 0 0.5em
+        }
+        
+        &:hover:not(:disabled) {
           background os-light
           color #444
         }
@@ -594,27 +604,20 @@ header + hr {
         background white
       }
       
-      .select-all-container {
-        vertical-align top
-        line-height 1.5em
-        .select-all {
-          vertical-align middle
-        }
-      }
-      
       .dropdown-container {
         .dropdown {
           list-style-type none
           
           position absolute
-          top calc(2em - 2px)
+          /* yay epic CSS hacks */
+          bottom 0
+          transform translateY(100%)
           margin 0
           padding 0
           
           background os-light
           border-bottom-right-radius 0.5em
           border-bottom-left-radius 0.5em
-          border-top-right-radius 0.5em
           z-index 9999
           max-height 0
           overflow hidden
@@ -667,12 +670,6 @@ header + hr {
       transition background 0.3s
       box-sizing border-box
       
-      &.drag {
-        background rgba(white 0.3)
-        border-radius 1em
-        border 5px dashed white
-      }
-      
       &::-webkit-scrollbar {
         width: 10px;
         height: 10px;
@@ -711,17 +708,21 @@ header + hr {
         width 100px
         height 100px
         overflow hidden
-        border 2px solid white
+        border 2px solid os-grey
         border-radius 3px
         box-sizing content-box
         position relative
         display inline-block
         margin 0 0.5em
+        background-repeat repeat
+        background-image url("/assets/img/tile.png")
         
-        .backpack-select {
-          position absolute
-          top 0
-          left 0
+        &.selected {
+          border 2px solid rgb(100,255,255)
+          text-shadow 0px 0px 5px white
+          .backpack-thumb {
+            background rgba(100, 255, 255, 0.5)
+          }
         }
         
         .backpack-name {
@@ -743,8 +744,6 @@ header + hr {
         .backpack-thumb {
           width 100px
           max-height 100px
-          background-repeat repeat
-          background-image url("/assets/img/tile.png")
         }
       }
     }
@@ -764,6 +763,33 @@ header + hr {
 .scrollbar-adjust {
   height: calc(1em + 32px);
 }
+
+.droppable {
+  position relative
+  box-sizing border-box
+  &.drag {
+    background rgba(os 0.3)
+  }
+  &.drag:after {
+    content " "
+    position absolute
+    top 0
+    left 0
+    box-sizing border-box
+    width 100%
+    height 100%
+    border-radius 1em
+    border 5px dashed os
+  }
+  
+  &.white.drag {
+    background rgba(white 0.3)
+    &:after {
+      border-color white
+    }
+  }
+}
+  
 
 @require 'nav.styl'
 @require 'signup-join.styl'
