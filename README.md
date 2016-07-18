@@ -69,3 +69,15 @@ npm run watch
 npm start
 ```
 And then open up [localhost:3000](http://localhost:3000/) (or whatever port you've set it to).
+
+# Debugging the server #
+
+First install `node-inspector`: `npm install -g node-inspector`
+
+Then run in separate processes: `npm run watch`, `node-inspector`, and `npm start-debug`
+
+Then open Chrome (or a Chromium-based browser) to `http://localhost:8080/?port=5858`
+
+- Sourcemaps partially work (open the `*.source` files)
+- Some breakpoints work (in particular they don't work on ES6 syntax, eg `let`)
+- REPL works (!)

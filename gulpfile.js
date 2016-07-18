@@ -40,7 +40,7 @@ gulp.task('watch-static', function() {
 /////////////////////////////////////////////////////////
 
 gulp.task('clean-server', function() {
-  return gulp.src('server/.dist/**/*', { read: false })
+  return gulp.src('server/.dist/**/*.js', { read: false })
   .pipe(clean())
 })
 
