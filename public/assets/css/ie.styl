@@ -2,8 +2,8 @@
 IE specific styles 
 Currently only tested on IE11
 */
-
-@media screen and (min-width:0\0) and (min-resolution: +72dpi) {
+@supports (-ms-accelerator:true) {
+@media screen and (min-width:0) and (min-resolution: +72dpi) {
 
   /* * {
    font-feature-settings normal !important
@@ -40,4 +40,5 @@ Currently only tested on IE11
     font-feature-settings "liga" 1 !important
   }
   
+}
 }
