@@ -37,6 +37,33 @@ function isInBackpack(thing) {
   return false
 }
 
+async function download(type) {
+  let selectedItems = Array.from(backpackContent.querySelectorAll('.backpack-item')).map( item => item._parentItem.id )
+  status.textContent = "Preparing download..."
+  try {
+    [dlSprite, dlProject, openScratch, openTosh, openPixie].forEach(item => item.disabled = true)
+    let res = await ajax.post('/collections/download', {
+      type,
+      which: selectedItems
+    }, {
+      'headers': {
+        'X-CSRF-Token': window.csrf
+      }
+    })
+    
+    if(res.data.downloadId){
+      document.querySelector("#dlframe").src = '/collections/download/' + res.data.downloadId + '/backpack-items'
+      status.textContent = ""
+    } else {
+      throw "Didn't get a response"
+    }
+  } catch(e){
+    console.log(e)
+    status.textContent = "Error"
+  }
+  [dlSprite, dlProject, openScratch, openTosh, openPixie].forEach(item => item.disabled = false)
+}
+
 function render(){
   for(let child of Array.from(backpackContent.querySelectorAll('.backpack-item'))) {
     child.remove()
@@ -266,6 +293,13 @@ function registerListeners() {
         nothing.style.display = 'block'
       }
     }
+  })
+  
+  dlSprite.addEventListener('click', function(){
+    download('sprite')
+  })
+  dlProject.addEventListener('click', function(){
+    download('project')
   })
 }
 
