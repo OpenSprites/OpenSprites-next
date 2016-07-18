@@ -7,8 +7,11 @@
     "postinstall": "npm run build",
     "build": "./node_modules/.bin/gulp build",
     "watch": "./node_modules/.bin/gulp watch",
+    "watch-static": "./node_modules/.bin/gulp watch-static",
     "start": "./node_modules/.bin/nodemon -w server/.dist",
-    "debug": "node-debug --web-port=8081 server/.dist/entry-min.js"
+    "debug": "node-debug --web-port=8081 server/.dist/entry.js",
+    "debug-static": "node-debug --web-port=8081 server/.dist/entry-static.js",
+    "build-server-static": "./node_modules/.bin/gulp build-server-static"
   },
   "repository": {
     "type": "git",

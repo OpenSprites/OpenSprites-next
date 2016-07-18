@@ -30,10 +30,17 @@ gulp.task('watch', function() {
   gulp.watch(['public/assets/img/**/*', '!public/assets/img/.dist/**/*'], ['build-img'])
 })
 
+gulp.task('watch-static', function() {
+  gulp.watch(['server/**/*.js', '!server/.dist/**/*'], ['build-server-static'])
+  gulp.watch(['public/assets/js/**/*', '!public/assets/js/.dist/**/*'], ['build-js'])
+  gulp.watch(['public/assets/css/**/*', '!public/assets/css/.dist/**/*'], ['build-css'])
+  gulp.watch(['public/assets/img/**/*', '!public/assets/img/.dist/**/*'], ['build-img'])
+})
+
 /////////////////////////////////////////////////////////
 
 gulp.task('clean-server', function() {
-  return gulp.src('server/.dist/*', { read: false })
+  return gulp.src('server/.dist/**/*', { read: false })
   .pipe(clean())
 })
 
@@ -56,6 +63,27 @@ gulp.task('clean-img', function() {
 
 gulp.task('build-server', ['clean-server'], function() {
   return gulp.src([traceur.RUNTIME_PATH, 'server/entry.js'])
+  .pipe(plumber())
+  .pipe(sourcemaps.init()) 
+  .pipe(traceur({ 
+    experimental: true, 
+    properTailCalls: true, 
+    symbols: true, 
+    arrayComprehension: true, 
+    asyncFunctions: true, 
+    asyncGenerators: true, 
+    forOn: true, 
+    generatorComprehension: true 
+  }))
+  .pipe(minify({ 
+    mangle: false 
+  }))
+  .pipe(sourcemaps.write('.'))
+  .pipe(gulp.dest('server/.dist'))
+})
+
+gulp.task('build-server-static', ['clean-server'], function() {
+  return gulp.src([traceur.RUNTIME_PATH, 'server/**/*'])
   .pipe(plumber())
   .pipe(sourcemaps.init()) 
   .pipe(traceur({ 

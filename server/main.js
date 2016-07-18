@@ -4,9 +4,9 @@
  * 
  * The server. Obviously.
  */
- console.log('=== OpenSwag Server ===')
- console.log('Loading dependencies...')
-
+console.log('=== OpenSwag Server ===')
+console.log('Loading dependencies...')
+let startLoad = Date.now()
 require('dotenv').config()
 
 const path = require('path')
@@ -65,6 +65,10 @@ const replaceBadWords = require('./utils/replace-bad-words')
 const callbackToPromise = require('./utils/callback-to-promise')
 const scratchBuilder = require('./utils/scratch-builder.js')
 scratchBuilder.init()
+
+/////////////////////////////////////////////////////////
+
+console.log("Loading server...")
 
 /////////////////////////////////////////////////////////
 
@@ -1445,6 +1449,8 @@ app.get('*', function(req, res) {
 })
 
 /////////////////////////////////////////////////////////
+
+console.log("Load took " + ((Date.now() - startLoad)/1000) + " secs")
 
 db.load().then(function() {
   const port = process.env.server_port || 3000
