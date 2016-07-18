@@ -74,7 +74,7 @@ And then open up [localhost:3000](http://localhost:3000/) (or whatever port you'
 
 First install `node-inspector`: `npm install -g node-inspector`
 
-Then run in separate processes: `npm run watch`, `node-inspector`, and `npm start-debug`
+Then run in separate processes: `npm run watch`, `node-inspector`, and `npm run start-debug`
 
 Then open Chrome (or a Chromium-based browser) to `http://localhost:8080/?port=5858`
 
