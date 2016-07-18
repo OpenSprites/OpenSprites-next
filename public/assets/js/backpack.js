@@ -1,5 +1,6 @@
 const ajax = require('axios')
 const collection = require('./collection')
+const dndrenderer = require('./dndrenderer')
 
 function BackpackItem(type, id, name) {
   return {
@@ -79,6 +80,9 @@ function addItemDom(item) {
     let items = Array.from(backpackContent.querySelectorAll('.backpack-item.selected')).map(e=> e._parentItem)
     
     e.dataTransfer.clearData()
+    if(items.length > 1) {
+     img = dndrenderer.nItems(items.length, 100)
+    }
     e.dataTransfer.setDragImage(img, img.width / 2, img.height / 2)
     e.dataTransfer.setData('application/opensprites-items+json', JSON.stringify(items))
     e.dataTransfer.setData('application/opensprites-item-origin-backpack+text', "yep")
