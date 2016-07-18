@@ -5,9 +5,9 @@ Currently only tested on IE11
 
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
 
-  * {
+  /* * {
    font-feature-settings normal !important
-  }
+  } */
   
   html {
    overflow-x hidden /* no idea what's causing the extra width */
@@ -26,6 +26,10 @@ Currently only tested on IE11
   main {
     background-color transparent !important
     display block 
+  }
+  
+  .btn, nav a:not(.logo) {
+    margin-bottom 10px
   }
   
   input[type="text"], input[type="password"], input[type="email"] {
