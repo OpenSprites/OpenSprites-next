@@ -401,10 +401,12 @@ function init(){
   
   registerListeners()
   
-  if(OS.resource || OS.collection) {
-    addBtn.disabled = false
+  if(OS.resource) {
+    addBtn.querySelector('.label').textContent = "Add this resource"
+  } else if(OS.collection){
+    addBtn.querySelector('.label').textContent = "Add this collection"
   } else {
-    addBtn.title = "Add this page to backpack (Not a resource or collection)"
+    addBtn.style.display = "none"
   }
   
   load()
