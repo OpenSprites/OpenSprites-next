@@ -190,6 +190,7 @@ app.use(compression())
 app.use(session({
   secret: process.env.session_secret,
   cookie: { secure: false }, // enable if running on HTTPS
+  maxAge: 1000 * 3600 * 24 * 30,
   resave: true,
   saveUninitialized: true,
   store: new sessionStore({

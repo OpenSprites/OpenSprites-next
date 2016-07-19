@@ -53,6 +53,7 @@ async function download(type, dontOpen) {
     
     if(res.data.downloadId){
       if(dontOpen) {
+        [dlSprite, dlProject, openScratch, openTosh, openPixie].forEach(item => item.disabled = false)
         return '/collections/download/' + res.data.downloadId + '/backpack-items'
       } else {
         document.querySelector("#dlframe").src = '/collections/download/' + res.data.downloadId + '/backpack-items'
