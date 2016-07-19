@@ -277,7 +277,7 @@ module.exports = {
     let content = document.querySelector('main.collection-ui.resource-container')
     
     content.addEventListener('dragover', function(e) {
-      if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-resource-list+text") < 0) {
+      if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-resource-list+text") < 0 && OS.collection.canAddItems) {
         e.preventDefault()
         this.classList.add('drag')
         e.dataTransfer.dropEffect = 'copy'
@@ -294,7 +294,7 @@ module.exports = {
     content.addEventListener('drop', function(e){
       e.preventDefault()
       this.classList.remove('drag')
-      if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-resource-list+text") < 0) {
+      if(e.dataTransfer.types.indexOf("application/opensprites-item-origin-resource-list+text") < 0 && OS.collection.canAddItems) {
         let ids = []
         let items = JSON.parse(e.dataTransfer.getData('application/opensprites-items+json'))
         
