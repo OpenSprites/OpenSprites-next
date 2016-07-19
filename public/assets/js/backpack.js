@@ -37,7 +37,7 @@ function isInBackpack(thing) {
   return false
 }
 
-async function download(type) {
+async function download(type, dontOpen) {
   let selectedItems = Array.from(backpackContent.querySelectorAll('.backpack-item')).map( item => item._parentItem.id )
   status.textContent = "Preparing download..."
   try {
@@ -52,7 +52,11 @@ async function download(type) {
     })
     
     if(res.data.downloadId){
-      document.querySelector("#dlframe").src = '/collections/download/' + res.data.downloadId + '/backpack-items'
+      if(dontOpen) {
+        return '/collections/download/' + res.data.downloadId + '/backpack-items'
+      } else {
+        document.querySelector("#dlframe").src = '/collections/download/' + res.data.downloadId + '/backpack-items'
+      }
       status.textContent = ""
     } else {
       throw "Didn't get a response"
@@ -62,6 +66,75 @@ async function download(type) {
     status.textContent = "Error"
   }
   [dlSprite, dlProject, openScratch, openTosh, openPixie].forEach(item => item.disabled = false)
+}
+
+async function openIn(type) {
+  try {
+    let url = await download('project', true)
+    if(!url) throw "Failed to download"
+  } catch(e){
+    console.log(e)
+    return
+  }
+  if(type == 'scratch') {
+    try {
+      status.textContent = "Loading editor..."
+      let FlashApp = await embedScratch()
+      FlashApp.ASloadProjectUrl(url)
+      status.textContent = ""
+    } catch(e) {
+      console.log(e)
+      status.textContent = "Error"
+    }
+  }
+}
+
+function embedScratch() {
+  return new Promise(function(resolve, reject){
+    let FlashApp = document.querySelector('#opensprites-editor')
+    if(FlashApp.tagName.toLowerCase() != "object") {
+      window.JSthrowError = function(err){
+        console.log("Flash error", err)
+      }
+    
+      window.JSloadProjectUrlCallback = function(err){
+          if(err){
+              console.error("Failed to load project: ", err);
+          } else {
+              console.log("Loaded project")
+          }
+      }
+    
+      window.JSlogoButtonPressed = function(){
+          let FlashApp = document.querySelector('#opensprites-editor')
+          FlashApp.classList.remove("active")
+      }
+      
+      window.JSeditorReady = function() {
+        let FlashApp = document.querySelector('#opensprites-editor')
+		    resolve(FlashApp)
+      }
+    
+		  var swf = "/assets/swf/OpenSprites-Editor.swf?hash=ffa2b59";
+		  var flashvars = {};
+		  swfobject.embedSWF(swf, "opensprites-editor", '100%', '100%', "11.6.0", false, flashvars, {
+		    allowscriptaccess: "always",
+		    allowfullscreen: "true",
+		    wmode: "direct",
+		    menu: "false"
+		  }, null, function(obj){
+		    if(!obj || !obj.success) {
+		      reject("No flash support")
+		    } else {
+		      let FlashApp = document.querySelector('#opensprites-editor')
+		      FlashApp.classList.add("active")
+			  }
+		  });
+    } else {
+      FlashApp.classList.add("active")
+      resolve(FlashApp)
+    }
+  })
 }
 
 function render(){
@@ -300,6 +373,10 @@ function registerListeners() {
   })
   dlProject.addEventListener('click', function(){
     download('project')
+  })
+  
+  openScratch.addEventListener('click', function(){
+    openIn('scratch')
   })
 }
 

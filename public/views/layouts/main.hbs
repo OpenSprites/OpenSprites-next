@@ -26,6 +26,8 @@
 <script>
   window.OS = window.OS || {}
   window.OS.loggedInUser = '{{user}}'
+  
+  window.csrf = {{{json csrfToken}}}
 </script>
 
 <body>
@@ -159,7 +161,7 @@
             <span class='label'>open in...</span>
             <i class='material-icons'>arrow_drop_down</i>
             <ul class='dropdown'>
-              <li><button class='to-scratch'>scratch</button></li>
+              <li><button class='to-scratch'>script/media&nbsp;editor</button></li>
               <li><button class='to-tosh'>tosh</button></li>
               <li><button class='to-pixie'>pixie</button></li>
             </ul>
@@ -195,6 +197,10 @@
   
   <!-- start a download without that annoying popup blocked stuff -->
   <iframe id='dlframe' style='width:1px;height:1px'></iframe>
+  
+  <!-- backpack Scratch embed -->
+  <script src='/assets/swfobject/swfobject/swfobject.js'></script>
+  <div id="opensprites-editor"></div>
   
   <!-- Main scripts -->
   <script src='/assets/js/main.js'></script>

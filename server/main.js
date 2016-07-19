@@ -1377,7 +1377,8 @@ app.get('/', nocache, async function(req, res) {
   res.render('index', {
     user: req.session.user,
     recentResources: await recent,
-    downloadedResources: await downloaded
+    downloadedResources: await downloaded,
+    csrfToken: req.csrfToken()
   })
 })
 
