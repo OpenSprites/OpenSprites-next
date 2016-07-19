@@ -1082,9 +1082,12 @@ app.put('/collections/:id/permissions', nocache, async function(req, res){
 app.get(`/resources/:id`, nocache, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
-  }, {
-    data: false
   })
+  
+  if(resource[0] && !resource[0].deleted && req.get('accept').indexOf('text/html') < 0 && resource[0].image) {
+    resource[0].downloadToResponse(req, res)
+    return
+  }
 
   let user = {}
 
@@ -1108,6 +1111,7 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
     res.render('resource', {
       user: req.session.user,
       u: user,
+      host: req.get('host'),
       resource: resource[0],
       csrfToken: req.csrfToken(),
       title: resource[0].name,

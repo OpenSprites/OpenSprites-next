@@ -48,6 +48,17 @@
     <a href='/{{resources}}/{{resource._id}}/download'><button class='btn'>Download</button></a>
     <span style='margin-left: 15px'>Downloaded {{resource.downloads}} time{{s? resource.downloads}}</span>
     <br>
+    {{#if resource.image}}
+    <label class='copy-url-label'>
+      <span>Direct link:</span>
+      <input type='text' class='resource-copy-url copy-url' onclick='this.select()' value="http://{{host}}/resources/{{resource._id}}" readonly />
+    </label>
+    <label class='copy-url-label'>
+      <span>Forum code:</span>
+      <input type='text' class='resource-copy-url copy-url' onclick='this.select()' value="[img]http://{{host}}/resources/{{resource._id}}[/img]" readonly />
+    </label>
+    <br>
+    {{/if}}
     <div {{#if youOwn}}contenteditable{{/if}} class='bio markdown-about-edit'>
       {{{md resource.about}}}
     </div>
