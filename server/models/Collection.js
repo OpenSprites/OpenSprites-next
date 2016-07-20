@@ -156,7 +156,7 @@ CollectionSchema.statics.findById = async function (id, whichFields) {
   } else {
     promise = Collection.findOne({
       _id: id
-    }, 'name about permissions when owners isShared')
+    }, 'name about permissions when owners isShared wavCache')
   }
   let result = await promise
   if (!result) throw "Collection not found"

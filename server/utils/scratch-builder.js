@@ -138,43 +138,99 @@ async function prepare(options) {
         ext = 'wav'
         let transcoded = dir + shortid() + ".wav"
 
-        let audioWrite = fs.createWriteStream(orig)
+        if(item.item.wavCache == "") {
+          let audioWrite = fs.createWriteStream(orig)
+          
+          await new Promise(function (resolve, reject) {
+            readstream.on('error', function (err) {
+              console.log(err)
+              reject(err)
+            })
+            readstream.on('end', function () {
+              audioWrite.end()
+              resolve()
+            })
+            readstream.pipe(audioWrite)
+          })
+          await new Promise(function (resolve, reject) {
+            var job = sox.transcode(orig, transcoded, {
+              format: 'wav',
+              channelCount: 1,
+              sampleRate: 22050
+            })
+            job.on('error', function (err) {
+              console.error(err)
+              reject(err)
+            });
+            job.on('dest', function (info) {
+              sound.sampleCount = info.sampleCount
+              sound.rate = info.sampleRate
+            })
+            job.on('end', function () {
+              resolve()
+            })
+            job.start()
+          })
+          soundMap[item.item._id.toString()] = {name, sampleCount: sound.sampleCount, rate: sound.rate}
+          
+          readstream = fs.createReadStream(transcoded)
+          
+          let writestream = await $(db.GridFS, db.GridFS.createWriteStream, {
+            filename: location + ".wav"
+          })
+          await new Promise(function(resolve, reject) {
+            writestream.on('error', function (err) {
+              reject(err)
+            })
+            writestream.on('finish', function () {
+              resolve()
+            })
+            fs.createReadStream(transcoded).pipe(writestream)
+          })
+          
+          let rsReup = await Resource.findById(item.item._id)
+          rsReup.wavCache = location + ".wav"
+          await rsReup.save()
+        } else {
+          let file = await $(db.GridFS.files, db.GridFS.files.findOne, {
+            filename: location + ".wav"
+          })
 
-        await new Promise(function (resolve, reject) {
-          readstream.on('error', function (err) {
-            console.log(err)
-            reject(err)
-          })
-          readstream.on('end', function () {
-            audioWrite.end()
-            resolve()
-          })
-          readstream.pipe(audioWrite)
-        })
+          let rsParams = {
+            _id: file._id
+          }
+          let wavstream = await $(db.GridFS, db.GridFS.createReadStream, rsParams)
+          
+          let audioWrite = fs.createWriteStream(transcoded)
 
-        await new Promise(function (resolve, reject) {
-          var job = sox.transcode(orig, transcoded, {
-            format: 'wav',
-            channelCount: 1,
-            sampleRate: 22050
+          await new Promise(function (resolve, reject) {
+            wavstream.on('error', function (err) {
+              console.log(err)
+              reject(err)
+            })
+            wavstream.on('end', function () {
+              audioWrite.end()
+              resolve()
+            })
+            wavstream.pipe(audioWrite)
           })
-          job.on('error', function (err) {
-            console.error(err)
-            reject(err)
-          });
-          job.on('dest', function (info) {
-            sound.sampleCount = info.sampleCount
-            sound.rate = info.sampleRate
+          
+          await new Promise(function(resolve, reject){
+            sox.identify(transcoded, function(err, info) {
+              if(err) {
+                reject(err)
+                return
+              }
+              sound.sampleCount = info.sampleCount
+              sound.rate = info.sampleRate
+              soundMap[item.item._id.toString()] = {name, sampleCount: info.sampleCount, rate: info.sampleRate}
+              resolve()
+            })
           })
-          job.on('end', function () {
-            resolve()
-          })
-          job.start()
-        })
+          
+          readstream = fs.createReadStream(transcoded)
+        }
         
-        soundMap[item.item._id.toString()] = {name, sampleCount: sound.sampleCount, rate: sound.rate}
-
-        readstream = fs.createReadStream(transcoded)
         scratchJson.sounds.push(sound)
       } else if (item.item.script) {
         // TODO: unsupported
