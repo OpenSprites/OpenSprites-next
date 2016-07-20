@@ -25,7 +25,7 @@ const vIE = require('./detect-ie')()
 
 if(vIE) {
   console.log(`Using IE/Edge v${vIE} >:(`)
-  document.querySelector('html').classList.add(`ie ie-${vIE}`)
+  document.body.add(`ie`)
 } else {
   console.log('Not using IE/Edge :D')
 }
