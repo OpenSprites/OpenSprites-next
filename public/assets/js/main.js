@@ -21,6 +21,14 @@ const leaving = require('./leaving')
 const collection = require('./collection')
 const ddc = require('./dropdowncheck')
 const backpack = require('./backpack')
+const vIE = require('./detect-ie')()
+
+if(vIE) {
+  console.log(`Using IE/Edge v${vIE} >:(`)
+  document.querySelector('html').classList.add(`ie ie-${vIE}`)
+} else {
+  console.log('Not using IE/Edge :D')
+}
 
 require('./cookieconsent')
 

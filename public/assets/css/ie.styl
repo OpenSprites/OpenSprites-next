@@ -2,13 +2,13 @@
 IE specific styles 
 Currently only tested on IE11
 */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  
-  html {
-   overflow-x hidden
-   max-width 100%
-  }
-  
+
+// html.ie-* is version, if you want to target
+//                        that version exactly
+html.ie {
+  overflow-x hidden
+  max-width 100%
+
   nav .logo {
     background-image url("/assets/img/logo/ie-icon.png") !important
   }
@@ -29,5 +29,4 @@ Currently only tested on IE11
   .material-icons {
     font-feature-settings "liga" 1 !important
   }
-  
 }
