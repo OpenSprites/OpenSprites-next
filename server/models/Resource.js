@@ -47,6 +47,7 @@ let ResourceSchema = mongoose.Schema({
   ],
 
   data: String, // db/uploads/_id.dat
+  wavCache: { type: String, default: "" },
   owners: { type: Array, default: [] },
 
   downloads: { type: Number, default: 0 },
