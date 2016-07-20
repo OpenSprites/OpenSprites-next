@@ -32,7 +32,7 @@ if(vIE) {
     document.body.classList.add('ie')
   }
 } else {
-  console.log('Not IE? Not Edge?! :D')
+  console.log('Not Edge? Not IE?! :D')
 }
 
 require('./cookieconsent')
@@ -53,7 +53,7 @@ if(document.querySelector('.btn.admin-do'))
 
 if(document.querySelector('.markdown-about-edit'))
   md()
-
+``
 if(document.querySelector('.bio')) {
   for(let link of Array.from(document.querySelectorAll('.bio a'))) {
     link.addEventListener("click", function(e){
