@@ -1,33 +1,33 @@
-/* 
-IE specific styles 
+/*
+IE specific styles
 Currently only tested on IE11
 */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  
-  html {
-   overflow-x hidden
-   max-width 100%
-  }
-  
+
+/*
+html.ie {
+  overflow-x hidden
+  max-width 100%
+*/
+
+body.ie, body.edge {
   nav .logo {
     background-image url("/assets/img/logo/ie-icon.png") !important
   }
-  
+
   main {
     background-color transparent !important
-    display block 
+    display block
   }
-  
+
   .post-comment .btn {
     margin-top 10px
   }
-  
+
   input[type="text"], input[type="password"], input[type="email"] {
     padding-bottom 8px
   }
-  
+
   .material-icons {
     font-feature-settings "liga" 1 !important
   }
-  
 }

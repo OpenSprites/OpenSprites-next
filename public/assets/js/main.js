@@ -1,7 +1,7 @@
 /**
  * js/main.js
  * ----------
- * 
+ *
  * The main website script.
  */
 
@@ -21,6 +21,19 @@ const leaving = require('./leaving')
 const collection = require('./collection')
 const ddc = require('./dropdowncheck')
 const backpack = require('./backpack')
+const vIE = require('./detect-ie')()
+
+if(vIE) {
+  if(vIE > 11) {
+    console.log('Using Edge :/')
+    document.body.classList.add('edge')
+  } else {
+    console.log('Using IE :(')
+    document.body.classList.add('ie')
+  }
+} else {
+  console.log('Not IE? Not Edge?! :D')
+}
 
 require('./cookieconsent')
 
@@ -59,20 +72,20 @@ if(addToCollectionBtn) {
     for(let id in dataRaw){
       data.push({name: dataRaw[id].name, value: id})
     }
-    
+
     let collectionAddDropdown = new ddc('Add to collections', data, addToCollectionBtn)
-    
+
     for(let id in dataRaw) {
       collectionAddDropdown.set(id, !!dataRaw[id].has)
     }
-    
+
     collectionAddDropdown.cb = async function(item, value, check) {
       collectionAddDropdown.setEnabled(false)
       collectionAddDropdown.setStatus("Loading")
-      
+
       let url = value ? `/collections/${item}/items` : `/collections/${item}/items/delete`
       let method = value ? 'put' : 'post'
-      
+
       try {
         let res = await (ajax[method])(url, {
           ids: [what]
