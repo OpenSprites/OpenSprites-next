@@ -31,7 +31,7 @@ npm rebuild canvas
 
 Lastly, setup a `.env` file in this format, making sure to create the respective database and username/password:
 
-```yaml
+```sh
 # MongoDB credentials
 db_host=localhost
 db_name=next
@@ -49,6 +49,10 @@ project_id=115307769
 
 session_secret=thisandagainplsexplain
 server_port=3000
+
+cubeupload_auth=false # `true` will upload as:
+#cubeupload_user=username
+#cubeupload_pass=password
 ```
 
 # Usage

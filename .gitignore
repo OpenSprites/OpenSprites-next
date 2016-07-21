@@ -50,5 +50,5 @@ db/users.json
 *.brackets.json
 ci-log.txt
 
-scratch-builder-files/
+temp/
 c9-start.js

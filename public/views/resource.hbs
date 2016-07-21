@@ -48,31 +48,25 @@
     <a href='/{{resources}}/{{resource._id}}/download'><button class='btn'>Download</button></a>
     <span style='margin-left: 15px'>Downloaded {{resource.downloads}} time{{s? resource.downloads}}</span>
     <br>
-    {{#if resource.image}}
-    <label class='copy-url-label'>
-      <span>Direct link:</span>
-      <input type='text' class='resource-copy-url copy-url' onclick='this.select()' value="http://{{host}}/resources/{{resource._id}}" readonly />
-    </label>
-    <label class='copy-url-label'>
-      <span>Forum code:</span>
-      <input type='text' class='resource-copy-url copy-url' onclick='this.select()' value="[img]http://{{host}}/resources/{{resource._id}}[/img]" readonly />
-    </label>
-    <br>
-    {{/if}}
+    {{#if resource.image}}{{#if forums_url}}
+      <code id='code'>{{forums_url}}</code>
+      <div class='flat btn' data-clipboard-target='#code' id='copycode'>Copy Forum Code</div>
+      <br>
+    {{/if}}{{/if}}
     <div {{#if youOwn}}contenteditable{{/if}} class='bio markdown-about-edit'>
       {{{md resource.about}}}
     </div>
-    
+
     <div style='clear: both'></div>
-  
+
     <small>&nbsp;</small>
-    
+
     <div style='clear: both'></div>
-  
+
     <script>var bio_raw = '{{json resource.about}}'; var csrfToken = '{{json csrfToken}}'; var _id = {{{json resource._id}}};</script>
-    
+
     <div class='add-to-collection'></div>
-    
+
     {{#if youOwn}}
       <a id='edit' class='btn flat' style='float:right'>edit description</a>
     {{/if}}
@@ -81,7 +75,7 @@
   <script>
     var csrf = {{{json csrfToken}}};
     window.OS = window.OS || {}
-    
+
     OS.resource = {
       name: {{{json resource.name}}},
       id: {{{json resource._id}}}

@@ -1,7 +1,7 @@
 /**
  * server/main.js
  * --------------
- * 
+ *
  * The server. Obviously.
  */
 console.log('=== OpenSwag Server ===')
@@ -25,8 +25,7 @@ const cheerio = require('cheerio')
 const request = require('request-promise')
 
 const marked = require('marked')
-
-const markedRenderer = new marked.Renderer();
+const markedRenderer = new marked.Renderer()
 
 // make header links like github
 // eg /about#team
@@ -63,8 +62,9 @@ db.User = User
 
 const replaceBadWords = require('./utils/replace-bad-words')
 const callbackToPromise = require('./utils/callback-to-promise')
-const scratchBuilder = require('./utils/scratch-builder.js')
+const scratchBuilder = require('./utils/scratch-builder')
 scratchBuilder.init()
+const cubeupload = require('./utils/cubeupload')
 
 /////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@ function squish(buffer, type) {
         reject(err)
         return
       }
-      
+
       function complete(err, imag) {
         if(err) {
           reject(err)
@@ -99,8 +99,8 @@ function squish(buffer, type) {
           else done(buff)
         })
       }
-      
-      
+
+
       if(imag.width() >= 240 || imag.height >= 240) imag.contain(240, 240, complete)
       else {
         lwip.create(240, 240, {r:0, g:0, b:0, a:0}, function(err, image){
@@ -448,28 +448,28 @@ app.get('/you/collections', nocache, mustSignIn, async function(req, res){
       username: req.session.user
     })
     if(!who) throw "User not found"
-    
+
     let ownedCollections = await db.Collection.find(
       {owners: who.username, isShared: false},
       {_id: 1, name: 1})
     let curatedCollections = await db.Collection.find(
       {curators: who.username, 'permissions.curators.addItems': true, isShared: false},
       {_id: 1, name: 1})
-    
+
     let all = ownedCollections.slice().concat(curatedCollections.slice())
     let allHash = {}
     for(let item of all){
       allHash[item._id.toString()] = { name: item.name, _id: item._id, has: false}
     }
-    
+
     let what = req.query.what
-    
+
     if(what) {
       let collectionsWithItem = await db.Collection.find(
         {isShared: false, 'items.item': what},
         {_id: 1, name: 1}
       )
-      
+
       for(let item of collectionsWithItem) {
         if(allHash[item._id.toString()]) {
           allHash[item._id.toString()].has = true
@@ -493,7 +493,7 @@ app.get('/you/messages', nocache, mustSignIn, async function(req, res){
       username: req.session.user
     }, 'messages alerts')
     if(!who) throw "User not found"
-    
+
     res.status(200).json(who)
   } catch(e){
     console.log(e)
@@ -514,7 +514,7 @@ app.get('/users/:who', nocache, async function(req, res) {
       owners: who[0].username,
       isShared: true
     })
-    
+
     let rs = []
     if(shared) {
       let rsRaw = await shared.getItems()
@@ -626,18 +626,18 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     return
   }
-  
+
   if(requireEmailConfirmedToShare && !req.session.udata.emailConfirmed) {
     res.status(403).json({success: false, message: "Email not confirmed"})
     return
   }
-  
+
   try {
      let collection = await db.Collection.findOne({
       owners: req.session.user,
       isShared: true
     }, '_id')
-  
+
     if(collection) {
       collection = collection
     } else {
@@ -649,7 +649,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       })
       await collection.save()
     }
-  
+
     let file = req.file
     if(!file){
       res.status(400).json({success: false, message: "Missing file"})
@@ -666,12 +666,12 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     let name = req.body.name
     let clientid = req.body.clientid
-    
-  
+
+
     let isAudio = file.mimetype.substr(0, 5) === 'audio'
     let isImage = file.mimetype.substr(0, 5) === 'image'
     let thumb
-    
+
     let resource = new db.Resource({
       _id: db.mongoose.Types.ObjectId(),
       owners: [ req.session.user ],
@@ -687,17 +687,17 @@ app.put('/share', upload.single('file'), async function(req, res) {
       downloads: 0,
       thumbnail: ''
     })
-    
+
     let id = resource._id.toString()
-    
+
     let where = path.join(__dirname, '../', 'db/uploads/', sanitize(id) + '.dat')
     if(process.env.db_file_storage == "true"){
       where = 'dbstorage/' + sanitize(id) + '.dat'
     }
-    
+
     resource.data = where
     resource.thumbnail = where + '.thumb'
-  
+
     if(isAudio) {
       let pngURI = trianglify({
         width: 240,
@@ -708,7 +708,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       let data = pngURI.substr(pngURI.indexOf('base64') + 7)
       thumb = new Buffer(data, 'base64')
     }
-  
+
     if(isImage) {
       let type = file.mimetype.split("/")
       if(type.length < 2){
@@ -724,21 +724,21 @@ app.put('/share', upload.single('file'), async function(req, res) {
         thumb = await squish(file.buffer, type)
       }
     }
-    
+
     await resource.uploadThumbnail(thumb)
-    
+
     await resource.uploadContent(file.buffer)
-  
+
     await resource.save()
-  
+
     // no need to download the items list
     await db.Collection.findOneAndUpdate(
       {_id: collection._id},
       {$push: {items: {kind: 'Resource', item: resource._id}}},
       {safe: true, upsert: true})
-  
+
     console.log(`${req.session.user} uploaded "${name}" ${tada}`)
-    res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resources/' + id})    
+    res.json({success: true, message: "File uploaded", clientid: clientid, osurl: '/resources/' + id})
   } catch(err){
     console.log(err)
     res.status(500).json({success: false, message: err})
@@ -768,13 +768,13 @@ app.post('/collections/create', nocache, async function(req, res){
 
     return
   }
-  
+
   try {
     let shared = await db.Collection.findOne({
       owners: req.session.user,
       isShared: true
     }, '_id')
-  
+
     if(!shared) {
       shared = new db.Collection({
         _id: db.mongoose.Types.ObjectId(),
@@ -784,8 +784,8 @@ app.post('/collections/create', nocache, async function(req, res){
       })
       await shared.save()
     }
-    
-    
+
+
     let collection = new db.Collection({
       _id: db.mongoose.Types.ObjectId(),
       name: req.body.collectionName || 'Untitled Collection',
@@ -793,12 +793,12 @@ app.post('/collections/create', nocache, async function(req, res){
       isShared: false
     })
     await collection.save()
-    
+
     await db.Collection.findOneAndUpdate(
       {_id: shared._id},
       {$push: {items: {kind: 'Collection', item: collection._id}}},
       {safe: true, upsert: true})
-    
+
     res.redirect('/collections/' + collection._id)
   } catch(e){
     console.log(e)
@@ -835,18 +835,18 @@ app.get('/collections/:id', nocache, async function(req, res) {
       let isResource = resource.kind == 'Resource'
       rs.push({ isResource, item: resource.item })
     }
-    
+
     collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
     collection.canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
     collection.canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
     collection.canAddItems = await collection.isPermitted(req.session.user || '', 'addItems')
     collection.canRemoveItems = await collection.isPermitted(req.session.user || '', 'removeItems')
-    
+
     if(collection.isShared) {
       collection.canRemoveItems = false
       collection.canAddItems = false
     }
-    
+
     res.render('collection', {
       user: req.session.user,
       collection: collection,
@@ -871,18 +871,18 @@ app.get('/collections/:id/items', nocache, async function(req, res) {
       let isResource = resource.kind == 'Resource'
       rs.push({ isResource, item: resource.item })
     }
-    
+
     collection.youOwn = await collection.isPermitted(req.session.user || '', 'owns')
     collection.canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
     collection.canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
     collection.canAddItems = await collection.isPermitted(req.session.user || '', 'addItems')
     collection.canRemoveItems = await collection.isPermitted(req.session.user || '', 'removeItems')
-    
+
     if(collection.isShared) {
       collection.canRemoveItems = false
       collection.canAddItems = false
     }
-    
+
     res.render('partials/collection_items', {
       user: req.session.user,
       collection: collection,
@@ -903,21 +903,21 @@ app.post('/collections/:id/items/delete', nocache, async function(req, res) {
   try {
     let collection = await db.Collection.findById(req.params.id)
     if(!collection) throw {message: "Collection not found"};
-    
+
     let permitted = await collection.isPermitted(req.session.user || '', 'removeItems')
     if(collection.isShared || !permitted){
       res.status(403).json(false)
       return
     }
-    
+
     let items = req.body.ids
     if(!items){
       res.status(400).json(false)
       return
     }
-    
+
     let removed = {}
-    
+
     for(let item of items){
       let type = 'Resource'
       try {
@@ -939,7 +939,7 @@ app.post('/collections/:id/items/delete', nocache, async function(req, res) {
       )
       removed[item] = {status: true, message: "ok"}
     }
-    
+
     res.status(200).json(removed)
   } catch(err) {
     if(err.message !== 'Invalid source') console.log(err)
@@ -952,21 +952,21 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
   try {
     let collection = await db.Collection.findById(req.params.id)
     if(!collection) throw {message: "Collection not found"};
-    
+
     let permitted = await collection.isPermitted(req.session.user || '', 'addItems')
     if(collection.isShared || !permitted){
       res.status(403).json(false)
       return
     }
-    
+
     let items = req.body.ids
     if(!items){
       res.status(400).json(false)
       return
     }
-    
+
     let added = {}
-    
+
     for(let item of items) {
       let type = 'Resource'
       try {
@@ -990,7 +990,7 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
         added[item] = {status: false, message: "That item is already in the collection"}
         continue
       }
-      
+
       await db.Collection.findOneAndUpdate(
         {_id: collection._id},
         {$push: {items: {kind: type, item: item }}},
@@ -998,7 +998,7 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
       )
       added[item] = {status: true, message: "ok"}
     }
-    
+
     res.status(200).json(added)
   } catch(err) {
     if(err.message !== 'Invalid source') console.log(err)
@@ -1011,7 +1011,7 @@ app.get('/collections/:id/cover', nocache, async function(req, res) {
   try {
     let collection = await db.Collection.findById(req.params.id)
     if(!collection) throw {message: "Collection not found"};
-    
+
     let buf = await collection.getThumbnail()
     res.contentType('image/png').send(buf)
   } catch(err) {
@@ -1025,26 +1025,26 @@ app.put('/collections/:id/about', nocache, async function(req, res) {
   try {
     let collection = await db.Collection.findById(req.params.id)
     if(!collection) throw 'Collection not found'
-    
+
     let canSetTitle = await collection.isPermitted(req.session.user || '', 'setTitle')
     let canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
-    
+
     if(canSetAbout && req.body.md) {
       collection.updateAbout(req.body.md)
     } else if(!canSetAbout) {
       res.status(403).json(false)
       return
     }
-    
+
     if(canSetTitle && req.body.title) {
       collection.updateTitle(req.body.title)
     } else if(!canSetTitle) {
       res.status(403).json(false)
       return
     }
-    
+
     await collection.save()
-    
+
     res.status(200).json({about: collection.about, title: collection.name})
   } catch(err){
     console.log(err)
@@ -1056,7 +1056,7 @@ app.put('/collections/:id/permissions', nocache, async function(req, res){
   try {
     let collection = await Collection.findById(req.params.id)
     if(!collection) throw "Collection not found"
-    
+
     let permissions = req.body.permissions
     if(permissions){
       let permitted = await collection.isPermitted(req.session.user, 'setPermissions')
@@ -1064,10 +1064,10 @@ app.put('/collections/:id/permissions', nocache, async function(req, res){
         res.status(403).json(false)
         return
       }
-      
-      
+
+
       collection.setPermissions(permissions)
-      
+
       await collection.save()
       res.status(200).json(true)
     } else {
@@ -1083,7 +1083,7 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
   let resource = await db.Resource.find({
     _id: req.params.id
   })
-  
+
   if(resource[0] && !resource[0].deleted && req.get('accept').indexOf('text/html') < 0 && resource[0].image) {
     resource[0].downloadToResponse(req, res)
     return
@@ -1106,6 +1106,28 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       return
     }
 
+    // TODO: perhaps this should be done during
+    // upload processing instead of first view?
+    if(resource[0].image && !resource[0].place) {
+      try {
+        const data = await resource[0].download()
+        const place = await cubeupload(data)
+
+        if(place === 'error') throw 'Failed to upload to CubeUpload'
+        resource[0].place = place
+
+        console.log(place)
+
+        //await resource[0].save()
+      } catch(e) {
+        console.log(e)
+      }
+    }
+
+    if(resource[0].place) {
+      var forums_url = '[img]' + resource[0].place + '[/img]'
+    }
+
     resource[0].comments.reverse()
 
     res.render('resource', {
@@ -1115,6 +1137,7 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       resource: resource[0],
       csrfToken: req.csrfToken(),
       title: resource[0].name,
+      forums_url,
       youOwn: resource[0].owners.indexOf(req.session.user||'') > -1,
       head: `<!-- Social: Twitter -->
 <meta name="twitter:card" content="summary_large_image">
@@ -1213,7 +1236,7 @@ app.put(`/resources/:id/about`, async function(req, res) {
 // 240 x 240px
 app.get(`/resources/:id/raw`, async function(req, res) {
   let resource
-  
+
   try {
     resource = await db.Resource.findById(req.params.id)
   } catch(err){
@@ -1227,7 +1250,7 @@ app.get(`/resources/:id/raw`, async function(req, res) {
   if(resource.image){
     try {
       let thumb
-      
+
       if(resource.type == "image/gif") {
         res.contentType("image/gif")
         resource.downloadToResponse(req, res)
@@ -1258,7 +1281,7 @@ app.get(`/resources/:id/download/:f?`, async function(req, res) {
     })
     return
   }
-  
+
   if(!req.params.f) {
     let title = resource.name.replace(/\ /g, '-')
     let type = require('mime-types').extension(resource.type) || 'mp3'

@@ -9,7 +9,7 @@ require('./polyfills')
 
 const ajax = require('axios')
 
-const join = require('./join')
+const copy = require('./copy')
 const share = require('./share')
 const md = require('./md')
 const timeago = require('./timeago')
@@ -40,7 +40,7 @@ require('./cookieconsent')
 window.comment = require('./comment')
 
 if('/join' === window.location.pathname)
-  join()
+  copy()
 
 if('/share' === window.location.pathname)
   share()
@@ -48,12 +48,15 @@ if('/share' === window.location.pathname)
 if(window.location.pathname.startsWith('/collections'))
   collection.init()
 
+if(window.location.pathname.startsWith('/resources'))
+  copy()
+
 if(document.querySelector('.btn.admin-do'))
   admin()
 
 if(document.querySelector('.markdown-about-edit'))
   md()
-``
+
 if(document.querySelector('.bio')) {
   for(let link of Array.from(document.querySelectorAll('.bio a'))) {
     link.addEventListener("click", function(e){

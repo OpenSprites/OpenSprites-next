@@ -50,6 +50,10 @@ let ResourceSchema = mongoose.Schema({
   wavCache: { type: String, default: "" },
   owners: { type: Array, default: [] },
 
+  // cubeupload url, for forums
+  // images only
+  place: String,
+
   downloads: { type: Number, default: 0 },
   downloaders: [ String ]
 })
@@ -184,6 +188,54 @@ ResourceSchema.methods.incrementDownloads = async function (ip) {
     this.downloaders.push(ip)
     await this.save()
   }
+}
+
+ResourceSchema.methods.download = function() {
+  // TODO: DRY in downloadToResponse()
+  // TODO: test the GridFS implementation
+
+  return new Promise(finish => {
+    let location = this.data
+    let type = this.type
+    if (location.startsWith('dbstorage/')) {
+      db.GridFS.files.findOne({
+        filename: location
+      }, function (err, file) {
+        if (err) {
+          finish()
+          return
+        }
+        let rangeRequest = req.range(file.length)
+        let rsParams = {
+          _id: file._id
+        }
+        let length = file.length
+        if (rangeRequest == -1 || rangeRequest == -2) {
+          finish()
+          return
+        }
+
+        db.GridFS.createReadStream(rsParams, function (err, readstream) {
+          if (err) {
+            finish()
+            return
+          }
+          readstream.on('error', function (err) {
+            finish()
+            return
+          })
+
+          let data = ''
+          readstream.on('data', chunk => data += chunk.toString('utf8'))
+          readstream.on('end', () => finish(data))
+        })
+      })
+    } else {
+      fs.readFile(location, (err, data) => {
+        finish(data.toString('utf8'))
+      })
+    }
+  })
 }
 
 ResourceSchema.methods.downloadToResponse = function (req, res) {
