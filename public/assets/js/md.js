@@ -9,6 +9,8 @@ const ajax = require('axios')
 const marked = require('marked')
 const htmldec = require('htmldec')
 
+let timeoutId
+
 module.exports = function() {
   let bio_raw = htmldec(window.bio_raw)
       bio_raw = bio_raw.substr(1, bio_raw.length - 2)
@@ -29,6 +31,8 @@ module.exports = function() {
   bio.addEventListener('blur', async function(e) {
     bio_raw = bio.innerText
     bio.style.pointerEvents = 'none'
+    
+    clearTimeout(timeoutId)
 
     document.querySelector('.bio ~ small').innerHTML = 'Saving...'
 
@@ -41,6 +45,9 @@ module.exports = function() {
       bio_raw = JSON.parse(res.request.responseText).about
 
       document.querySelector('.bio ~ small').innerHTML = 'Saved'
+      timeoutId = setTimeout(function(){
+        document.querySelector('.bio ~ small').innerHTML = '&nbsp;'
+      }, 2000)
       
       bio.innerHTML = marked(bio_raw, {
         sanitize: true

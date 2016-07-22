@@ -3,6 +3,7 @@ const timeago = require('./timeago')
 const resourcesManager = require('./resources')
 
 let addBtn, removeBtn
+let timeoutId
 
 function updateView(){
   let hash = location.hash
@@ -433,6 +434,7 @@ module.exports = {
       this.scrollTop = 0
       let title_raw = title.innerText
 
+      clearTimeout(timeoutId)
       document.querySelector('.collection-title ~ small').innerHTML = 'Saving...'
 
       try {
@@ -446,6 +448,9 @@ module.exports = {
         title.innerText = title_raw
 
         document.querySelector('.collection-title ~ small').innerHTML = 'Saved'
+        timeoutId = setTimeout(function(){
+          document.querySelector('.collection-title ~ small').innerHTML = '&nbsp;'
+        }, 2000)
       } catch (err) {
         document.querySelector('.collection-title ~ small').innerHTML = 'Error'
         console.log(err)

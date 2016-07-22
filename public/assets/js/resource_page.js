@@ -2,6 +2,8 @@ const AudioThumb = require('./audio-thumb')
 const ajax = require('axios')
 const htmldec = require('htmldec')
 
+let timeoutId
+
 module.exports = function(){
   let atElem = document.querySelector('.audio-thumb')
   if(atElem) {
@@ -26,7 +28,8 @@ module.exports = function(){
   title.addEventListener("blur", async function(){
     this.scrollTop = 0
     let title_raw = title.innerText
-
+    
+    clearTimeout(timeoutId)
     document.querySelector('.resource-title ~ small').innerHTML = 'Saving...'
 
     try {
@@ -40,6 +43,9 @@ module.exports = function(){
       title.innerText = title_raw
       
       document.querySelector('.resource-title ~ small').innerHTML = 'Saved'
+      timeoutId = setTimeout(function(){
+        document.querySelector('.resource-title ~ small').innerHTML = '&nbsp;'
+      }, 2000)
     } catch(err){
       document.querySelector('.resource-title ~ small').innerHTML = 'Error'
       console.log(err)
