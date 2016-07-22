@@ -136,20 +136,7 @@
     position relative
     
     .resource-select {
-      position absolute
-      top 0px 
-      left 0px
-      z-index 10
-      
-      &:checked {
-        display block
-      }
-    }
-  
-    &:hover {
-      .resource-select {
-        display block
-      }
+      display none
     }
   }
 }
@@ -201,7 +188,7 @@
       max-width 10vw
     }
     
-    .resource-select, .to, span, small, .when {
+    .to, span, small, .when {
       display table-cell
       padding 0.5em
       color os-grey
@@ -219,6 +206,15 @@
       overflow hidden
       float left
     }
+  }
+}
+
+.resource, .resource:hover, .collection-ui.display-list .resource:hover {
+  position relative
+  &.selected {
+    border 2px solid os-select
+    text-shadow 0px 0px 5px white
+    background rgba(os-select,0.5)
   }
 }
 

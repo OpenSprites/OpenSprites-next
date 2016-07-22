@@ -2,7 +2,7 @@ const ajax = require('axios')
 const timeago = require('./timeago')
 const resourcesManager = require('./resources')
 
-let addBtn, removeBtn, selectAllCheck
+let addBtn, removeBtn
 
 function updateView(){
   let hash = location.hash
@@ -15,27 +15,13 @@ function updateView(){
   if(hash == 'collection-remove' && (!OS.toRemoveIds || OS.toRemoveIds.length == 0)) {
     location.hash = '#_'
   }
-  
-  // update resource item handlers
-  Array.from(document.querySelectorAll(".resource-select")).forEach(function(check) {
-    check.onchange = function() {
-      let anyChecked = !!document.querySelector(".resource-select:checked")
-      if(removeBtn) removeBtn.disabled = !anyChecked
-      
-      if(document.querySelectorAll(".resource-select:checked").length == document.querySelectorAll(".resource-select").length){
-        selectAllCheck.checked = true
-      } else {
-        selectAllCheck.checked = false
-        selectAllCheck.indeterminate = anyChecked
-      }
-    }
-  })
 }
 
 async function reloadResources() {
   let res = await ajax.get(location.pathname + '/items', {})
   document.querySelector(".resources").innerHTML = res.data
   resourcesManager.parse()
+  attachResourceListeners()
   
   for (let el of document.querySelectorAll('.resource')) {
     let ta = el.querySelector('.timeago')
@@ -43,6 +29,59 @@ async function reloadResources() {
     ta.setAttribute('title', ta.innerHTML)
   }
   updateView()
+}
+
+
+let firstSelectedItem
+function _doSelect(resource, e) {
+  if(e.ctrlKey || e.metaKey) {
+    if(resource.classList.contains('selected')) {
+      resource.classList.remove('selected')
+    } else {
+      let sel = Array.from(document.querySelectorAll('.resource.selected'))
+      sel.push(resource)
+      Array.from(document.querySelectorAll('.resource.selected')).forEach(item => item.classList.remove('selected'))
+      sel.forEach(item => item.classList.add('selected'))
+    }
+  } else if(e.shiftKey) {
+    let all = Array.from(document.querySelectorAll('.resource'))
+    let firstIndex = all.indexOf(firstSelectedItem)
+    let myIndex = all.indexOf(resource)
+    Array.from(document.querySelectorAll('.resource.selected')).forEach(item => item.classList.remove('selected'))
+    
+    if(firstIndex < 0 || firstIndex == myIndex) {
+      resource.classList.add('selected')
+      firstSelectedItem = resource
+      return
+    }
+    
+    for(let i = firstIndex; firstIndex < myIndex ? i <= myIndex : i >= myIndex; firstIndex < myIndex ? i++ : i--) {
+      all[i].classList.add('selected')
+    }
+  } else {
+    Array.from(document.querySelectorAll('.resource.selected')).forEach(item => item.classList.remove('selected'))
+    resource.classList.add('selected')
+    firstSelectedItem = resource
+  }
+}
+
+function attachResourceListeners() {
+  Array.from(document.querySelectorAll('.resource')).forEach(function(resource) {
+    resource.addEventListener('click', function(e){ 
+      _doSelect(this, e)
+      e.preventDefault();
+      return false
+    })
+    resource.querySelector('a.to').addEventListener('click', function(e){ 
+      _doSelect(this.parentElement, e)
+      e.preventDefault();
+      return false
+    })
+    
+    resource.addEventListener('dblclick', function(){
+      window.open(this.querySelector('.to').href)
+    })
+  })
 }
 
 async function saveCollectionSettings(){
@@ -101,9 +140,9 @@ function removeConfirm() {
   let list = document.querySelector(".collection-ui .collection-remove-list")
   list.innerHTML = ''
   
-  for(let check of Array.from(document.querySelectorAll(".resource-select:checked"))) {
-    let id = check.parentElement.dataset.id
-    let name = check.parentElement.dataset.name
+  for(let check of Array.from(document.querySelectorAll(".resource.selected"))) {
+    let id = check.dataset.id
+    let name = check.dataset.name
     
     let li = document.createElement("li")
     li.textContent = name
@@ -111,6 +150,7 @@ function removeConfirm() {
     
     OS.toRemoveIds.push(id)
   }
+  if(OS.toRemoveIds.length == 0) return
   
   location.hash = '#collection-remove'
 }
@@ -165,8 +205,8 @@ async function doDownload(){
   let name = OS.collection.name
   if(selectedOnly){
     which = []
-    Array.from(document.querySelectorAll(".resource-select:checked")).forEach(function(check) {
-      which.push(check.parentElement.dataset.id)
+    Array.from(document.querySelectorAll(".resource.selected")).forEach(function(check) {
+      which.push(check.dataset.id)
     })
   }
   
@@ -322,42 +362,9 @@ module.exports = {
       return false
     })
   
-
     setView(localStorage['collection_view'] || 'tiles')
-
-    // event handlers for buttons
-    selectAllCheck = document.querySelector('.collection-ui .select-all input')
-    selectAllCheck.addEventListener('change', function () {
-      let val = this.checked
-      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
-        check.checked = val
-      })
-      removeBtn.disabled = !val
-    })
-
-    document.querySelector('.collection-ui .select-all .all').addEventListener('click', function () {
-      selectAllCheck.checked = true
-      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
-        check.checked = true
-      })
-      removeBtn.disabled = false
-    })
-
-    document.querySelector('.collection-ui .select-all .none').addEventListener('click', function () {
-      selectAllCheck.checked = false
-      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
-        check.checked = false
-      })
-      removeBtn.disabled = true
-    })
-
-    document.querySelector('.collection-ui .select-all .invert').addEventListener('click', function () {
-      selectAllCheck.indeterminate = true
-      Array.from(document.querySelectorAll(".resource-select")).forEach(function (check) {
-        check.checked = !check.checked
-      })
-      removeBtn.disabled = document.querySelectorAll(".resource-select:checked").length == 0
-    })
+    
+    attachResourceListeners()
 
     document.querySelector('.collection-ui.controls .display-switch').addEventListener('click', function () {
       let container = document.querySelector('.resource-container')

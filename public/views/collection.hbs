@@ -20,18 +20,11 @@
   <script>var bio_raw = '{{json collection.about}}'; var csrfToken = '{{json csrfToken}}';</script>
 </main>
 <ul class='collection-ui controls'>
-  <li class='select-all'><button class='material-icons'><input type='checkbox' />arrow_drop_down</button>
-    <ul class='dropdown'>
-      <li class='all'>all</li>
-      <li class='none'>none</li>
-      <li class='invert'>invert</li>
-    </ul>
-  </li>
   {{#if collection.canAddItems}}
   <li><button class="material-icons add-btn">add_box</button> <div class='tooltip'>Add items</div></li>
   {{/if}}
   {{#if collection.canRemoveItems}}
-  <li><button class="material-icons remove-btn" disabled>delete</button> <div class='tooltip'>Remove selected</div></li>
+  <li><button class="material-icons remove-btn">delete</button> <div class='tooltip'>Remove selected</div></li>
   {{/if}}
   <li><button class="material-icons">search</button> <div class='tooltip'>Find items</div></li>
   <li><button class="material-icons display-switch">view_list</button> <div class='tooltip'>Switch view</div></li>
@@ -52,7 +45,6 @@
 
 <main class='collection-ui resource-container display-tiles droppable'>
   <ul class='collection-ui header'>
-    <li></li>
     <li>Name</li>
     <li>By</li>
     <li>Type</li>

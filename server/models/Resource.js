@@ -194,7 +194,7 @@ ResourceSchema.methods.download = function() {
   // TODO: DRY in downloadToResponse()
   // TODO: test the GridFS implementation
 
-  return new Promise(finish => {
+  return new Promise((finish, reject) => {
     let location = this.data
     let type = this.type
     if (location.startsWith('dbstorage/')) {
@@ -205,33 +205,30 @@ ResourceSchema.methods.download = function() {
           finish()
           return
         }
-        let rangeRequest = req.range(file.length)
         let rsParams = {
           _id: file._id
         }
         let length = file.length
-        if (rangeRequest == -1 || rangeRequest == -2) {
-          finish()
-          return
-        }
 
         db.GridFS.createReadStream(rsParams, function (err, readstream) {
           if (err) {
-            finish()
+            reject(err)
             return
           }
           readstream.on('error', function (err) {
-            finish()
-            return
+            reject(err)
           })
 
-          let data = ''
-          readstream.on('data', chunk => data += chunk.toString('utf8'))
-          readstream.on('end', () => finish(data))
+          var bufs = []
+          readstream.on('data', chunk => bufs.push(chunk))
+          readstream.on('end', () => finish(Buffer.concat(bufs).toString('utf-8')))
         })
       })
     } else {
       fs.readFile(location, (err, data) => {
+        if(err){
+          reject(err)
+        }
         finish(data.toString('utf8'))
       })
     }

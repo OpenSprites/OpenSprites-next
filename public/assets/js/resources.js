@@ -1,4 +1,5 @@
 const AudioThumb = require('./audio-thumb')
+const dndrenderer = require('./dndrenderer')
 
 module.exports = {
   parse: function parseResources() {
@@ -14,16 +15,22 @@ module.exports = {
         
         el.addEventListener('dragstart', function(e){
           let img = this.querySelector('img')
+          this.classList.add('selected')
           
-          let itemJson = {
-            name: this.dataset.name,
-            id: this.dataset.id,
-            type: this.dataset.type
-          }
+          let items = Array.from(document.querySelectorAll('.resource.selected')).map(item => ({
+            name: item.dataset.name,
+            id: item.dataset.id,
+            type: item.dataset.type
+          }))
     
           e.dataTransfer.clearData();
+          
+          if(items.length > 1) {
+            img = dndrenderer.nItems(items.length, 100)
+          }
+          
           e.dataTransfer.setDragImage(img, img.width / 2, img.height / 2)
-          e.dataTransfer.setData('application/opensprites-items+json', JSON.stringify([itemJson]))
+          e.dataTransfer.setData('application/opensprites-items+json', JSON.stringify(items))
           e.dataTransfer.setData('application/opensprites-item-origin-resource-list+text', "yep")
         })
 
