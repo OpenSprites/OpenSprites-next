@@ -2,17 +2,14 @@
   <h1 {{#if collection.canSetTitle}}contenteditable{{/if}} class='collection-title limit-width scrollbar-adjust' style='white-space: nowrap' title='{{collection.name}}'>{{collection.name}}</h1>
   <small>&nbsp;</small><br/>
   
-  {{#if collection.canSetAbout}}
-    <a id='edit' class='btn white-border' style='float:right'>edit collection info</a>
-  {{/if}}
-  <div class='add-to-collection white-border' style='float:right;margin-right:1em'></div>
+  <div class='add-to-collection white-border' style='float:right'></div>
   
   {{{by collection.owners}}}
   <br>
   <small>Created {{{timeago collection.when}}}</small>
 
   <br style='clear:both' />
-  <div {{#if collection.canSetAbout}}contenteditable{{/if}} class='bio markdown-about-edit'>
+  <div {{#if collection.canSetAbout}}contenteditable{{/if}} class='bio markdown-about-edit white-border'>
     {{{md collection.about}}}
   </div>
   <small>&nbsp;</small>

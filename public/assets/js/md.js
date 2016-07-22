@@ -52,11 +52,5 @@ module.exports = function() {
 
     bio.style.pointerEvents = 'initial'
   })
-
-  if(document.getElementById('edit')) {
-    document.getElementById('edit').addEventListener('click', function(e) {
-      document.querySelector('.bio').focus()
-    })
-  }
   
 }

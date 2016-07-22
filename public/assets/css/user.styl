@@ -97,11 +97,14 @@
              , background 70ms easing
              , border 70ms easing
     
-    border 1px solid transparent
+    border 1px dashed os-gray
+    
+    &.white-border {
+      border 1px dashed white
+    }
 
     &:hover {
       background rgba(black, 0.02)
-      border 1px solid rgba(black, 0.1)
     }
     
     &:focus {
