@@ -15,9 +15,10 @@ module.exports = {
         
         el.addEventListener('dragstart', function(e){
           let img = this.querySelector('img')
-          this.classList.add('selected')
           
-          let items = Array.from(document.querySelectorAll('.resource.selected')).map(item => ({
+          let items = Array.from(document.querySelectorAll('.resource.selected'))
+          if(items.indexOf(this) < 0) items.push(this)
+          items = items.map(item => ({
             name: item.dataset.name,
             id: item.dataset.id,
             type: item.dataset.type
