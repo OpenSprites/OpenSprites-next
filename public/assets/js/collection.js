@@ -291,11 +291,11 @@ function setView(view){
   if(view == 'list') {
     container.classList.remove('display-tiles')
     container.classList.add('display-list')
-    document.querySelector('.collection-ui.controls .display-switch').textContent = 'view_module'
+    document.querySelector('.collection-ui.controls .display-switch').innerHTML = "view_module <span class='label'>display tiles</span>"
   } else {
     container.classList.remove('display-list')
     container.classList.add('display-tiles')
-    document.querySelector('.collection-ui.controls .display-switch').textContent = 'view_list'
+    document.querySelector('.collection-ui.controls .display-switch').innerHTML = "view_list <span class='label'>display list</span>"
   }
     
   localStorage['collection_view'] = view

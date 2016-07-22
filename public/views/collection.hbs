@@ -21,20 +21,20 @@
 </main>
 <ul class='collection-ui controls'>
   {{#if collection.canAddItems}}
-  <li><button class="material-icons add-btn">add_box</button> <div class='tooltip'>Add items</div></li>
+  <li><button class="material-icons add-btn">add_box <span class='label'>add</span></button> <div class='tooltip'>Add items</div></li>
   {{/if}}
   {{#if collection.canRemoveItems}}
-  <li><button class="material-icons remove-btn">delete</button> <div class='tooltip'>Remove selected</div></li>
+  <li><button class="material-icons remove-btn">delete <span class='label'>remove</span></button> <div class='tooltip'>Remove selected</div></li>
   {{/if}}
-  <li><button class="material-icons">search</button> <div class='tooltip'>Find items</div></li>
-  <li><button class="material-icons display-switch">view_list</button> <div class='tooltip'>Switch view</div></li>
+  <li><button class="material-icons">search <span class='label'>search</span></button> <div class='tooltip'>Search</div></li>
+  <li><button class="material-icons display-switch">view_list <span class='label'>display list</span></button> <div class='tooltip'>Switch view</div></li>
   {{#if collection.youOwn}}
-  <li><button class="material-icons settings-btn">settings</button> <div class='tooltip'>Collection settings</div></li>
+  <li><button class="material-icons settings-btn">settings <span class='label'>settings</span></button> <div class='tooltip'>Collection settings</div></li>
   {{/if}}
   
-  <li><button class="material-icons dl-btn">file_download</button> <div class='tooltip'>Download collection</div></li>
+  <li><button class="material-icons dl-btn">file_download <span class='label'>download</span></button> <div class='tooltip'>Download collection</div></li>
   
-  <li><button class="material-icons refresh-btn">refresh</button> <div class='tooltip'>Refresh items</div></li>
+  <li><button class="material-icons refresh-btn">refresh <span class='label'>refresh</span></button> <div class='tooltip'>Refresh items</div></li>
 </ul>
 <div class='add-by-url'>
   <label for='url-add-input'>Add by URL:</label>
