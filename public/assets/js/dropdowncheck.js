@@ -46,10 +46,13 @@ module.exports = function(name, items, existingDom){
     check.type = 'checkbox'
     check.value = item.value
     check.classList.add('dropdowncheck-check')
-    
     check.addEventListener('change', this._onChange.bind(this))
+    let checkContainer = document.createElement('div')
+    checkContainer.classList.add('dropdowncheck-check-container')
+    checkContainer.appendChild(check)
+    domItem.appendChild(checkContainer)
     
-    domItem.appendChild(check)
+    
     let span = document.createElement('span')
     span.textContent = item.name
     domItem.appendChild(span)
