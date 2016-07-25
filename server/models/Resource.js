@@ -183,10 +183,16 @@ ResourceSchema.methods.getThumbnail = function () {
 }
 
 ResourceSchema.methods.incrementDownloads = async function (ip) {
-  if (!this.downloaders.includes(ip)) {
-    this.downloads = (this.downloads || 0) + 1
-    this.downloaders.push(ip)
-    await this.save()
+  let containsDownloader = await Resource.findOne({
+    _id: this._id,
+    downloaders: ip
+  }, '_id')
+  if (!containsDownloader) {
+    await Resource.findOneAndUpdate(
+      {_id: this._id},
+      {$push: {downloaders: ip}, $inc: {downloads: 1}},
+      {safe: true, upsert: true}
+    )
   }
 }
 
@@ -308,7 +314,7 @@ ResourceSchema.statics.findById = async function (id, whichFields) {
   } else {
     promise = Resource.findOne({
       _id: id
-    })
+    }, 'name about type audio image script sprite when thumbnail cover deleted comments data wavCache owners place downloads')
   }
   let result = await promise
   if (!result) throw "Resource not found"
