@@ -37,6 +37,7 @@
     "bcrypt-as-promised": "^1.1.0",
     "blob-util": "^1.2.1",
     "body-parser": "^1.15.2",
+    "browserify": "^13.0.1",
     "canvas": "^1.4.0",
     "cheerio": "^0.20.0",
     "clipboard": "^1.5.12",
@@ -54,7 +55,6 @@
     "gridfs-locking-stream": "^1.1.0",
     "gridfs-stream": "^1.1.1",
     "gulp": "^3.9.1",
-    "gulp-browserify": "^0.5.1",
     "gulp-clean": "^0.3.2",
     "gulp-imagemin": "^3.0.1",
     "gulp-minify": "0.0.12",
@@ -63,9 +63,11 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-stylus": "^2.5.0",
     "gulp-traceur": "^0.17.2",
+    "gulp-util": "^3.0.7",
     "hashids": "^1.0.2",
     "htmldec": "0.0.1",
     "jquery-browserify": "^1.8.1",
+    "jszip": "^3.0.0",
     "lwip": "0.0.9",
     "marked": "^0.3.5",
     "mime-types": "^2.1.11",
@@ -88,6 +90,8 @@
     "traceur": "0.0.111",
     "trianglify": "^0.4.0",
     "uniqid": "^3.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
     "zip-stream": "^1.0.0"
   }
 }

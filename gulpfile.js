@@ -6,8 +6,9 @@
  */
 
 const gulp = require('gulp')
+const gutil = require('gulp-util')
 const es6ify = require('es6ify')
-const browserify = require('gulp-browserify')
+const browserify = require('browserify')
 const sourcemaps = require('gulp-sourcemaps')
 const stylus = require('gulp-stylus')
 const postcss = require('gulp-postcss')
@@ -16,6 +17,8 @@ const clean = require('gulp-clean')
 const plumber = require('gulp-plumber')
 const traceur = require('gulp-traceur')
 const imagemin = require('gulp-imagemin')
+const source = require('vinyl-source-stream')
+const buffer = require('vinyl-buffer')
 
 es6ify.traceurOverrides = { asyncFunctions: true }
 
@@ -104,20 +107,23 @@ gulp.task('build-server-static', ['clean-server'], function() {
 })
 
 gulp.task('build-js', ['clean-js'], function() {
-  return gulp.src('public/assets/js/main.js')
-  .pipe(plumber())
-  .pipe(
-    browserify({
-      debug: true,
-      add: [es6ify.runtime],
-      transform: [es6ify],
-      loadMaps: true
-    })
-  )
+  var b = browserify({debug: true})
+    .add(es6ify.runtime).transform(es6ify)
+    .require(require.resolve('./public/assets/js/main.js'), {entry: true})
+  
+  return b.bundle()
+  .on('error', function(err){
+    gutil.log(err)
+    this.emit('end')
+  })
+  .pipe(source('main.js'))
+  .pipe(buffer())
+  .pipe(sourcemaps.init({loadMaps: true}))
   .pipe(minify({
     mangle: false,
     ext: { min: '.js' }
   }))
+  .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('public/assets/js/.dist'))
 })
 

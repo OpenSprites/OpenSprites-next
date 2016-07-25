@@ -10,13 +10,50 @@ const template = require('./template')
 const resources = require('./resources')
 const cookie = require('cookie')
 const shortid = require('shortid')
+const jszip = require('jszip')
+
+
+async function decomposeProjectFile(file) {
+  let zip = await jszip.loadAsync(file)
+  console.log(zip)
+  zip.forEach(async function(relativePath, zipEntry) {
+    if(zipEntry.dir) return
+    
+    if(zipEntry.name.endsWith('.json')) {
+      let content = JSON.parse(await zipEntry.async('string'))
+      let scripts = parseContentForScripts(content)
+      console.log(scripts)
+    }
+  })
+}
+
+function parseContentForScripts(content) {
+  function doParse(content, scripts) {
+    for(let script of (content.scripts || [])) {
+      scripts.push(script[2])
+    }
+    for(let child of (content.children || [])) {
+      doParse(child, scripts)
+    }
+    return scripts
+  }
+  
+  return doParse(content, [])
+}
 
 function addResourceInput() {
   const dialog = template('file-upload')
   const fileInput = dialog.querySelector('input[type=file]')
   fileInput.addEventListener('change', async function(e) {
-    dialog.classList.add('has-file')
     const file = fileInput.files[0]
+    if(file.name.endsWith('.zip') ||
+      file.name.endsWith('.sb2') ||
+      file.name.endsWith('.sprite2')){
+      decomposeProjectFile(file)
+      return
+    }
+
+    dialog.classList.add('has-file')
 
     let name = file.name.split('.')
         name.pop()
