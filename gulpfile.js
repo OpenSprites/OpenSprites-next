@@ -119,7 +119,7 @@ gulp.task('build-js', ['clean-js'], function() {
   )
   .pipe(minify({
     mangle: false,
-    ext: { min: '.js' }
+    ext: { src: '.js', min: '.min.js' }
   }))
   .pipe(gulp.dest('public/assets/js/.dist'))
 })
