@@ -8,7 +8,7 @@
 const gulp = require('gulp')
 const gutil = require('gulp-util')
 const es6ify = require('es6ify')
-const browserify = require('browserify')
+const gulpBrowserify = require('gulp-browserify')
 const sourcemaps = require('gulp-sourcemaps')
 const stylus = require('gulp-stylus')
 const postcss = require('gulp-postcss')
@@ -107,23 +107,20 @@ gulp.task('build-server-static', ['clean-server'], function() {
 })
 
 gulp.task('build-js', ['clean-js'], function() {
-  var b = browserify({debug: true})
-    .add(es6ify.runtime).transform(es6ify)
-    .require(require.resolve('./public/assets/js/main.js'), {entry: true})
-  
-  return b.bundle()
-  .on('error', function(err){
-    gutil.log(err)
-    this.emit('end')
-  })
-  .pipe(source('main.js'))
-  .pipe(buffer())
-  .pipe(sourcemaps.init({loadMaps: true}))
+  return gulp.src('public/assets/js/main.js')
+  .pipe(plumber())
+  .pipe(
+    gulpBrowserify({
+      debug: true,
+      add: [es6ify.runtime],
+      transform: [es6ify],
+      loadMaps: true
+    })
+  )
   .pipe(minify({
     mangle: false,
     ext: { min: '.js' }
   }))
-  .pipe(sourcemaps.write('./'))
   .pipe(gulp.dest('public/assets/js/.dist'))
 })
 

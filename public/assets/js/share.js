@@ -12,17 +12,86 @@ const cookie = require('cookie')
 const shortid = require('shortid')
 const jszip = require('jszip')
 
+const allowedMedia = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.mp3': 'audio/mp3',
+  '.wav': 'audio/wav'
+}
 
 async function decomposeProjectFile(file) {
   let zip = await jszip.loadAsync(file)
   console.log(zip)
-  zip.forEach(async function(relativePath, zipEntry) {
+  
+  let content = {}
+  let jsonEntry = null
+  zip.forEach(function(relativePath, zipEntry) {
     if(zipEntry.dir) return
     
-    if(zipEntry.name.endsWith('.json')) {
-      let content = JSON.parse(await zipEntry.async('string'))
-      let scripts = parseContentForScripts(content)
-      console.log(scripts)
+    if(zipEntry.name.toLowerCase().endsWith('.json')) {
+      jsonEntry = zipEntry
+    }
+  })
+  
+  if(jsonEntry) {
+    content = JSON.parse(await jsonEntry.async('string'))
+    let scripts = parseContentForScripts(content)
+    console.log(scripts)
+  }
+  
+  function lookupName(filename, type) {
+    let id = parseInt(filename.split('.')[0])
+    let arrayKey = type.startsWith('audio') ? 'sounds' : 'costumes'
+    let idKey = type.startsWith('audio') ? 'soundID' : 'baseLayerID'
+    let nameKey = type.startsWith('audio') ? 'soundName' : 'costumeName'
+    
+    if(content.hasOwnProperty('penLayerID') && parseInt(content.penLayerID) == id && type.startsWith('image')) {
+      return 'Pen Layer'
+    }
+    
+    function doSearch(item) {
+      for(let arrItem of (item[arrayKey] || [])) {
+        if(parseInt(arrItem[idKey]) == id) {
+          return arrItem[nameKey]
+        }
+      }
+      for(let child of (item.children || [])) {
+        let res = doSearch(child)
+        if(res) { return res }
+      }
+      return null
+    }
+    
+    let res = doSearch(content)
+    if(res) {
+      return res
+    } else {
+      return "Unnamed Item"
+    }
+  }
+  
+  zip.forEach(async function(relativePath, zipEntry) {
+    if (zipEntry.dir) return
+
+    let isMedia = false
+    let type = null
+    for (let ext in allowedMedia) {
+      if (zipEntry.name.toLowerCase().endsWith(ext)) {
+        isMedia = true
+        type = allowedMedia[ext]
+        break
+      }
+    }
+    if (isMedia) {
+      let arrayBuffer = await zipEntry.async('arraybuffer')
+      let thingy = new Blob([arrayBuffer], {
+        type
+      })
+      thingy.name = lookupName(zipEntry.name, type) + '.ext'
+      
+      initResourceInput(addResourceInput(), thingy)
     }
   })
 }
@@ -41,6 +110,39 @@ function parseContentForScripts(content) {
   return doParse(content, [])
 }
 
+function initResourceInput(dialog, file) {
+  dialog.classList.add('has-file')
+  dialog._attachmentFile = file
+
+  let name = file.name.split('.')
+  if(name.length > 1) name.pop()
+  name = name.join(' ')
+
+  dialog.querySelector('.file-upload-name').value = name
+  dialog.dataset.id = shortid.generate()
+
+  const audio = file.type.substr(0, 5) === 'audio'
+  const image = file.type.substr(0, 5) === 'image'
+
+  const data = URL.createObjectURL(file)
+
+  if (audio) {
+    dialog.querySelector('.file-type').innerText = 'Sound'
+    dialog.querySelector('.img').style.backgroundImage = `url("/${window.resources}/${name}/cover-inb4")`
+
+    dialog.querySelector('.img').classList.add('audio')
+    dialog.querySelector('.img audio').src = data
+
+    // add events
+    resources.parse()
+  }
+
+  if (image) {
+    dialog.querySelector('.file-type').innerText = 'Costume'
+    dialog.querySelector('.img img').src = data
+  }
+}
+
 function addResourceInput() {
   const dialog = template('file-upload')
   const fileInput = dialog.querySelector('input[type=file]')
@@ -53,35 +155,7 @@ function addResourceInput() {
       return
     }
 
-    dialog.classList.add('has-file')
-
-    let name = file.name.split('.')
-        name.pop()
-        name = name.join(' ')
-
-    dialog.querySelector('.file-upload-name').value = name
-    dialog.dataset.id = shortid.generate()
-
-    const audio = file.type.substr(0, 5) === 'audio'
-    const image = file.type.substr(0, 5) === 'image'
-
-    const data = URL.createObjectURL(file)
-
-    if(audio) {
-      dialog.querySelector('.file-type').innerText = 'Sound'
-      dialog.querySelector('.img').style.backgroundImage = `url("/${window.resources}/${name}/cover-inb4")`
-
-      dialog.querySelector('.img').classList.add('audio')
-      dialog.querySelector('.img audio').src = data
-
-      // add events
-      resources.parse()
-    }
-
-    if(image) {
-      dialog.querySelector('.file-type').innerText = 'Costume'
-      dialog.querySelector('.img img').src = data
-    }
+    initResourceInput(dialog, file)    
   })
   document.getElementById('file-uploads').appendChild(dialog)
 
@@ -89,6 +163,8 @@ function addResourceInput() {
         .addEventListener('click', e => fileInput.click())
   dialog.querySelector('.remove')
         .addEventListener('click', dialog.remove.bind(dialog))
+  
+  return dialog
 }
 
 async function upload() {
@@ -97,7 +173,7 @@ async function upload() {
 
   for(let r = 0; r < resources.length; r++) {
     let resource = resources[r]
-    const file = resource.querySelector('input[type=file]').files[0]
+    const file = resource._attachmentFile
     if(!file) continue
 
     resource.style.pointerEvents = 'none'
