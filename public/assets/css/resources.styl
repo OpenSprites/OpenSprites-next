@@ -182,6 +182,16 @@
   background-image url("/assets/img/tile.png")
   background-repeat repeat
   overflow hidden
+    
+  &.active {
+    position: fixed
+    top: 0px
+    left: 0px
+    width: 100%
+    height: 100%
+    z-index: 99999
+    overflow: auto
+  }
 }
 
 .copy-url-label {
