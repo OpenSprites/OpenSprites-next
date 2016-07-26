@@ -487,14 +487,20 @@ app.get('/you/collections', nocache, mustSignIn, async function(req, res){
   }
 })
 
+app.get('/test', nocache, async function(req, res){
+  await db.User.findOneAndUpdate({username: 'thisandagain'}, {$set: {messages:[]}})
+  
+  let t = await db.User.findByUsername('thisandagain')
+  await t.sendMessage('download', 'resource', 'Resource', '57977b6aac02bc7e12fdafcb')
+  res.end('success')
+})
+
 app.get('/you/messages', nocache, mustSignIn, async function(req, res){
   try {
-    let who = await db.User.findOne({
-      username: req.session.user
-    }, 'messages alerts')
+    let who = await db.User.findByUsername(req.session.user)
     if(!who) throw "User not found"
 
-    res.status(200).json(who)
+    res.status(200).json(await who.getMessagesRaw())
   } catch(e){
     console.log(e)
     res.status(500).json(false)

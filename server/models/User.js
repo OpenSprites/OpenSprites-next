@@ -46,6 +46,40 @@ UserSchema.methods.updateAbout = function (about) {
   this.about = about
 }
 
+UserSchema.methods.sendMessage = async function(type, subtype, refKind, refId) {
+   await User.findOneAndUpdate(
+    {_id: this._id},
+    {$push: {messages: {
+      where: {kind: refKind, item: refId},
+      type,
+      subtype
+    }}},
+    {safe: true, upsert: true})
+}
+
+UserSchema.methods.getMessagesRaw = async function(num) {
+  if(!num) num = 5
+  
+  let user = await User.findOne({_id: this._id}, {messages: {$slice: -num}})
+  return user.messages
+}
+
+UserSchema.statics.findByUsername = async function(username, whichFields) {
+  let promise
+  if (whichFields) {
+    promise = User.findOne({
+      username
+    }, whichFields)
+  } else {
+    promise = User.findOne({
+      username
+    }, 'username password admin email emailConfirmed joined about online ip')
+  }
+  let result = await promise
+  if (!result) throw "User not found"
+  return result
+}
+
 UserSchema.statics.findById = async function (id, whichFields) {
   let promise
   if (whichFields) {
@@ -55,7 +89,7 @@ UserSchema.statics.findById = async function (id, whichFields) {
   } else {
     promise = User.findOne({
       _id: id
-    })
+    }, 'username password admin email emailConfirmed joined about online ip')
   }
   let result = await promise
   if (!result) throw "User not found"
