@@ -761,6 +761,37 @@ header + hr {
       }
     }
   }
+  
+  .messages-ui {
+    .messages-container {
+      margin 0.5em 1em
+      
+      .message {
+        color white
+        border-bottom 1px solid os-light
+        
+        &[data-read='false'] {
+          background os-light
+          color os-dark
+          
+          a {
+            color os-dark
+          }
+        }
+        
+        &:last-child {
+          border-bottom 0
+        }
+        a {
+          color os-light
+          text-decoration underline
+        }
+        i {
+          vertical-align middle
+        }
+      }
+    }
+  }
 }
 
 .limit-width {

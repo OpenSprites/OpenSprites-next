@@ -82,7 +82,7 @@
       name: {{{json resource.name}}},
       id: {{{json resource._id}}},
       flags: {
-        script: {{{json resource.script}}}
+        {{#if resource.script}}script: {{{json resource.script}}}{{/if}}
       }
     }
   </script>

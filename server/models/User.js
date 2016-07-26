@@ -1,21 +1,26 @@
 const mongoose = require('mongoose')
 const db = require('../db')
+const Resource = require('./Resource')
+const Collection = require('./Collection')
 const replaceBadWords = require('../utils/replace-bad-words.js')
 
 let MessageSchema = mongoose.Schema({
   type: { type: String, enum: ['comment', 'download', 'collection_add', 'forum_activity'] },
-  subtype: { type: String, enum: ['resource', 'collection', 'profile', 'forum_section', 'forum_topic'] },
+  subtype: { type: String, enum: ['resource', 'collection', 'profile', 'reply', 'forum_section', 'forum_topic'] },
   where: {
     kind: String,
     item: { type: mongoose.Schema.Types.ObjectId, refPath: 'where.kind' }
   },
+  count: { type: Number, default: -1 },
+  read: { type: Boolean, default: false },
   when: { type: Number, default: () => Date.now() }
 })
 
 let AlertSchema = mongoose.Schema({
   from: String,
   message: String,
-  when: { type: Number, default: () => Date.now() }
+  when: { type: Number, default: () => Date.now() },
+  read: { type: Boolean, default: false }
 })
 
 let UserSchema = mongoose.Schema({
@@ -46,13 +51,15 @@ UserSchema.methods.updateAbout = function (about) {
   this.about = about
 }
 
-UserSchema.methods.sendMessage = async function(type, subtype, refKind, refId) {
-   await User.findOneAndUpdate(
+UserSchema.methods.sendMessage = async function(type, subtype, refKind, refId, count) {
+  if(!count) count = 0
+  await User.findOneAndUpdate(
     {_id: this._id},
     {$push: {messages: {
       where: {kind: refKind, item: refId},
       type,
-      subtype
+      subtype,
+      count
     }}},
     {safe: true, upsert: true})
 }
@@ -61,7 +68,72 @@ UserSchema.methods.getMessagesRaw = async function(num) {
   if(!num) num = 5
   
   let user = await User.findOne({_id: this._id}, {messages: {$slice: -num}})
-  return user.messages
+  let messages = user.messages
+  messages.reverse()
+  return messages
+}
+
+UserSchema.methods.markMessageRead = async function(messageId) {
+  await User.findOneAndUpdate({
+    _id: this._id,
+    'messages._id': messageId
+  }, {
+    $set: { 'messages.$.read': true }
+  })
+}
+
+UserSchema.statics.inflateMessage = async function(message, loggedInUser) {
+  let messageContents = []
+  messageContents._id = message._id
+  messageContents.read = message.read
+  let rs, cl, u
+  switch(message.type) {
+    case 'comment':
+      if(message.subtype == 'reply') {
+        messageContents.push({icon: 'reply'})
+        messageContents.push({ label: message.count + ' new ' + (message.count == 1 ? 'reply' : 'replies')+ ' on'})
+      } else {
+        messageContents.push({icon: 'comment'})
+        messageContents.push({ label: message.count + ' new ' + (message.count == 1 ? 'comment' : 'comments')+ ' on'})
+      }
+      if(message.where.kind == 'Resource') {
+        rs = await Resource.findById(message.where.item)
+        messageContents.push({ label: rs.name, href: '/resources/' + rs._id })
+      } else if(message.where.kind == 'Collection') {
+        cl = await Collection.findById(message.where.item)
+        messageContents.push({ label: cl.name, href: '/collections/' + cl._id })
+      } else if(message.where.kind == 'User') {
+        u = await User.findById(message.where.item)
+        if(u.username == loggedInUser) {
+          messageContents.push({ label: 'your profile', href: '/you' })
+        } else {
+          messageContents.push({ label: u.username + '\'s profile', href: '/users/' + u.username })
+        }
+      }
+      break
+    case 'download':
+      messageContents.push({icon: 'file_download'})
+      messageContents.push({ label: message.count + ' ' + (message.count == 1 ? 'person' : 'people') + ' downloaded' })
+      if(message.subtype == 'resource') {
+          rs = await Resource.findById(message.where.item)
+          messageContents.push({ label: rs.name, href: '/resources/' + rs._id })
+      } else if(message.subtype == 'collection') {
+        cl = await Collection.findById(message.where.item)
+        messageContents.push({ label: cl.name, href: '/collections/' + cl._id })
+      }
+      break
+    case 'collection_add':
+      messageContents.push({icon: 'library_add'})
+      messageContents.push({ label: message.count + ' ' + (message.count == 1 ? 'item' : 'items') + ' added to' })
+      cl = await Collection.findById(message.where.item)
+      messageContents.push({ label: cl.name, href: '/collections/' + cl._id })
+      break
+    case 'forum':
+      messageContents.push({icon: 'collection_add'})
+      messageContents.push({label: 'Sample Text'})
+      break
+  }
+  return messageContents
 }
 
 UserSchema.statics.findByUsername = async function(username, whichFields) {

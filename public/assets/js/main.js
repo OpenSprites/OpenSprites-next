@@ -21,6 +21,7 @@ const leaving = require('./leaving')
 const collection = require('./collection')
 const ddc = require('./dropdowncheck')
 const backpack = require('./backpack')
+const messages = require('./messages')
 const vIE = require('./detect-ie')()
 
 if(vIE) {

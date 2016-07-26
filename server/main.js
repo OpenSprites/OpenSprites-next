@@ -487,21 +487,39 @@ app.get('/you/collections', nocache, mustSignIn, async function(req, res){
   }
 })
 
-app.get('/test', nocache, async function(req, res){
-  await db.User.findOneAndUpdate({username: 'thisandagain'}, {$set: {messages:[]}})
-  
-  let t = await db.User.findByUsername('thisandagain')
-  await t.sendMessage('download', 'resource', 'Resource', '57977b6aac02bc7e12fdafcb')
-  res.end('success')
-})
-
 app.get('/you/messages', nocache, mustSignIn, async function(req, res){
   try {
     let who = await db.User.findByUsername(req.session.user)
     if(!who) throw "User not found"
 
-    res.status(200).json(await who.getMessagesRaw())
+    let messages = await who.getMessagesRaw()
+    for(let i = 0; i < messages.length; i++) {
+      messages[i] = await db.User.inflateMessage(messages[i], req.session.user)
+    }
+
+    res.render('partials/messages', {
+      user: req.session.user,
+      csrfToken: req.csrfToken(),
+      messages,
+      layout: false
+    })
   } catch(e){
+    console.log(e)
+    res.status(500).json(false)
+  }
+})
+
+app.post('/you/messages/mark', nocache, mustSignIn, async function(req, res){
+  try {
+    let who = await db.User.findByUsername(req.session.user)
+    if(!who) throw "User not found"
+    
+    let markAsRead = req.body.mark || []
+    for(let message of markAsRead) {
+      await who.markMessageRead(message)
+    }
+    res.status(200).json(true)
+  } catch(e) {
     console.log(e)
     res.status(500).json(false)
   }
