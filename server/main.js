@@ -1312,6 +1312,17 @@ app.get(`/resources/:id/download/:f?`, async function(req, res) {
       console.log(err)
       // continue to download anyway
     }
+    if(resource.script) {
+      let preparedId = await scratchBuilder.prepare({
+        type: 'sprite',
+        which: [
+          resource._id
+        ]
+      })
+      console.log('prepared: ', preparedId)
+      res.redirect(`/collections/download/${preparedId}/${req.params.f.replace('.json', '')}`)
+      return
+    }
     res.set("Content-Disposition", "attachment; filename=\"" + req.params.f + "\"")
     resource.downloadToResponse(req, res)
   }

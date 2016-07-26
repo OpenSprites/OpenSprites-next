@@ -350,6 +350,7 @@ function registerListeners() {
     }
     
     let item = new BackpackItem(type, id, name)
+    if(OS.resource) item.flags = OS.resource.flags
     backpack.items.push(item)
     save()
     addItemDom(item)
