@@ -674,6 +674,14 @@ app.put('/share', upload.single('file'), async function(req, res) {
 
     let isAudio = file.mimetype.substr(0, 5) === 'audio'
     let isImage = file.mimetype.substr(0, 5) === 'image'
+    let isScript = file.mimetype === 'application/json'
+    console.log(file.mimetype)
+    
+    if(!isAudio && !isImage && !isScript) {
+      res.status(400).json({success: false, message: "Unsupported type"})
+      return
+    }
+    
     let thumb
 
     let resource = new db.Resource({
@@ -684,6 +692,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
       fname: name,
       audio: isAudio,
       image: isImage,
+      script: isScript,
       loading: false, // unused now
       when: Date.now(),
       cover: name,
@@ -727,6 +736,10 @@ app.put('/share', upload.single('file'), async function(req, res) {
       } else {
         thumb = await squish(file.buffer, type)
       }
+    }
+    
+    if(isScript) {
+      thumb = file.buffer
     }
 
     await resource.uploadThumbnail(thumb)

@@ -98,6 +98,7 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
       name: 1,
       audio: 1,
       image: 1,
+      script: 1,
       deleted: 1,
       _id: 1,
       owners: 1,

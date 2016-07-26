@@ -38,7 +38,14 @@ async function decomposeProjectFile(file) {
   if(jsonEntry) {
     content = JSON.parse(await jsonEntry.async('string'))
     let scripts = parseContentForScripts(content)
-    console.log(scripts)
+    for(let script of scripts) {
+      let thingy = new Blob([JSON.stringify(script)], {
+        type: 'application/json'
+      })
+      thingy.name = `New Script ${shortid()}.json`
+      
+      initResourceInput(addResourceInput(), thingy, script)
+    }
   }
   
   function lookupName(filename, type) {
@@ -110,7 +117,7 @@ function parseContentForScripts(content) {
   return doParse(content, [])
 }
 
-function initResourceInput(dialog, file) {
+function initResourceInput(dialog, file, content) {
   dialog.classList.add('has-file')
   dialog._attachmentFile = file
 
@@ -123,6 +130,7 @@ function initResourceInput(dialog, file) {
 
   const audio = file.type.substr(0, 5) === 'audio'
   const image = file.type.substr(0, 5) === 'image'
+  const script = file.type == 'application/json'
 
   const data = URL.createObjectURL(file)
 
@@ -140,6 +148,13 @@ function initResourceInput(dialog, file) {
   if (image) {
     dialog.querySelector('.file-type').innerText = 'Costume'
     dialog.querySelector('.img img').src = data
+  }
+  
+  if(script) {
+    var scriptDoc = new scratchblocks.Document(scratchblocks.fromJSON({scripts: [[0,0,content]]}).scripts);
+    scriptDoc.render(function(svg) {
+      dialog.querySelector('.img').appendChild(svg)
+    })
   }
 }
 

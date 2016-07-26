@@ -17,6 +17,17 @@ module.exports = function(){
     })
   }
   
+  let stElem = document.querySelector('.script-thumb')
+  if(stElem) {
+    ajax.get(`/resources/${OS.resource.id}/raw`).then(function(res){
+      let script = res.data
+      var scriptDoc = new scratchblocks.Document(scratchblocks.fromJSON({scripts: [[0,0, script]]}).scripts);
+      scriptDoc.render(function(svg) {
+        stElem.appendChild(svg)
+      })
+    })
+  }
+  
   let title = document.querySelector(".resource-title")
   
   title.addEventListener('keyup', function(e){

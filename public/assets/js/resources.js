@@ -1,5 +1,6 @@
 const AudioThumb = require('./audio-thumb')
 const dndrenderer = require('./dndrenderer')
+const ajax = require('axios')
 
 module.exports = {
   parse: function parseResources() {
@@ -10,19 +11,35 @@ module.exports = {
       for (let el of resources) {
         let id = el.id
         let audio = el.querySelector('.audio')
-        let image = el.querySelector('.img')
+        let image = el.querySelector('.img:not(.script)')
+        let script = el.querySelector('.img.script')
+        
+        if(script) {
+          ajax.get(`/resources/${id}/raw`).then((function(el, res){
+            let script = res.data
+            var scriptDoc = new scratchblocks.Document(scratchblocks.fromJSON({scripts: [[0,0, script]]}).scripts);
+            scriptDoc.render(function(svg) {
+              el.querySelector('.img').appendChild(svg)
+            })
+          }).bind(null, el))
+        }
+        
         let a = el.querySelector('a.to')
         
         if (id && id.length) {
           el.addEventListener('dragstart', function(e) {
             let img = this.querySelector('img')
+            if(!img) {
+              img = this.querySelector('svg')
+            }
         
             let items = Array.from(document.querySelectorAll('.resource.selected'))
             if (items.indexOf(this) < 0) items.push(this)
             items = items.map(item => ({
               name: item.dataset.name,
               id: item.dataset.id,
-              type: item.dataset.type
+              type: item.dataset.type,
+              flags: { script: !!item.querySelector('.img.script') }
             }))
         
             e.dataTransfer.clearData();

@@ -164,7 +164,17 @@ function addItemDom(item) {
 
   type.textContent = item.type.substring(0, 1).toUpperCase() + item.type.substring(1)
 
-  if (item.type == 'resource') {
+  if(item.flags && item.flags.script) {
+    ajax.get(`/resources/${item.id}/raw`).then(function(res){
+      let script = res.data
+      var scriptDoc = new scratchblocks.Document(scratchblocks.fromJSON({scripts: [[0,0, script]]}).scripts);
+      scriptDoc.render(function(svg) {
+        svg.classList.add('backpack-thumb')
+        thumb.parentElement.insertBefore(svg, thumb.nextElementSibling)
+        thumb.remove()
+      })
+    })
+  } else if (item.type == 'resource') {
     thumb.src = '/resources/' + item.id + '/cover'
   } else if (item.type == 'collection') {
     thumb.src = '/collections/' + item.id + '/cover'
