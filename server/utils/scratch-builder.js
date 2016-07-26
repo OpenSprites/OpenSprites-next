@@ -72,6 +72,7 @@ async function prepare(options) {
   let contributors = []
 
   async function addItem(scratchJson, item, contributors) {
+    if(!item.item) return
     if (seenCollections.indexOf(item.item._id.toString()) > -1) return
 
     for (let owner of item.item.owners) {
@@ -138,7 +139,49 @@ async function prepare(options) {
         ext = 'wav'
         let transcoded = dir + shortid() + ".wav"
 
-        if(item.item.wavCache == "") {
+        let wavCacheFile = null
+        if(item.item.wavCache != "") {
+          wavCacheFile = await $(db.GridFS.files, db.GridFS.files.findOne, {
+            filename: location + ".wav"
+          })
+        }
+         
+        if(wavCacheFile) {
+          let file = wavCacheFile
+          let rsParams = {
+            _id: file._id
+          }
+          let wavstream = await $(db.GridFS, db.GridFS.createReadStream, rsParams)
+
+          let audioWrite = fs.createWriteStream(transcoded)
+
+          await new Promise(function (resolve, reject) {
+            wavstream.on('error', function (err) {
+              console.log(err)
+              reject(err)
+            })
+            wavstream.on('end', function () {
+              audioWrite.end()
+              resolve()
+            })
+            wavstream.pipe(audioWrite)
+          })
+
+          await new Promise(function(resolve, reject){
+            sox.identify(transcoded, function(err, info) {
+              if(err) {
+                reject(err)
+                return
+              }
+              sound.sampleCount = info.sampleCount
+              sound.rate = info.sampleRate
+              soundMap[item.item._id.toString()] = {name, sampleCount: info.sampleCount, rate: info.sampleRate}
+              resolve()
+            })
+          })
+
+          readstream = fs.createReadStream(transcoded)
+        } else {
           let audioWrite = fs.createWriteStream(orig)
 
           await new Promise(function (resolve, reject) {
@@ -191,61 +234,41 @@ async function prepare(options) {
           let rsReup = await Resource.findById(item.item._id)
           rsReup.wavCache = location + ".wav"
           await rsReup.save()
-        } else {
-          let file = await $(db.GridFS.files, db.GridFS.files.findOne, {
-            filename: location + ".wav"
-          })
-
-          let rsParams = {
-            _id: file._id
-          }
-          let wavstream = await $(db.GridFS, db.GridFS.createReadStream, rsParams)
-
-          let audioWrite = fs.createWriteStream(transcoded)
-
-          await new Promise(function (resolve, reject) {
-            wavstream.on('error', function (err) {
-              console.log(err)
-              reject(err)
-            })
-            wavstream.on('end', function () {
-              audioWrite.end()
-              resolve()
-            })
-            wavstream.pipe(audioWrite)
-          })
-
-          await new Promise(function(resolve, reject){
-            sox.identify(transcoded, function(err, info) {
-              if(err) {
-                reject(err)
-                return
-              }
-              sound.sampleCount = info.sampleCount
-              sound.rate = info.sampleRate
-              soundMap[item.item._id.toString()] = {name, sampleCount: info.sampleCount, rate: info.sampleRate}
-              resolve()
-            })
-          })
-
-          readstream = fs.createReadStream(transcoded)
         }
 
         scratchJson.sounds.push(sound)
       } else if (item.item.script) {
-        // TODO: unsupported
-        // do this :P
+        let scriptJson = await new Promise(function(resolve, reject){
+          var bufs = []
+          readstream.on('data', function(d){ bufs.push(d); });
+          readstream.on('end', function(){
+            var buf = Buffer.concat(bufs)
+            try {
+              let json = JSON.parse(buf.toString())
+              resolve(json)
+            } catch(e) {
+              reject(e)
+            }
+          })
+          readstream.on('error', function(err){
+            reject(err)
+          })
+        })
+        
+        scratchJson.scripts.push([0, 0, scriptJson])
       }
 
       if (seenResources.indexOf(item.item._id.toString()) > -1){
         return // don't upload dups
       }
 
-      seenResources.push(item.item._id.toString())
-
-      await $(zip, zip.entry, readstream, {
-        name: '' + name + '.' + ext
-      })
+      if(!item.item.script) {
+        seenResources.push(item.item._id.toString())
+        
+        await $(zip, zip.entry, readstream, {
+          name: '' + name + '.' + ext
+        })
+      }
     } else if (item.kind == 'Collection') {
       await addItems(scratchJson, await Collection.findOne({
         _id: item.item._id
