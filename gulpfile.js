@@ -20,7 +20,16 @@ const imagemin = require('gulp-imagemin')
 const source = require('vinyl-source-stream')
 const buffer = require('vinyl-buffer')
 
-es6ify.traceurOverrides = { asyncFunctions: true }
+es6ify.traceurOverrides = {
+  experimental: true, 
+  properTailCalls: true, 
+  symbols: true, 
+  arrayComprehension: true, 
+  asyncFunctions: true, 
+  asyncGenerators: true, 
+  forOn: true, 
+  generatorComprehension: true
+}
 
 /////////////////////////////////////////////////////////
 

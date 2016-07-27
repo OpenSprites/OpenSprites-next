@@ -13,12 +13,103 @@ const shortid = require('shortid')
 const jszip = require('jszip')
 
 const allowedMedia = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.mp3': 'audio/mp3',
-  '.wav': 'audio/wav'
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg', '.jpeg': 'image/jpeg',
+  '.gif':  'image/gif',
+  '.svg':  'image/svg+xml',
+  '.mp3':  'audio/mp3',
+  '.wav':  'audio/wav',
+  '.json': 'application/json'
+}
+
+async function fetchScratchResource(md5) {
+  let res = await ajax.get('https://cdn.assets.scratch.mit.edu/internalapi/asset/'+ md5 + '/get/', { responseType: 'blob' })
+  return res.data
+}
+
+function insertResourceFromScratch(name, ext, blob) {
+  if(!allowedMedia.hasOwnProperty(ext)) {
+    console.warn('No mime type detected for ', name, ext)
+    return
+  }
+  blob = new Blob([blob], {type: allowedMedia[ext]})
+  blob.name = name
+  initResourceInput(addResourceInput(), blob)
+}
+
+async function parseScratchProjectNode(content, seenResources) {
+  if(!seenResources) seenResources = []
+  
+  if(content.hasOwnProperty('penLayerMD5')) {
+    try {
+      let penLayerBlob = await fetchScratchResource(content.penLayerMD5)
+      insertResourceFromScratch('Pen Layer', '.' + content.penLayerMD5.split('.')[1], penLayerBlob)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+  
+  for(let costume of (content.costumes || [])) {
+    if(seenResources.indexOf(costume.baseLayerMD5) > -1) continue
+    seenResources.push(costume.baseLayerMD5)
+    try {
+      let costumeBlob = await fetchScratchResource(costume.baseLayerMD5)
+      insertResourceFromScratch(costume.costumeName, '.' + costume.baseLayerMD5.split('.')[1], costumeBlob)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+  
+  for(let sound of (content.sounds || [])) {
+    if(seenResources.indexOf(sound.md5) > -1) continue
+    seenResources.push(sound.md5)
+    try {
+      let soundBlob = await fetchScratchResource(sound.md5)
+      insertResourceFromScratch(sound.soundName, '.' + sound.md5.split('.')[1], soundBlob)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+  
+  for(let script of (content.scripts || [])) {
+    script = script[2]
+    let thingy = new Blob([JSON.stringify(script)], {
+      type: 'application/json'
+    })
+    thingy.name = `New Script ${shortid()}.json`
+    initResourceInput(addResourceInput(), thingy, script)
+  }
+  
+  for(let child of (content.children || [])) {
+    await parseScratchProjectNode(child, seenResources)
+  }
+}
+
+async function addScratchProject(url) {
+  let parser = document.createElement('a')
+  parser.href = url
+  if(!parser.hostname.endsWith('scratch.mit.edu')) return
+  let path = parser.pathname
+  let match = path.match(/projects\/(\d+)/)
+  if(!match || match.length < 2) return
+  let id = match[1]
+  
+  document.querySelector('#scratch-url-btn').disabled = true
+  document.querySelector('#scratch-url-container').classList.add('working')
+  
+  try {
+    let scratchJson = (await ajax.get('https://cdn.projects.scratch.mit.edu/internalapi/project/' + id + '/get/')).data
+    console.log(scratchJson)
+    
+    await parseScratchProjectNode(scratchJson)
+    
+    document.querySelector('#scratch-url').value = ''
+  } catch(e){
+    console.log(e)
+  }
+  document.querySelector('#scratch-url-btn').disabled = false
+  document.querySelector('#scratch-url-container').classList.remove('working')
+  
 }
 
 async function decomposeProjectFile(file) {
@@ -151,6 +242,7 @@ function initResourceInput(dialog, file, content) {
   }
   
   if(script) {
+    dialog.querySelector('.file-type').innerText = 'Script'
     var scriptDoc = new scratchblocks.Document(scratchblocks.fromJSON({scripts: [[0,0,content]]}).scripts);
     scriptDoc.render(function(svg) {
       dialog.querySelector('.img').appendChild(svg)
@@ -184,12 +276,31 @@ function addResourceInput() {
 
 async function upload() {
   const resources = document.querySelectorAll('#file-uploads .resource:not(.done)')
-  let req = []
 
+  let toProcess = []
   for(let r = 0; r < resources.length; r++) {
     let resource = resources[r]
     const file = resource._attachmentFile
     if(!file) continue
+
+    resource.style.pointerEvents = 'none'
+    resource.querySelector('.overlay').style.display = 'block'
+    toProcess.push(resource)
+  }
+  
+  if(toProcess.length == 0) return
+  
+  toProcess.reverse()
+
+  document.querySelector('a#submit').style.display = 'none'
+  document.querySelector('a#add-resource').style.display = 'none'
+  document.querySelector('.upload-error').style.display = 'none'
+
+  // browserify with es6ify really doesn't like awaits in loops
+  // idk why
+  async function processNext() {
+    let resource = toProcess.pop()
+    const file = resource._attachmentFile
 
     resource.style.pointerEvents = 'none'
     resource.querySelector('.overlay').style.display = 'block'
@@ -199,85 +310,75 @@ async function upload() {
     data.append('file', file)
     data.append('clientid', resource.dataset.id)
 
-    req.push(ajax.put('/share', data, {
-      'headers': {
-        'X-CSRF-Token': window.csrf
-      },
-      
-      progress: p => {
-        let percent = Math.floor((p.loaded / p.total) * 100)
-        resource.querySelector('.progress-text').innerText = (percent == 100 ? 'Processing' : percent + '%')
-        
-        let paths = resource.querySelectorAll('svg.progress path');
-        
-        let percent1 = Math.min(percent, 50)
-        let pathDef1 = "M55,5 a50,50 0 0,1 "
-        pathDef1 += (50 * Math.cos(Math.PI / 2 - percent1 * Math.PI / 50))
-        pathDef1 += ","
-        pathDef1 += (50 - 50 * Math.sin(Math.PI / 2 - percent1 * Math.PI / 50))
-        paths[0].setAttribute("d", pathDef1)
-        
-        let percent2 = Math.max(percent - 50, 0)
-        if(percent2 > 0) {
-          percent2 = 50 - percent2
-          let pathDef2 = "M55,105 a50,50 0 0,1 "
-          pathDef2 += (-50 * Math.cos(Math.PI / 2 - percent2 * Math.PI / 50))
-          pathDef2 += ","
-          pathDef2 += (-50 - 50 * Math.sin(Math.PI / 2 - percent2 * Math.PI / 50))
-          paths[1].setAttribute("d", pathDef2)
-        } else {
-          paths[1].setAttribute("d", "M55,105 a50,50 0 0,1 0,0")
+    try {
+      let req = ajax.put('/share', data, {
+        'headers': {
+          'X-CSRF-Token': window.csrf
+        },
+
+        progress: p => {
+          let percent = Math.floor((p.loaded / p.total) * 100)
+          resource.querySelector('.progress-text').innerText = (percent == 100 ? 'Processing' : percent + '%')
+
+          let paths = resource.querySelectorAll('svg.progress path');
+
+          let percent1 = Math.min(percent, 50)
+          let pathDef1 = "M55,5 a50,50 0 0,1 "
+          pathDef1 += (50 * Math.cos(Math.PI / 2 - percent1 * Math.PI / 50))
+          pathDef1 += ","
+          pathDef1 += (50 - 50 * Math.sin(Math.PI / 2 - percent1 * Math.PI / 50))
+          paths[0].setAttribute("d", pathDef1)
+
+          let percent2 = Math.max(percent - 50, 0)
+          if (percent2 > 0) {
+            percent2 = 50 - percent2
+            let pathDef2 = "M55,105 a50,50 0 0,1 "
+            pathDef2 += (-50 * Math.cos(Math.PI / 2 - percent2 * Math.PI / 50))
+            pathDef2 += ","
+            pathDef2 += (-50 - 50 * Math.sin(Math.PI / 2 - percent2 * Math.PI / 50))
+            paths[1].setAttribute("d", pathDef2)
+          }
+          else {
+            paths[1].setAttribute("d", "M55,105 a50,50 0 0,1 0,0")
+          }
         }
+      })
+      
+      let res = await req
+
+      let resourceDom = document.querySelector("[data-id=" + res.data.clientid + "]")
+      if (res.data.success) {
+        resourceDom.classList.add('done')
+        resourceDom.dataset.osurl = res.data.osurl
+        updateLink(resourceDom)
+      } else {
+        throw res.data
       }
-    }))
+    } catch (e) {
+      console.log(e)
+      document.querySelector('.upload-error').style.display = 'block'
+    }
+    if(toProcess.length > 0) await processNext()
   }
   
-  if(req.length == 0)
-    return
+  await processNext()
   
-  document.querySelector('a#submit').style.display = 'none'
-  document.querySelector('a#add-resource').style.display = 'none'
-  document.querySelector('.upload-error').style.display = 'none'
-  
-  ajax.all(req).then(function(res) {
-    console.log(res)
-    if(Array.isArray(res)){
-      for(let item of res){
-        let resource = document.querySelector("[data-id=" + item.data.clientid + "]")
-        if(item.data.success){
-          resource.classList.add('done')
-          resource.dataset.osurl = item.data.osurl
-        }
-      }
-    }
-    
-    completeUpload()
-  }, function(res){
-    document.querySelector('.upload-error').style.display = 'block'
-    if(res.data && res.data.message){
-      document.querySelector('.upload-error .details').textContent = JSON.stringify(res.data.message)
-    }
-    completeUpload()
-  })
-}
-
-function completeUpload() {
   document.querySelector('a#submit').style.display = 'inline-block'
   document.querySelector('a#add-resource').style.display = 'inline-block'
   Array.from(document.querySelectorAll("#file-uploads .resource:not(.done)")).forEach(item =>
     item.querySelector(".overlay").style.display = "none"
   );
-  
-  Array.from(document.querySelectorAll("#file-uploads .resource.done")).forEach(item => {
-    item.style.pointerEvents = 'all'
-    let text = item.querySelector('.progress-text')
-    text.innerHTML = ''
-    let link = document.createElement('a')
-    link.href = item.dataset.osurl
-    link.target = '_blank'
-    link.textContent = 'Open'
-    text.appendChild(link)
-  });
+}
+
+function updateLink(item) {
+  item.style.pointerEvents = 'all'
+  let text = item.querySelector('.progress-text')
+  text.innerHTML = ''
+  let link = document.createElement('a')
+  link.href = item.dataset.osurl
+  link.target = '_blank'
+  link.textContent = 'Open'
+  text.appendChild(link)
 }
 
 module.exports = function() {
@@ -288,6 +389,10 @@ module.exports = function() {
 
   document.querySelector('#submit')
     .addEventListener('click', upload)
+    
+  document.querySelector('#scratch-url-btn').addEventListener('click', function(){
+    addScratchProject(document.querySelector('#scratch-url').value)
+  })
     
   document.addEventListener('dragover', function(e){
     e.dataTransfer.dropEffect = 'copy'
