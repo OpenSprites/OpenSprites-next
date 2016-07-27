@@ -276,12 +276,31 @@ function addResourceInput() {
 
 async function upload() {
   const resources = document.querySelectorAll('#file-uploads .resource:not(.done)')
-  let req = []
 
+  let toProcess = []
   for(let r = 0; r < resources.length; r++) {
     let resource = resources[r]
     const file = resource._attachmentFile
     if(!file) continue
+
+    resource.style.pointerEvents = 'none'
+    resource.querySelector('.overlay').style.display = 'block'
+    toProcess.push(resource)
+  }
+  
+  if(toProcess.length == 0) return
+  
+  toProcess.reverse()
+
+  document.querySelector('a#submit').style.display = 'none'
+  document.querySelector('a#add-resource').style.display = 'none'
+  document.querySelector('.upload-error').style.display = 'none'
+
+  // browserify with es6ify really doesn't like awaits in loops
+  // idk why
+  async function processNext() {
+    let resource = toProcess.pop()
+    const file = resource._attachmentFile
 
     resource.style.pointerEvents = 'none'
     resource.querySelector('.overlay').style.display = 'block'
@@ -291,85 +310,75 @@ async function upload() {
     data.append('file', file)
     data.append('clientid', resource.dataset.id)
 
-    req.push(ajax.put('/share', data, {
-      'headers': {
-        'X-CSRF-Token': window.csrf
-      },
-      
-      progress: p => {
-        let percent = Math.floor((p.loaded / p.total) * 100)
-        resource.querySelector('.progress-text').innerText = (percent == 100 ? 'Processing' : percent + '%')
-        
-        let paths = resource.querySelectorAll('svg.progress path');
-        
-        let percent1 = Math.min(percent, 50)
-        let pathDef1 = "M55,5 a50,50 0 0,1 "
-        pathDef1 += (50 * Math.cos(Math.PI / 2 - percent1 * Math.PI / 50))
-        pathDef1 += ","
-        pathDef1 += (50 - 50 * Math.sin(Math.PI / 2 - percent1 * Math.PI / 50))
-        paths[0].setAttribute("d", pathDef1)
-        
-        let percent2 = Math.max(percent - 50, 0)
-        if(percent2 > 0) {
-          percent2 = 50 - percent2
-          let pathDef2 = "M55,105 a50,50 0 0,1 "
-          pathDef2 += (-50 * Math.cos(Math.PI / 2 - percent2 * Math.PI / 50))
-          pathDef2 += ","
-          pathDef2 += (-50 - 50 * Math.sin(Math.PI / 2 - percent2 * Math.PI / 50))
-          paths[1].setAttribute("d", pathDef2)
-        } else {
-          paths[1].setAttribute("d", "M55,105 a50,50 0 0,1 0,0")
+    try {
+      let req = ajax.put('/share', data, {
+        'headers': {
+          'X-CSRF-Token': window.csrf
+        },
+
+        progress: p => {
+          let percent = Math.floor((p.loaded / p.total) * 100)
+          resource.querySelector('.progress-text').innerText = (percent == 100 ? 'Processing' : percent + '%')
+
+          let paths = resource.querySelectorAll('svg.progress path');
+
+          let percent1 = Math.min(percent, 50)
+          let pathDef1 = "M55,5 a50,50 0 0,1 "
+          pathDef1 += (50 * Math.cos(Math.PI / 2 - percent1 * Math.PI / 50))
+          pathDef1 += ","
+          pathDef1 += (50 - 50 * Math.sin(Math.PI / 2 - percent1 * Math.PI / 50))
+          paths[0].setAttribute("d", pathDef1)
+
+          let percent2 = Math.max(percent - 50, 0)
+          if (percent2 > 0) {
+            percent2 = 50 - percent2
+            let pathDef2 = "M55,105 a50,50 0 0,1 "
+            pathDef2 += (-50 * Math.cos(Math.PI / 2 - percent2 * Math.PI / 50))
+            pathDef2 += ","
+            pathDef2 += (-50 - 50 * Math.sin(Math.PI / 2 - percent2 * Math.PI / 50))
+            paths[1].setAttribute("d", pathDef2)
+          }
+          else {
+            paths[1].setAttribute("d", "M55,105 a50,50 0 0,1 0,0")
+          }
         }
+      })
+      
+      let res = await req
+
+      let resourceDom = document.querySelector("[data-id=" + res.data.clientid + "]")
+      if (res.data.success) {
+        resourceDom.classList.add('done')
+        resourceDom.dataset.osurl = res.data.osurl
+        updateLink(resourceDom)
+      } else {
+        throw res.data
       }
-    }))
+    } catch (e) {
+      console.log(e)
+      document.querySelector('.upload-error').style.display = 'block'
+    }
+    if(toProcess.length > 0) await processNext()
   }
   
-  if(req.length == 0)
-    return
+  await processNext()
   
-  document.querySelector('a#submit').style.display = 'none'
-  document.querySelector('a#add-resource').style.display = 'none'
-  document.querySelector('.upload-error').style.display = 'none'
-  
-  ajax.all(req).then(function(res) {
-    console.log(res)
-    if(Array.isArray(res)){
-      for(let item of res){
-        let resource = document.querySelector("[data-id=" + item.data.clientid + "]")
-        if(item.data.success){
-          resource.classList.add('done')
-          resource.dataset.osurl = item.data.osurl
-        }
-      }
-    }
-    
-    completeUpload()
-  }, function(res){
-    document.querySelector('.upload-error').style.display = 'block'
-    if(res.data && res.data.message){
-      document.querySelector('.upload-error .details').textContent = JSON.stringify(res.data.message)
-    }
-    completeUpload()
-  })
-}
-
-function completeUpload() {
   document.querySelector('a#submit').style.display = 'inline-block'
   document.querySelector('a#add-resource').style.display = 'inline-block'
   Array.from(document.querySelectorAll("#file-uploads .resource:not(.done)")).forEach(item =>
     item.querySelector(".overlay").style.display = "none"
   );
-  
-  Array.from(document.querySelectorAll("#file-uploads .resource.done")).forEach(item => {
-    item.style.pointerEvents = 'all'
-    let text = item.querySelector('.progress-text')
-    text.innerHTML = ''
-    let link = document.createElement('a')
-    link.href = item.dataset.osurl
-    link.target = '_blank'
-    link.textContent = 'Open'
-    text.appendChild(link)
-  });
+}
+
+function updateLink(item) {
+  item.style.pointerEvents = 'all'
+  let text = item.querySelector('.progress-text')
+  text.innerHTML = ''
+  let link = document.createElement('a')
+  link.href = item.dataset.osurl
+  link.target = '_blank'
+  link.textContent = 'Open'
+  text.appendChild(link)
 }
 
 module.exports = function() {
