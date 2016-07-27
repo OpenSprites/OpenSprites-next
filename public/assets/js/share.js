@@ -294,7 +294,7 @@ module.exports = function() {
     e.preventDefault()
     document.querySelector('#file-uploads').classList.add('drag')
   })
-  document.addEventListener('dragend', function(){
+  document.addEventListener('dragleave', function(){
     document.querySelector('#file-uploads').classList.remove('drag')
   })
   document.addEventListener('drop', function(e){
