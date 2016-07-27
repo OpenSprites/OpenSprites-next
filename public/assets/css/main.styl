@@ -856,6 +856,57 @@ header + hr {
   display none
 }
 
+.split-input-button {
+  display: inline-flex;
+  width 500px
+  
+  input {
+    @extend .btn
+    @extend .btn.flat
+    flex 1
+    border-right 0
+    border-top-right-radius 0
+    border-bottom-right-radius 0
+    
+    &:hover:not(:disabled) {
+      background rgba(os-light, 0.5)
+      color os
+    }
+  }
+  
+  .btn {
+    border-top-left-radius 0
+    border-bottom-left-radius 0
+  }
+  
+  &.working {
+    animation progress 0.5s linear infinite
+    /* <black-magic> */
+    background linear-gradient(-45deg,os-light 0px, os-light 1px, white 1px,white 10px,os-light 10px, os-light 15px,white 15px,white 24px,os-light 25px)
+    /* </black-magic> */
+    background-size 20px 20px
+    background-repeat repeat
+    
+    
+    input {
+      background transparent
+      &:hover:not(:disabled) {
+        background transparent
+      }
+    }
+  }
+}
+
+@keyframes progress {
+  from {
+    background-position 0 0
+  }
+  to {
+    background-position 20px 0
+  }
+}
+
+
 @require 'nav.styl'
 @require 'signup-join.styl'
 @require 'resources.styl'

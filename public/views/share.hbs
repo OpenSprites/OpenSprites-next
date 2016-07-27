@@ -8,12 +8,17 @@
   </div>
   
   <form method='post' enctype='multipart/form-data'>
+    <div class='split-input-button' id='scratch-url-container' style='max-width: 100%'>
+      <input type='url' id='scratch-url' placeholder='https://scratch.mit.edu/projects/12345678' />
+      <button type='button' id='scratch-url-btn' class='btn flat'>add from scratch</button>
+    </div>
+    
+    <div style='display:inline-block; padding-top: 0.5em'>
+      <a id='add-resource' class='flat btn'>add more</a>
+      <a id='submit' class='btn'>upload and share</a>
+    </div>
+    
     <div id='file-uploads' class='resources'></div>
-
-    <br>
-
-    <a id='add-resource' class='flat btn'>add more</a>
-    <a id='submit' class='btn'>upload and share</a>
   </form>
 
   <div class='file-upload template resource' data-template-id='file-upload'>

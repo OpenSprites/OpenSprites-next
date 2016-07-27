@@ -13,12 +13,103 @@ const shortid = require('shortid')
 const jszip = require('jszip')
 
 const allowedMedia = {
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.mp3': 'audio/mp3',
-  '.wav': 'audio/wav'
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg', '.jpeg': 'image/jpeg',
+  '.gif':  'image/gif',
+  '.svg':  'image/svg+xml',
+  '.mp3':  'audio/mp3',
+  '.wav':  'audio/wav',
+  '.json': 'application/json'
+}
+
+async function fetchScratchResource(md5) {
+  let res = await ajax.get('https://cdn.assets.scratch.mit.edu/internalapi/asset/'+ md5 + '/get/', { responseType: 'blob' })
+  return res.data
+}
+
+function insertResourceFromScratch(name, ext, blob) {
+  if(!allowedMedia.hasOwnProperty(ext)) {
+    console.warn('No mime type detected for ', name, ext)
+    return
+  }
+  blob = new Blob([blob], {type: allowedMedia[ext]})
+  blob.name = name
+  initResourceInput(addResourceInput(), blob)
+}
+
+async function parseScratchProjectNode(content, seenResources) {
+  if(!seenResources) seenResources = []
+  
+  if(content.hasOwnProperty('penLayerMD5')) {
+    try {
+      let penLayerBlob = await fetchScratchResource(content.penLayerMD5)
+      insertResourceFromScratch('Pen Layer', '.' + content.penLayerMD5.split('.')[1], penLayerBlob)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+  
+  for(let costume of (content.costumes || [])) {
+    if(seenResources.indexOf(costume.baseLayerMD5) > -1) continue
+    seenResources.push(costume.baseLayerMD5)
+    try {
+      let costumeBlob = await fetchScratchResource(costume.baseLayerMD5)
+      insertResourceFromScratch(costume.costumeName, '.' + costume.baseLayerMD5.split('.')[1], costumeBlob)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+  
+  for(let sound of (content.sounds || [])) {
+    if(seenResources.indexOf(sound.md5) > -1) continue
+    seenResources.push(sound.md5)
+    try {
+      let soundBlob = await fetchScratchResource(sound.md5)
+      insertResourceFromScratch(sound.soundName, '.' + sound.md5.split('.')[1], soundBlob)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+  
+  for(let script of (content.scripts || [])) {
+    script = script[2]
+    let thingy = new Blob([JSON.stringify(script)], {
+      type: 'application/json'
+    })
+    thingy.name = `New Script ${shortid()}.json`
+    initResourceInput(addResourceInput(), thingy, script)
+  }
+  
+  for(let child of (content.children || [])) {
+    await parseScratchProjectNode(child, seenResources)
+  }
+}
+
+async function addScratchProject(url) {
+  let parser = document.createElement('a')
+  parser.href = url
+  if(!parser.hostname.endsWith('scratch.mit.edu')) return
+  let path = parser.pathname
+  let match = path.match(/projects\/(\d+)/)
+  if(!match || match.length < 2) return
+  let id = match[1]
+  
+  document.querySelector('#scratch-url-btn').disabled = true
+  document.querySelector('#scratch-url-container').classList.add('working')
+  
+  try {
+    let scratchJson = (await ajax.get('https://cdn.projects.scratch.mit.edu/internalapi/project/' + id + '/get/')).data
+    console.log(scratchJson)
+    
+    await parseScratchProjectNode(scratchJson)
+    
+    document.querySelector('#scratch-url').value = ''
+  } catch(e){
+    console.log(e)
+  }
+  document.querySelector('#scratch-url-btn').disabled = false
+  document.querySelector('#scratch-url-container').classList.remove('working')
+  
 }
 
 async function decomposeProjectFile(file) {
@@ -151,6 +242,7 @@ function initResourceInput(dialog, file, content) {
   }
   
   if(script) {
+    dialog.querySelector('.file-type').innerText = 'Script'
     var scriptDoc = new scratchblocks.Document(scratchblocks.fromJSON({scripts: [[0,0,content]]}).scripts);
     scriptDoc.render(function(svg) {
       dialog.querySelector('.img').appendChild(svg)
@@ -288,6 +380,10 @@ module.exports = function() {
 
   document.querySelector('#submit')
     .addEventListener('click', upload)
+    
+  document.querySelector('#scratch-url-btn').addEventListener('click', function(){
+    addScratchProject(document.querySelector('#scratch-url').value)
+  })
     
   document.addEventListener('dragover', function(e){
     e.dataTransfer.dropEffect = 'copy'
