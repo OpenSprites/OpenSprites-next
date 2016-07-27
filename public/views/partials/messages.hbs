@@ -1,0 +1,17 @@
+{{#each messages}}
+  <div class='message' data-id='{{_id}}' data-read='{{read}}'>
+    {{#each this}}
+      {{#if icon}}
+        <i class='material-icons'>{{icon}}</i>
+      {{else if href}}
+        <a href='{{href}}'>{{label}}</a>
+      {{else}}
+        <span>{{label}}</span>
+      {{/if}}
+    {{/each}}
+  </div>
+{{/each}}
+
+{{#unless messages.length}}
+  <p>No messages</p>
+{{/unless}}

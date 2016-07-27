@@ -65,6 +65,7 @@ const callbackToPromise = require('./utils/callback-to-promise')
 const scratchBuilder = require('./utils/scratch-builder')
 scratchBuilder.init()
 const cubeupload = require('./utils/cubeupload')
+const minify = require('./utils/minify')
 
 /////////////////////////////////////////////////////////
 
@@ -704,6 +705,10 @@ app.put('/share', upload.single('file'), async function(req, res) {
     if(!isAudio && !isImage && !isScript) {
       res.status(400).json({success: false, message: "Unsupported type"})
       return
+    }
+    
+    if(isImage) {
+      file.buffer = await minify(file.buffer)
     }
     
     let thumb
