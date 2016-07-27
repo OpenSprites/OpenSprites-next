@@ -288,4 +288,27 @@ module.exports = function() {
 
   document.querySelector('#submit')
     .addEventListener('click', upload)
+    
+  document.addEventListener('dragover', function(e){
+    e.dataTransfer.dropEffect = 'copy'
+    e.preventDefault()
+    document.querySelector('#file-uploads').classList.add('drag')
+  })
+  document.addEventListener('dragend', function(){
+    document.querySelector('#file-uploads').classList.remove('drag')
+  })
+  document.addEventListener('drop', function(e){
+    document.querySelector('#file-uploads').classList.remove('drag')
+    let files = e.dataTransfer.files
+    for(let file of files) {
+      if(file.name.endsWith('.zip') ||
+          file.name.endsWith('.sb2') ||
+          file.name.endsWith('.sprite2')){
+        decomposeProjectFile(file)
+      } else {
+        initResourceInput(addResourceInput(), file)
+      }
+    }
+    e.preventDefault()
+  })
 }
