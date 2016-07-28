@@ -438,7 +438,7 @@ app.get('/signout', async function(req, res) {
   console.log(`${req.session.user} signed out`)
 
   delete req.session.user
-  res.redirect(req.originalUrl || '/')
+  res.redirect('/')
 })
 
 app.get('/you', mustSignIn, function(req, res) {
