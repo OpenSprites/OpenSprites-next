@@ -4,6 +4,8 @@
  *
  * The main website script.
  */
+console.log('%copen%csprites','font-family:"Lato",sans-serif;color:#659595;font-size:40px;font-weight:bold', 'font-family:"Lato",sans-serif;color:#659595;font-size:40px')
+console.log('https://github.com/OpenSprites/OpenSprites-next')
 
 require('./polyfills')
 

@@ -1339,6 +1339,11 @@ app.get(`/resources/:id/download/:f?`, async function(req, res) {
   } else {
     try {
       await resource.incrementDownloads(req.ip)
+      for(let owner of resource.owners) {
+        let u = User.findByUsername(owner)
+        if(owner != req.session.user)
+          u.sendMessage('download', 'resource', 'Resource', resource._id, 1)
+      }
     } catch(err){
       console.log(err)
       // continue to download anyway

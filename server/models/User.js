@@ -53,6 +53,28 @@ UserSchema.methods.updateAbout = function (about) {
 
 UserSchema.methods.sendMessage = async function(type, subtype, refKind, refId, count) {
   if(!count) count = 0
+  
+  let recentMessages = await this.getMessagesRaw(5)
+  let updateMessageId = null
+  let updateMessageCount = null
+  for(let recentMessage of recentMessages) {
+    if(recentMessage.type == type && recentMessage.subtype == subtype && recentMessage.kind == refKind && recentMessage.refId.toString() == refId.toString()) {
+      updateMessageId = recentMessage._id
+      updateMessageCount = recentMessage.count + count
+      break
+    }
+  }
+  
+  if(updateMessageId) {
+    await User.findOneAndUpdate({
+      _id: this._id,
+      'messages._id': updateMessageId
+    }, {
+      $set: { 'messages.$.read': false, 'messages.$.count': updateMessageCount }
+    })
+    return
+  }
+  
   await User.findOneAndUpdate(
     {_id: this._id},
     {$push: {messages: {
