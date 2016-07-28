@@ -6,13 +6,11 @@ OpenSprites is the place where [Scratchers](https://wiki.scratch.mit.edu/wiki/Sc
 
 https://github.com/OpenSprites/OpenSprites-next
 
-# Team #
+# Contributers #
 
 ![](https://avatars0.githubusercontent.com/u/10202163?v=3&s=32) @andrewjcole
 
 ![](https://avatars0.githubusercontent.com/u/3926753?v=3&s=32) @Arinerron
-
-![](https://avatars1.githubusercontent.com/u/11816825?v=3&s=32) @cauzality
 
 ![](https://avatars1.githubusercontent.com/u/9948030?v=3&s=32) @liam4
 
