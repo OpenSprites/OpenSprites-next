@@ -29,7 +29,8 @@ function init(){
   setInterval(refresh, 1000 * 60)
 }
 
-init()
+if(document.querySelector('.messages-ui'))
+  init()
 
 module.exports = {
   refresh
