@@ -1,11 +1,9 @@
-/**
- * server/main.js
- * --------------
- *
- * The server. Obviously.
- */
-console.log('=== OpenSwag Server ===')
-console.log('Loading dependencies...')
+const console = require('loggy') // yeah, yeah
+console.notificationsTitle = 'OpenSprites Server'
+
+console.info('=== OpenSprites Server ===')
+console.info('Loading dependencies...')
+
 let startLoad = Date.now()
 require('dotenv').config()
 
@@ -26,6 +24,9 @@ const request = require('request-promise')
 
 const marked = require('marked')
 const markedRenderer = new marked.Renderer()
+
+// exit with proper code
+process.on('exit', () => process.exit(console.errorHappened ? 1 : 0))
 
 // make header links like github
 // eg /about#team
@@ -69,7 +70,7 @@ const minify = require('./utils/minify')
 
 /////////////////////////////////////////////////////////
 
-console.log("Loading server...")
+console.info("Loading server...")
 
 /////////////////////////////////////////////////////////
 
@@ -278,7 +279,7 @@ app.use(async function onlineStatus(req, res, next) {
 app.use(function(err, req, res, next) {
   if(err.code !== 'EBADCSRFTOKEN') return next(err)
 
-  console.log(req.session.user, 'hit CSRF error')
+  console.warn(req.session.user, 'hit CSRF error')
 
   res.status(403).render('403', {
     user: req.session.user
@@ -514,7 +515,7 @@ app.post('/you/messages/mark', nocache, mustSignIn, async function(req, res){
   try {
     let who = await db.User.findByUsername(req.session.user)
     if(!who) throw "User not found"
-    
+
     let markAsRead = req.body.mark || []
     for(let message of markAsRead) {
       await who.markMessageRead(message)
@@ -701,16 +702,16 @@ app.put('/share', upload.single('file'), async function(req, res) {
     let isImage = file.mimetype.substr(0, 5) === 'image'
     let isScript = file.mimetype === 'application/json'
     console.log(file.mimetype)
-    
+
     if(!isAudio && !isImage && !isScript) {
       res.status(400).json({success: false, message: "Unsupported type"})
       return
     }
-    
+
     if(isImage) {
       file.buffer = await minify(file.buffer)
     }
-    
+
     let thumb
 
     let resource = new db.Resource({
@@ -766,7 +767,7 @@ app.put('/share', upload.single('file'), async function(req, res) {
         thumb = await squish(file.buffer, type)
       }
     }
-    
+
     if(isScript) {
       thumb = file.buffer
     }
@@ -1536,7 +1537,7 @@ app.get('*', function(req, res) {
 
 /////////////////////////////////////////////////////////
 
-console.log("Load took " + ((Date.now() - startLoad)/1000) + " secs")
+console.info("Load took " + ((Date.now() - startLoad)/1000) + " secs")
 
 db.load().then(function() {
   const port = process.env.server_port || 3000
