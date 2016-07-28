@@ -67,6 +67,9 @@ const scratchBuilder = require('./utils/scratch-builder')
 scratchBuilder.init()
 const cubeupload = require('./utils/cubeupload')
 const minify = require('./utils/minify')
+const email = require('./utils/email')
+
+/* await */ email('16batesa@gmail.com', 'Hello from OpenSprites', 'hellodere').then(() => console.log('email sent'))
 
 /////////////////////////////////////////////////////////
 

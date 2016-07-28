@@ -50,7 +50,7 @@ project_id=115307769
 session_secret=thisandagainplsexplain
 server_port=3000
 
-sendgrid_api_key=SG.ABCxyz
+sendgrid_api_key=SG.ABCxyz # remove if you don't have one
 
 # UNIMPLEMENTED:
 cubeupload_auth=false # `true` will upload as:
