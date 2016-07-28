@@ -435,6 +435,10 @@ app.post('/signin', async function(req, res) {
 // allows for <img src='/signout'> which is *BAD*
 // perhaps use PUT and check the Referrer header?
 app.get('/signout', async function(req, res) {
+  if(req.get('accept').indexOf('text/html') < 0) {
+    res.end(new Buffer('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wgARCAClAOcDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAAP/EABYBAQEBAAAAAAAAAAAAAAAAAAABAv/aAAwDAQACEAMQAAABIAAAAAAAAAAAAAACkAKQAAAFBAAAAAAAmlhAUhSApACoUAAQAAAAqFgKQpEqiAFBAAAAAAAUAhSFAIACoUAQAAAAApCgEKCAAFBAAAAAAAUgKCAoABCggBSAAAAAAAAAoAIUAIUQAAAAAAAAAAAoBAAAAAAAAAAAAAAUgBQQAAAFAAAAIUgAKCFBAAAACgAAAgSqBACgEAAAAABSAAAFIUgAShYAAAAACkAAAKQpAAUEAAAAABSAAAJQogAKQAAAAAApAAAEqgAQFIAAAAAAUgAABSAoICkAAAAAAKQAAAAAAFIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//8QAFBABAAAAAAAAAAAAAAAAAAAAkP/aAAgBAQABBQIYf//EAB0RAAEFAAMBAAAAAAAAAAAAABEAATBAQRBQYHD/2gAIAQMBAT8B797r3XjCFF/ChDxAQQQQQQsZCU9PIM4enkGcPTzpj8i//8QAFBEBAAAAAAAAAAAAAAAAAAAAkP/aAAgBAgEBPwEYf//EABQQAQAAAAAAAAAAAAAAAAAAAJD/2gAIAQEABj8CGH//xAAUEAEAAAAAAAAAAAAAAAAAAACQ/9oACAEBAAE/IRh//9oADAMBAAIAAwAAABAkkkkkkkkkkkkkkkkkkkkkgEkkkkkkoEkgkkkMkkEkkkkskklgkgEkkkkkkkEkkgkkskEkkkkkkkkkkkgEkkkkkkgkgkEAEAkgkkkkkkkkkAAgksEkkkkkkkkkkkAEkkkkkkkkkkkkkgkkEkkkgkkkggkkggkkkkkAgAAlkkkkkkkkkkkkkkkkklskkkkkkkkkkkkkkEkkkkkkkkktgkkkkkkkkkkkklkkEkkkkkkkkkkkkkAkkkkkkkkEkkkkkkgkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk//8QAJBEAAQMEAgICAwAAAAAAAAAAAQARMRAgMEEhUUBxgcFQYGH/2gAIAQMBAT8Q84jgWEcDydNcarGwSESOk46TjpOOk46RbrEYCkf0VlQb9Uj2nsEhGTnMBAsiNikqDfpDu4SiKhDZDAoC3pEKVAZWjcJCMnO/DVB0UZqCybpMUx6qJCMnyHKc1EhEF06hwIRL+S57/BAbKPOEB05OTk5OTk6rbtHIZM1ByUTrxALBOUrAdFEMhwCcv2xJWiEesv2xJW6PjByFHu7RzCDg18pycdJurBBzDeDXzYS9RvMC2cFn/Yv/xAAfEQABAwQDAQAAAAAAAAAAAAAAARFBECAwQDFQYCH/2gAIAQIBAT8Q79LX1eKpRac7KUW9Rxx9FKzvv0bj+IccccccfYnBIwmnOCaJaomWcE0S2c04JObp1pGPo+kuCb19/wD/xAAUEAEAAAAAAAAAAAAAAAAAAACQ/9oACAEBAAE/EBh//9k=', 'base64'))
+    return 
+  }
   console.log(`${req.session.user} signed out`)
 
   delete req.session.user
