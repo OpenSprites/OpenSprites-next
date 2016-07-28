@@ -1156,17 +1156,15 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
 
     // TODO: perhaps this should be done during
     // upload processing instead of first view?
-    if(resource[0].image && !resource[0].place) {
+    if(resource[0].image && !resource[0].place && resource[0].type != 'image/svg+xml') {
       try {
         const data = await resource[0].download()
-        const place = await cubeupload(data)
-
-        if(place === 'error') throw 'Failed to upload to CubeUpload'
-        resource[0].place = place
-
+        const place = await cubeupload(data, resource[0].type)
         console.log(place)
 
-        //await resource[0].save()
+        if(place.error || !place.file_name) throw 'Failed to upload to CubeUpload'
+        resource[0].place = 'http://i.cubeupload.com/' + place.file_name
+        await resource[0].save()
       } catch(e) {
         console.log(e)
       }
