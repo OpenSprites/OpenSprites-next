@@ -12,6 +12,8 @@ https://github.com/OpenSprites/OpenSprites-next
 
 ![](https://avatars0.githubusercontent.com/u/3926753?v=3&s=32) @Arinerron
 
+![](https://avatars1.githubusercontent.com/u/11816825?v=3&s=32) @cauzality
+
 ![](https://avatars1.githubusercontent.com/u/9948030?v=3&s=32) @liam4
 
 ![](https://avatars0.githubusercontent.com/u/8547938?v=3&s=32) @MegaApuTurkUltra
