@@ -227,7 +227,7 @@ ResourceSchema.methods.download = function() {
 
           var bufs = []
           readstream.on('data', chunk => bufs.push(chunk))
-          readstream.on('end', () => finish(Buffer.concat(bufs).toString('utf-8')))
+          readstream.on('end', () => finish(Buffer.concat(bufs)))
         })
       })
     } else {
@@ -235,7 +235,7 @@ ResourceSchema.methods.download = function() {
         if(err){
           reject(err)
         }
-        finish(data.toString('utf8'))
+        finish(data)
       })
     }
   })

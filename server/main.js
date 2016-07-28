@@ -1160,7 +1160,6 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
       try {
         const data = await resource[0].download()
         const place = await cubeupload(data, resource[0].type)
-        console.log(place)
 
         if(place.error || !place.file_name) throw 'Failed to upload to CubeUpload'
         resource[0].place = 'http://i.cubeupload.com/' + place.file_name
