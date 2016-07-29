@@ -43,6 +43,8 @@ let UserSchema = mongoose.Schema({
   alerts: [ AlertSchema ]
 })
 
+UserSchema.index({username: 'text', about: 'text'})
+
 let User
 
 UserSchema.methods.updateAbout = function (about) {

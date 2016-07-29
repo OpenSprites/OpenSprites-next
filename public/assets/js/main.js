@@ -25,6 +25,7 @@ const ddc = require('./dropdowncheck')
 const backpack = require('./backpack')
 const messages = require('./messages')
 const vIE = require('./detect-ie')()
+const search = require('./search')
 
 if(vIE) {
   if(vIE > 11) {
@@ -47,6 +48,9 @@ if('/join' === window.location.pathname)
 
 if('/share' === window.location.pathname)
   share()
+
+if('/search' === window.location.pathname)
+  search()
 
 if(window.location.pathname.startsWith('/collections'))
   collection.init()

@@ -58,6 +58,8 @@ let ResourceSchema = mongoose.Schema({
   downloaders: [ String ]
 })
 
+ResourceSchema.index({ name: 'text', about: 'text' })
+
 let Resource
 
 ResourceSchema.methods.updateAbout = function (about) {

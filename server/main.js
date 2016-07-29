@@ -68,6 +68,7 @@ scratchBuilder.init()
 const cubeupload = require('./utils/cubeupload')
 const minify = require('./utils/minify')
 const email = require('./utils/email')
+const search = require('./utils/search')
 
 /////////////////////////////////////////////////////////
 
@@ -447,6 +448,28 @@ app.get('/signout', async function(req, res) {
 
 app.get('/you', mustSignIn, function(req, res) {
   res.redirect('/users/' + req.session.user)
+})
+
+app.get('/search', nocache, async function(req, res){
+  res.render('search', {
+    csrfToken: req.csrfToken(),
+    user: req.session.user,
+  })
+})
+
+app.post('/search', nocache, async function(req, res) {
+  if(!req.body.q || !req.body.category || ['Resource', 'User', 'Collection'].indexOf(req.body.category) < 0) {
+    res.end('Invalid parameters')
+  } else {
+    let results = await search(db[req.body.category], req.body.q)
+    results.isCollection = req.body.category == 'Collection'
+    results.isResource = req.body.category == 'Resource'
+    results.isUser = req.body.category == 'User'
+    res.render('partials/search_results', {
+      layout: false,
+      results
+    })
+  }
 })
 
 app.get('/you/collections', nocache, mustSignIn, async function(req, res){

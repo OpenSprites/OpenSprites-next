@@ -36,6 +36,8 @@ let CollectionSchema = mongoose.Schema({
   isShared: { type: Boolean, default: false }
 })
 
+CollectionSchema.index({ name: 'text', about: 'text' })
+
 let Collection
 
 CollectionSchema.methods.updateAbout = function (about) {

@@ -1,0 +1,56 @@
+.search {
+  a {
+    text-decoration none
+    border-bottom 0
+  }
+  
+  .search-bar {
+    width 100%
+    font-size 2em
+    border-bottom 2px solid #eee
+    outline none
+    margin-bottom 1em
+    
+    &:focus {
+      border-bottom 2px solid os
+    }
+  }
+  
+  .search-tabs {
+    display block
+    border-bottom 1px solid os-gray
+    font-size 1.5em
+    overflow hidden
+    
+    .search-tab {
+      display inline-block
+      color os-gray
+      border 1px solid os-gray
+      border-top-left-radius 3px
+      border-top-right-radius 3px
+      transition 0.1s
+      padding 0 1em
+      cursor default
+      user-select none
+      
+      &:hover {
+        background rgba(os, 0.5)
+        color white
+      }
+      
+      &.selected {
+        background os
+        color white
+        box-shadow 1px 1px 3px os-gray
+      }
+    }
+  }
+  
+  .search-results {
+    display flex
+    flex-direction row
+    align-items center
+    justify-content center
+    flex-wrap wrap
+  }
+}
