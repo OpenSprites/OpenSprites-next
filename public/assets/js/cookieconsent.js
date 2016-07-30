@@ -12,5 +12,5 @@ if(!localStorage['cookies']){
   let div = document.createElement('div')
   div.id = 'cookie-policy'
   div.innerHTML = content
-  document.body.appendChild(div)
+  //document.body.appendChild(div) // see #88
 }
