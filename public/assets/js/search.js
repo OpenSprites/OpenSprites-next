@@ -2,6 +2,7 @@ const resources = require('./resources')
 const ajax = require('axios')
 
 let selectedCategory = 'Resource'
+let selectedSort = 'relevance'
 
 async function doFetch() {
   let text = document.querySelector('.search .search-bar').value
@@ -11,7 +12,7 @@ async function doFetch() {
   if(text.length == 0) return
   try {
     searchResults.innerHTML = "Searching..."
-    let res = await ajax.post('/search', { q: text, category: selectedCategory, csrf: window.csrf })
+    let res = await ajax.post('/search', { q: text, category: selectedCategory, sort: selectedSort, csrf: window.csrf })
     searchResults.innerHTML = res.data
     resources.parse()
   } catch(e) {
@@ -43,6 +44,12 @@ module.exports = function(){
   
   searchBar.addEventListener('keyup', function(){
     fetchSearch()
+  })
+  
+  document.querySelector('.search .sort').addEventListener('change', function() {
+    selectedSort = this.value
+    clearTimeout(timeout)
+    doFetch()
   })
   
   // in case user hit back button and chrome refilled the input box

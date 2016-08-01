@@ -461,7 +461,7 @@ app.post('/search', nocache, async function(req, res) {
   if(!req.body.q || !req.body.category || ['Resource', 'User', 'Collection'].indexOf(req.body.category) < 0) {
     res.end('Invalid parameters')
   } else {
-    let results = await search(db[req.body.category], req.body.q)
+    let results = await search(db[req.body.category], req.body.q, req.body.sort || 'relevance')
     results.isCollection = req.body.category == 'Collection'
     results.isResource = req.body.category == 'Resource'
     results.isUser = req.body.category == 'User'
