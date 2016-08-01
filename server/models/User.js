@@ -32,10 +32,6 @@ let UserSchema = mongoose.Schema({
   emailConfirmed: { type: Boolean, default: false },
   
   pendingChanges: {
-    email: {
-      updateTo: { type: String, default: "" },
-      token: { type: String, default: "" }
-    },
     password: {
       token: { type: String, default: "" }
     }
