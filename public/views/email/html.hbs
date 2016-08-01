@@ -1,0 +1,26 @@
+<div style='font-family:"Lato", sans-serif'>
+  <div style='background:#659595;margin:20px;margin-bottom:0;box-shadow:0px 0px 10px #659595;text-align:right'>
+    <img src='http://i.cubeupload.com/ndSquz.png' />
+    <h1 style='color:white;margin:0;padding-left:1em;text-align:left'>
+      {{subject}}
+    </h1>
+    <br style='clear:both' />
+  </div>
+  <div style='border:2px solid #659595;margin:20px;margin-top:0;box-shadow:0px 0px 10px #659595;padding:1em 1em'>
+    <p>
+      {{message}}
+    </p>
+    <br/>
+    {{#if actions}}
+      <p>
+        {{#each actions}}
+          {{#if primary}}
+            <a href='{{url}}' style='border:2px solid transparent;background:#659595;color:white;padding:0.55em 1em;border-radius:3px;text-decoration:none;text-transform:lowercase'>{{label}}</a>
+          {{else}}
+            <a href='{{url}}' style='border:2px solid #659595;color:#659595;padding:0.55em 1em;border-radius:3px;text-decoration:none;text-transform:lowercase'>{{label}}</a>
+          {{/if}}
+        {{/each}}
+      </p>
+    {{/if}}
+  </div>
+</div>

@@ -137,7 +137,7 @@ function squishSVG(svg) {
 
 let app = express()
 
-app.engine('hbs', exprhbs.create({
+let exprhbsInst = exprhbs.create({
   defaultLayout: 'main',
   extname: '.hbs',
   layoutsDir: 'public/views/layouts/',
@@ -181,7 +181,8 @@ app.engine('hbs', exprhbs.create({
 
     's?': val => val === 1? '' : 's'
   }
-}).engine)
+})
+app.engine('hbs', exprhbsInst.engine)
 
 app.set('views', 'public/views')
 app.set('view engine', 'hbs')
