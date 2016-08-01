@@ -465,6 +465,17 @@ app.post('/forgot-password', nocache, function(req, res){
   res.end('not implemented')
 })
 
+app.get('/forgot-password/reset', nocache, function(req, res){
+  res.render('account-settings', {
+    csrfToken: req.csrfToken(),
+    passwordReset: true
+  })
+})
+
+app.post('/forgot-password/reset', nocache, function(req, res){
+  res.end('not implemented')
+})
+
 app.get('/you/settings', nocache, mustSignIn, async function(req, res) {
   let user = await db.User.findByUsername(req.session.user)
   res.render('account-settings', {

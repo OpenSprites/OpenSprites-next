@@ -7,29 +7,54 @@
     </blockquote>
   {{/if}}
 
-  <form method='post'>
-    <table id='join'>
+  <form method='post' style='display:flex;flex-direction:row;'>
+    {{#unless passwordReset}}
+    <table class='account-table' style='width:50%;'>
+      <tbody>
+        <tr>
+          <td>Email</td>
+          <td><input name='email' type='email' value='{{email}}' placeholder='john.doe@gmail.com'></td>
+        </tr>
+        <tr>
+          <td>Current password</td>
+          <td><input name='current-password-email' type='password' placeholder='*********'></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type='submit' class='btn' name='submit' value='change email' style='color:white'></td>
+        </tr>
+      </tbody>
+    </table>
+    {{/unless}}
+    <table class='account-table' style='width:50%'>
       <tbody>
         {{#unless passwordReset}}
         <tr>
-          <td>Email</td>
-          <td><input name='email' required type='email' value='{{email}}' placeholder='john.doe@gmail.com'></td>
+          <td>Current password</td>
+          <td><input name='current-password' type='password' placeholder='*********'></td>
         </tr>
         {{/unless}}
         <tr>
           <td>New password</td>
-          <td><input name='password' type='password' placeholder='*********'></td>
+          <td><input name='new-password' type='password' placeholder='*********'></td>
         </tr>
         <tr>
-          <td>Confirm</td>
-          <td><input name='password-confirm' type='password' placeholder='*********'></td>
+          <td>Confirm new password</td>
+          <td><input name='new-password-confirm' type='password' placeholder='*********'></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type='submit' class='btn' name='submit' value='change password' style='color:white'></td>
         </tr>
       </tbody>
     </table>
 
-    <br>
+    {{#if passwordReset}}
+      <input type='hidden' name='source' value='passwordReset'>
+    {{else}}
+      <input type='hidden' name='source' value='account'>
+    {{/if}}
 
     <input type='hidden' name='csrf' value='{{csrfToken}}'>
-    <input type='submit' class='btn' value='Save'>
   </form>
 </main>
