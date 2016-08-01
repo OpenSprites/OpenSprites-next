@@ -9,6 +9,7 @@ require('dotenv').config()
 
 const path = require('path')
 const fs = require('fs')
+const crypto = require('crypto')
 
 const express = require('express')
 const multer = require('multer')
@@ -67,7 +68,7 @@ const scratchBuilder = require('./utils/scratch-builder')
 scratchBuilder.init()
 const cubeupload = require('./utils/cubeupload')
 const minify = require('./utils/minify')
-const email = require('./utils/email')
+const emailService = require('./utils/email')
 const search = require('./utils/search')
 
 /////////////////////////////////////////////////////////
@@ -461,19 +462,95 @@ app.get('/forgot-password', nocache, function(req, res) {
   })
 })
 
-app.post('/forgot-password', nocache, function(req, res){
-  res.end('not implemented')
+app.post('/forgot-password', nocache, async function(req, res){
+  try {
+    let user
+    try {
+      user = await db.User.findByUsername(req.body.username)
+      if(!user) throw "User not found"
+    } catch(e) {
+      console.log(e)
+      res.render('forgot-password', {
+        csrfToken: req.csrfToken(),
+        fail: "We don't have that user registered. Maybe you mistyped?",
+        username: req.body.username
+      })
+      return
+    }
+    
+    let email = user.email
+    let token = (await callbackToPromise(crypto, crypto.randomBytes, 32)).toString('hex')
+    user.pendingChanges.password.token = token
+    await user.save()
+    await emailService.email(exprhbsInst, {
+      to: email,
+      subject: "Reset your OpenSprites password",
+      message: "A request was made to reset your password on OpenSprites. If it wasn't you, you can ignore this email. Otherwise, reset your password with the button below.",
+      actions: [{
+        primary: true,
+        label: "reset password",
+        url: "https://opensprites.org/forgot-password/reset/" + token
+      }]
+    })
+    
+    res.render('md-page', {
+      title: 'Password reset',
+      markdown: `
+# Password reset link sent
+Check your spam folder if you don't see it soon
+      `
+    })
+  } catch(e) {
+    console.log(e)
+    res.status(500).render('500', { user: req.session.user })
+  }
 })
 
-app.get('/forgot-password/reset', nocache, function(req, res){
+app.get('/forgot-password/reset/:token', nocache, async function(req, res) {
+  try {
+    let user = await db.User.findOne({'pendingChanges.password.token': req.params.token})
+    if(!user) throw "User not found"
+  } catch(e) {
+    console.log(e)
+    res.status(403).render('403', {})
+    return
+  }
   res.render('account-settings', {
     csrfToken: req.csrfToken(),
     passwordReset: true
   })
 })
 
-app.post('/forgot-password/reset', nocache, function(req, res){
-  res.end('not implemented')
+app.post('/forgot-password/reset/:token', nocache, async function(req, res) {
+  if(req.body['new-password'].length < 1) {
+    res.render('account-settings', {
+      csrfToken: req.csrfToken(),
+      passwordReset: true,
+      fail: "You need to enter a password"
+    })
+  } else if(req.body['new-password'] != req.body['new-password-confirm']) {
+    res.render('account-settings', {
+      csrfToken: req.csrfToken(),
+      passwordReset: true,
+      fail: "Whoops! Your passwords didn't match"
+    })
+  } else {
+    try {
+      let user = await db.User.findOne({'pendingChanges.password.token': req.params.token})
+      user.password = await bcrypt.hash(req.body['new-password'], 12)
+      await user.save()
+      res.render('md-page', {
+        title: 'All set!',
+        markdown: `
+# All set!
+Your password has been changed
+      `
+      })
+    } catch(e) {
+      console.log(e)
+      res.status(500).render('500', {})
+    }
+  }
 })
 
 app.get('/you/settings', nocache, mustSignIn, async function(req, res) {

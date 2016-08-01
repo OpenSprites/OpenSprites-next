@@ -35,7 +35,6 @@ if(process.env.sendgrid_api_key) {
 } else {
   sendMail = async function thereIsNoSendGrid() {
     console.warn('Cannot send email; `sendgrid_api_key` is undefined')
-    throw 'no api key'
   }
 }
 
@@ -58,8 +57,8 @@ module.exports = {
    */
   email: async function(exprhbsInst, context) {
     let subject = context.subject
-    let html = await exprhbsInst.render('email/html', context)
-    let text = await exprhbsInst.render('email/plain', context)
+    let html = await exprhbsInst.render('public/views/email/html.hbs', context)
+    let text = await exprhbsInst.render('public/views/email/plain.hbs', context)
     let to = context.to
     return await sendMail(to, subject, html, text)
   }
