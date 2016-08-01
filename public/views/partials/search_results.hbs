@@ -8,6 +8,25 @@
   {{/each}}
 {{else if results.isUser}}
   {{#each results}}
+    <a class='user-item' data-username='{{username}}' href='/users/{{username}}'>
+      <img src='/users/{{username}}/avatar?s=128' width=128 height=128 id='avatar'>
+      <p class='user-item-username'>{{username}}</p>
+    </a>
+  {{/each}}
+{{/if}}
+
+{{#unless results.length}}
+  <div class='no-results'>No results</div>
+{{/unless}}{{#if results.isCollection}}
+  {{#each results}}
+    {{> collection this}}
+  {{/each}}
+{{else if results.isResource}}
+  {{#each results}}
+    {{> resource this}}
+  {{/each}}
+{{else if results.isUser}}
+  {{#each results}}
     <a class='user-item' data-username='{{username}}' class='/users/{{username}}'>
       <img src='/users/{{username}}/avatar?s=128' width=128 height=128 id='avatar'>
       <p class='user-item-username'>{{username}}</p>
