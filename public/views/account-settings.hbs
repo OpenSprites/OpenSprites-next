@@ -1,0 +1,35 @@
+<main>
+  <h1>Account Settings</h1>
+
+  {{#if fail}}
+    <blockquote>
+      {{{fail}}}
+    </blockquote>
+  {{/if}}
+
+  <form method='post'>
+    <table id='join'>
+      <tbody>
+        {{#unless passwordReset}}
+        <tr>
+          <td>Email</td>
+          <td><input name='email' required type='email' value='{{email}}' placeholder='john.doe@gmail.com'></td>
+        </tr>
+        {{/unless}}
+        <tr>
+          <td>New password</td>
+          <td><input name='password' type='password' placeholder='*********'></td>
+        </tr>
+        <tr>
+          <td>Confirm</td>
+          <td><input name='password-confirm' type='password' placeholder='*********'></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <br>
+
+    <input type='hidden' name='csrf' value='{{csrfToken}}'>
+    <input type='submit' class='btn' value='Save'>
+  </form>
+</main>

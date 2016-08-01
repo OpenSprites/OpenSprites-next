@@ -30,6 +30,16 @@ let UserSchema = mongoose.Schema({
 
   email: String,
   emailConfirmed: { type: Boolean, default: false },
+  
+  pendingChanges: {
+    email: {
+      updateTo: { type: String, default: "" },
+      key: { type: String, default: "" }
+    },
+    password: {
+      key: { type: String, default: "" }
+    }
+  },
 
   joined: { type: String, default: () => Date.now() },
   about: { type: String, default: 'Hi there!' },

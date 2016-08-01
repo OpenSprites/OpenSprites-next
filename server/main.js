@@ -451,6 +451,33 @@ app.get('/you', mustSignIn, function(req, res) {
   res.redirect('/users/' + req.session.user)
 })
 
+app.get('/forgot-password', nocache, function(req, res) {
+  if(req.session.user) {
+    res.redirect('/')
+    return
+  }
+  res.render('forgot-password', {
+    csrfToken: req.csrfToken()
+  })
+})
+
+app.post('/forgot-password', nocache, function(req, res){
+  res.end('not implemented')
+})
+
+app.get('/you/settings', nocache, mustSignIn, async function(req, res) {
+  let user = await db.User.findByUsername(req.session.user)
+  res.render('account-settings', {
+    user: req.session.user,
+    csrfToken: req.csrfToken(),
+    email: user.email
+  })
+})
+
+app.post('/you/settings', nocache, mustSignIn, async function(req, res){
+  res.end('not implemented')
+})
+
 app.get('/search', nocache, async function(req, res){
   res.render('search', {
     csrfToken: req.csrfToken(),
@@ -830,7 +857,7 @@ app.get('/collections/create', async function(req, res) {
   }
 
   req.session.csrf = req.csrfToken() // bit hacky
-  res.render('collection_create', {
+  res.render('collection-create', {
     user: req.session.user,
     title: 'Create Collection',
     csrfToken: req.csrfToken()
