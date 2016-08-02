@@ -1329,19 +1329,21 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
       count++
     }
     
-    for(let owner of collection.owners) {
+    let _collection = await db.Collection.findById(collection._id, 'owners curators subscribers')
+    
+    for(let owner of _collection.owners) {
       let u = await User.findByUsername(owner)
       if(owner != req.session.user)
         u.sendMessage('collection_add', 'collection', 'Collection', collection._id, count)
     }
     
-    for(let owner of collection.curators) {
+    for(let owner of _collection.curators) {
       let u = await User.findByUsername(owner)
       if(owner != req.session.user)
         u.sendMessage('collection_add', 'collection', 'Collection', collection._id, count)
     }
     
-    for(let owner of collection.subscribers) {
+    for(let owner of _collection.subscribers) {
       let u = await User.findByUsername(owner)
       if(owner != req.session.user)
         u.sendMessage('collection_add', 'collection', 'Collection', collection._id, count)

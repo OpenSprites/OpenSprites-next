@@ -58,7 +58,7 @@ let ResourceSchema = mongoose.Schema({
   downloaders: [ String ]
 })
 
-ResourceSchema.index({ name: 'text', about: 'text' })
+ResourceSchema.index({ name: 'text', about: 'text', downloaders: 1, owners: 1 })
 
 let Resource
 

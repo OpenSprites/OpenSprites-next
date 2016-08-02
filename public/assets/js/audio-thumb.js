@@ -62,9 +62,13 @@ module.exports = function(id, cb) {
       };
       req.send();
     }
-     
+    
     if(!localStorage['audio-thumbcache-' + id]){
-      runAudioRender()
+      try {
+        runAudioRender()
+      } catch(e) {
+        console.log(e)
+      }
     } else {
       updateImage(localStorage['audio-thumbcache-' + id])
     }
