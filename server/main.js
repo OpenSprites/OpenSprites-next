@@ -358,7 +358,24 @@ app.post('/join', async function(req, res) {
           email: req.body.email,
           username: req.body.username,
           password: await bcrypt.hash(req.body.password, 12),
-          joined: Date.now()
+          joined: Date.now(),
+          pendingChanges: {
+            email: {
+              newEmail: req.body.email,
+              token: (await callbackToPromise(crypto, crypto.randomBytes, 32)).toString('hex')
+            }
+          }
+        })
+        
+        await emailService.email(exprhbsInst, {
+          to: user.email,
+          subject: "Welcome to OpenSprites",
+          message: "Welcome to OpenSprites, " + user.username + "! We just need one last thing: confirm that this is your email to be allowed to share resources.",
+          actions: [{
+            primary: true,
+            label: "confirm email",
+            url: "https://opensprites.org/confirm-email/" + user.pendingChanges.email.token
+          }]
         })
 
         user.save(function(err) {
@@ -383,6 +400,31 @@ app.post('/join', async function(req, res) {
     }
   } else {
     err(`Looks like <b>we couldn't find a comment</b> with your code and username! Did you copy it correctly?`)
+  }
+})
+
+app.get('/confirm-email/:token', async function(req, res){
+  try {
+    let user = await db.User.findOne({'pendingChanges.email.token': req.params.token})
+    if(!user) throw "User not found"
+    
+    user.pendingChanges.email.token = ""
+    user.emailConfirmed = true
+    user.email = user.pendingChanges.email.newEmail
+    await user.save()
+    
+    res.render('md-page', {
+      title: 'All set!',
+      markdown: `
+# All set!
+Your email ${user.email} is now confirmed.
+      `,
+      user: req.session.user
+    })
+  } catch(e) {
+    console.log(e)
+    res.status(403).render('403', {})
+    return
   }
 })
 
@@ -538,6 +580,7 @@ app.post('/forgot-password/reset/:token', nocache, async function(req, res) {
     try {
       let user = await db.User.findOne({'pendingChanges.password.token': req.params.token})
       user.password = await bcrypt.hash(req.body['new-password'], 12)
+      user.pendingChanges.password.token = ""
       await user.save()
       res.render('md-page', {
         title: 'All set!',
@@ -563,7 +606,103 @@ app.get('/you/settings', nocache, mustSignIn, async function(req, res) {
 })
 
 app.post('/you/settings', nocache, mustSignIn, async function(req, res){
-  res.end('not implemented')
+  try {
+    let user = await db.User.findByUsername(req.session.user)
+    if(!user) throw "User not found"
+
+    try {
+      await bcrypt.compare(req.body['current-password'], user.password)
+    } catch(e) {
+      res.render('account-settings', {
+        user: req.session.user,
+        csrfToken: req.csrfToken(),
+        email: user.email,
+        fail: "Your current password doesn't match"
+      })
+      return
+    }
+    
+    if(req.body.submit == 'change email') {
+      if(req.body.email == user.email) {
+        res.render('account-settings', {
+          user: req.session.user,
+          csrfToken: req.csrfToken(),
+          email: user.email,
+          fail: "That email is already your email"
+        })
+        return
+      }
+      
+      user.pendingChanges.email.newEmail = req.body.email
+      user.pendingChanges.email.token = (await callbackToPromise(crypto, crypto.randomBytes, 32)).toString('hex')
+      await user.save()
+      await emailService.email(exprhbsInst, {
+        to: req.body.email,
+        subject: "OpenSprites Email Change",
+        message: "Hey " + user.username + ", a request was made to change your email to this one. The current email for your account is " + user.email + ". Confirm this email is yours to apply the change.",
+        actions: [{
+          primary: true,
+          label: "confirm email",
+          url: "https://opensprites.org/confirm-email/" + user.pendingChanges.email.token
+        }]
+      })
+      
+      res.render('md-page', {
+        title: 'One more step',
+        markdown: `
+# One more step
+Check ${req.body.email} for a confirmation to change your email. If you don't see it soon, check your spam folder.
+      `,
+        user: req.session.user
+      })
+    } else {
+      if(req.body['new-password'].length == 0) {
+        res.render('account-settings', {
+          user: req.session.user,
+          csrfToken: req.csrfToken(),
+          email: user.email,
+          fail: "You need to enter a new password"
+        })
+        return
+      }
+      if(req.body['new-password'] != req.body['new-password-confirm']) {
+        res.render('account-settings', {
+          user: req.session.user,
+          csrfToken: req.csrfToken(),
+          email: user.email,
+          fail: "Your password confirm doesn't match"
+        })
+        return
+      }
+      
+      user.password = await bcrypt.hash(req.body['new-password'], 12)
+      user.pendingChanges.password.token = ""
+      await user.save()
+      
+      await emailService.email(exprhbsInst, {
+        to: user.email,
+        subject: "OpenSprites Password Change",
+        message: "Hey " + user.username + ", your password was recently changed. If this wasn't you, you should reset your password right away.",
+        actions: [{
+          primary: false,
+          label: "reset password",
+          url: "https://opensprites.org/forgot-password"
+        }]
+      })
+      
+      res.render('md-page', {
+        title: 'All set!',
+        markdown: `
+# All set!
+Your password has been changed
+      `,
+        user: req.session.user
+      })
+    }
+  } catch(e) {
+    console.log(e);
+    res.status(500).render('500', {user: req.session.user})
+  }
 })
 
 app.get('/search', nocache, async function(req, res){
@@ -751,9 +890,7 @@ app.get('/users/:who/avatar', async function(req, res) {
   try {
     const usr = await request(`https://api.scratch.mit.edu/users/${req.params.who}`, { json: true })
 
-    const avatar = usr.profile.avatar.substr(0, usr.profile.avatar.length - 4).replace('/', '')
-
-    res.redirect(`https://cdn2.scratch.mit.edu/get_image/user/${avatar}_${size}x${size}.png`)
+    res.redirect(`https://cdn2.scratch.mit.edu/get_image/user/${usr.id}_${size}x${size}.png`)
   } catch(e) {
     // fallback to opensprites logo
     res.redirect('/assets/img/logo/icon.png')

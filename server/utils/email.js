@@ -33,8 +33,9 @@ if(process.env.sendgrid_api_key) {
     })
   }
 } else {
-  sendMail = async function thereIsNoSendGrid() {
+  sendMail = async function thereIsNoSendGrid(to, subject, html, text) {
     console.warn('Cannot send email; `sendgrid_api_key` is undefined')
+    console.log(to, subject, html, text)
   }
 }
 

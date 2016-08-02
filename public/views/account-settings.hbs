@@ -7,17 +7,17 @@
     </blockquote>
   {{/if}}
 
-  <form method='post' style='display:flex;flex-direction:row;'>
-    {{#unless passwordReset}}
+  {{#unless passwordReset}}
+  <form method='post' style='display:inline-block;width:50%;float:left'>
     <table class='account-table' style='width:50%;'>
       <tbody>
         <tr>
           <td>Email</td>
-          <td><input name='email' type='email' value='{{email}}' placeholder='john.doe@gmail.com'></td>
+          <td><input name='email' required type='email' value='{{email}}' placeholder='john.doe@gmail.com'></td>
         </tr>
         <tr>
           <td>Current password</td>
-          <td><input name='current-password-email' type='password' placeholder='*********'></td>
+          <td><input name='current-password' type='password' required placeholder='*********'></td>
         </tr>
         <tr>
           <td></td>
@@ -25,22 +25,26 @@
         </tr>
       </tbody>
     </table>
-    {{/unless}}
-    <table class='account-table' style='width:50%'>
+    
+    <input type='hidden' name='csrf' value='{{csrfToken}}'>
+  </form>
+  {{/unless}}
+  <form method='post' style='display:inline-block;width:50%;float:right'>
+    <table class='account-table'>
       <tbody>
         {{#unless passwordReset}}
         <tr>
           <td>Current password</td>
-          <td><input name='current-password' type='password' placeholder='*********'></td>
+          <td><input name='current-password' type='password' required placeholder='*********'></td>
         </tr>
         {{/unless}}
         <tr>
           <td>New password</td>
-          <td><input name='new-password' type='password' placeholder='*********'></td>
+          <td><input name='new-password' type='password' required placeholder='*********'></td>
         </tr>
         <tr>
           <td>Confirm new password</td>
-          <td><input name='new-password-confirm' type='password' placeholder='*********'></td>
+          <td><input name='new-password-confirm' type='password' required placeholder='*********'></td>
         </tr>
         <tr>
           <td></td>
@@ -48,12 +52,6 @@
         </tr>
       </tbody>
     </table>
-
-    {{#if passwordReset}}
-      <input type='hidden' name='source' value='passwordReset'>
-    {{else}}
-      <input type='hidden' name='source' value='account'>
-    {{/if}}
 
     <input type='hidden' name='csrf' value='{{csrfToken}}'>
   </form>

@@ -7,10 +7,16 @@
     </h1>
 
     {{#if who.exists}}
-      <small>
+      <small style='clear:both'>
         Joined {{{timeago who.joined}}} <br>
         {{#unless who.isYou}} Last seen {{{timeago who.online}}} {{/unless}}
       </small>
+    {{/if}}
+    
+    {{#if who.isYou}}
+    <div>
+      <a href='/you/settings' class='btn white-border'>account settings</a>
+    </div>
     {{/if}}
   </div>
 
