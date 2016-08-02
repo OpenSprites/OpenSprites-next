@@ -110,18 +110,21 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
     }
   }
   if (limit) {
-    populateParams.options = {
-        limit: limit
-      } // see: http://stackoverflow.com/a/23640287/1021196
+    // see: http://stackoverflow.com/a/23640287/1021196
     if (maxDate) {
-      populateParams.select['when'] = {
+      populateParams.match = { when: {
         $lte: maxDate
-      }
+      }}
     }
   }
-  return db.Collection.findOne({
+  
+  let retval = db.Collection.findOne({
     _id: this._id
   }, 'items').populate(populateParams)
+  if(limit) 
+    retval = retval.slice('items', limit)
+    
+  return retval
 }
 
 CollectionSchema.methods.getThumbnail = async function(){

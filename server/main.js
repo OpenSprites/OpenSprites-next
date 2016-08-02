@@ -826,7 +826,7 @@ app.get('/users/:who', nocache, async function(req, res) {
 
     let rs = []
     if(shared) {
-      let rsRaw = await shared.getItems()
+      let rsRaw = await shared.getItems(10)
       for(let resource of rsRaw.items){
         let isResource = resource.kind == 'Resource'
         rs.push({ isResource, item: resource.item })
