@@ -1157,7 +1157,7 @@ app.get('/collections/:id', nocache, async function(req, res) {
   try {
     let collection = await Collection.findById(req.params.id)
     if(!collection) throw 'Collection not found'
-    let rsRaw = await collection.getItems()
+    let rsRaw = await collection.getItems(30)
     let rs = []
     for(let resource of rsRaw.items){
       let isResource = resource.kind == 'Resource'
@@ -1193,7 +1193,8 @@ app.get('/collections/:id/items', nocache, async function(req, res) {
   try {
     let collection = await Collection.findById(req.params.id)
     if(!collection) throw 'Collection not found'
-    let rsRaw = await collection.getItems()
+    let limit = req.params.numItems || 30
+    let rsRaw = await collection.getItems(limit, req.params.maxDate)
     let rs = []
     for(let resource of rsRaw.items){
       let isResource = resource.kind == 'Resource'

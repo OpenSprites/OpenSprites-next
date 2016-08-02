@@ -113,7 +113,7 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
     // see: http://stackoverflow.com/a/23640287/1021196
     if (maxDate) {
       populateParams.match = { when: {
-        $lte: maxDate
+        $lt: maxDate
       }}
     }
   }
