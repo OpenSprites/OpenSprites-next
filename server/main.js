@@ -1294,6 +1294,7 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
     }
 
     let added = {}
+    let count = 0
 
     for(let item of items) {
       let type = 'Resource'
@@ -1325,6 +1326,25 @@ app.put('/collections/:id/items', nocache, async function(req, res) {
         {safe: true, upsert: true}
       )
       added[item] = {status: true, message: "ok"}
+      count++
+    }
+    
+    for(let owner of collection.owners) {
+      let u = await User.findByUsername(owner)
+      if(owner != req.session.user)
+        u.sendMessage('collection_add', 'collection', 'Collection', collection._id, count)
+    }
+    
+    for(let owner of collection.curators) {
+      let u = await User.findByUsername(owner)
+      if(owner != req.session.user)
+        u.sendMessage('collection_add', 'collection', 'Collection', collection._id, count)
+    }
+    
+    for(let owner of collection.subscribers) {
+      let u = await User.findByUsername(owner)
+      if(owner != req.session.user)
+        u.sendMessage('collection_add', 'collection', 'Collection', collection._id, count)
     }
 
     res.status(200).json(added)
@@ -1617,7 +1637,7 @@ app.get(`/resources/:id/download/:f?`, async function(req, res) {
     try {
       await resource.incrementDownloads(req.ip)
       for(let owner of resource.owners) {
-        let u = User.findByUsername(owner)
+        let u = await User.findByUsername(owner)
         if(owner != req.session.user)
           u.sendMessage('download', 'resource', 'Resource', resource._id, 1)
       }
@@ -1712,6 +1732,14 @@ app.post('/comment', mustSignIn, async function(req, res) {
   }
 
   if(where) {
+    if(req.body.pageType === 'resource') {
+      for(let owner of where.owners) {
+        let u = await User.findByUsername(owner)
+        if(owner != req.session.user)
+          u.sendMessage('comment', 'resource', 'Resource', where._id, 1)
+      }
+    }
+    
     // todo: use subset of markdown on `what`
     let what = req.body.what.substr(0, 500)
 

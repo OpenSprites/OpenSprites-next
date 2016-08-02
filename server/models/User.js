@@ -70,7 +70,7 @@ UserSchema.methods.sendMessage = async function(type, subtype, refKind, refId, c
   let updateMessageId = null
   let updateMessageCount = null
   for(let recentMessage of recentMessages) {
-    if(recentMessage.type == type && recentMessage.subtype == subtype && recentMessage.kind == refKind && recentMessage.refId.toString() == refId.toString()) {
+    if(recentMessage.type == type && recentMessage.subtype == subtype && recentMessage.where.kind == refKind && recentMessage.where.item.toString() == refId.toString()) {
       updateMessageId = recentMessage._id
       updateMessageCount = recentMessage.count + count
       break
