@@ -6,7 +6,11 @@ OpenSprites is the place where [Scratchers](https://wiki.scratch.mit.edu/wiki/Sc
 
 https://github.com/OpenSprites/OpenSprites-next
 
-# Contributers #
+# Contributors #
+
+<style>
+  main img { vertical-align: middle }
+</style>
 
 ![](https://avatars0.githubusercontent.com/u/10202163?v=3&s=32) @andrewjcole
 

@@ -148,7 +148,11 @@ let exprhbsInst = exprhbs.create({
 
   helpers: {
     md: raw => marked(raw || '', { sanitize: true, renderer: safeRenderer }),
-    json: raw => JSON.stringify(raw),
+    unsafemd: raw => marked(raw || '', { sanitize: false, renderer: markedRenderer }),
+    json: raw => {
+      if(typeof raw === 'undefined' || raw == null) return "null"
+      return JSON.stringify(raw)
+    },
     timeago: raw => `<span class='timeago'>${raw}</span>`,
 
     by: owners => {
@@ -288,14 +292,16 @@ app.use(function(err, req, res, next) {
   console.warn(req.session.user, 'hit CSRF error')
 
   res.status(403).render('403', {
-    user: req.session.user
+    user: req.session.user,
+    csrfToken: req.csrfToken()
   })
 })
 
 app.use(function(err, req, res, next) {
   res.status(500).render('500', {
     user: req.session.user,
-    err
+    err,
+    csrfToken: req.csrfToken()
   })
 })
 
@@ -421,7 +427,8 @@ app.get('/confirm-email/:token', async function(req, res){
 # All set!
 Your email ${user.email} is now confirmed.
       `,
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
   } catch(e) {
     console.log(e)
@@ -542,11 +549,12 @@ app.post('/forgot-password', nocache, async function(req, res){
       markdown: `
 # Password reset link sent
 Check your spam folder if you don't see it soon
-      `
+      `,
+      csrfToken: req.csrfToken()
     })
   } catch(e) {
     console.log(e)
-    res.status(500).render('500', { user: req.session.user })
+    res.status(500).render('500', { user: req.session.user, csrfToken: req.csrfToken() })
   }
 })
 
@@ -589,7 +597,8 @@ app.post('/forgot-password/reset/:token', nocache, async function(req, res) {
         markdown: `
 # All set!
 Your password has been changed
-      `
+      `,
+        csrfToken: req.csrfToken()
       })
     } catch(e) {
       console.log(e)
@@ -655,7 +664,8 @@ app.post('/you/settings', nocache, mustSignIn, async function(req, res){
 # One more step
 Check ${req.body.email} for a confirmation to change your email. If you don't see it soon, check your spam folder.
       `,
-        user: req.session.user
+        user: req.session.user,
+        csrfToken: req.csrfToken()
       })
     } else {
       if(req.body['new-password'].length == 0) {
@@ -698,12 +708,13 @@ Check ${req.body.email} for a confirmation to change your email. If you don't se
 # All set!
 Your password has been changed
       `,
-        user: req.session.user
+        user: req.session.user,
+        csrfToken: req.csrfToken()
       })
     }
   } catch(e) {
     console.log(e);
-    res.status(500).render('500', {user: req.session.user})
+    res.status(500).render('500', {user: req.session.user, csrfToken: req.csrfToken()})
   }
 })
 
@@ -855,11 +866,13 @@ app.get('/users/:who', nocache, async function(req, res) {
       res.render('user', {
         user: req.session.user,
         who: who,
-        title: who.username
+        title: who.username,
+        csrfToken: req.csrfToken()
       })
     } catch(e) {
       res.status(404).render('404', {
-        user: req.session.user
+        user: req.session.user,
+        csrfToken: req.csrfToken()
       })
     }
   }
@@ -914,7 +927,8 @@ app.get('/share', async function(req, res) {
       markdown: `
 # Share
 We need you to [verify your email address](/verify) before you can share resources with others. Sorry about that!
-      `
+      `,
+      csrfToken: req.csrfToken()
     })
 
     return
@@ -1132,7 +1146,7 @@ app.post('/collections/create', nocache, async function(req, res){
     res.redirect('/collections/' + collection._id)
   } catch(e){
     console.log(e)
-    res.status('500').render('500', {user: req.session.user})
+    res.status('500').render('500', {user: req.session.user, csrfToken: req.csrfToken()})
   }
 })
 
@@ -1151,7 +1165,7 @@ app.get('/collections/download/:downloadId/:name', nocache, async function(req, 
     scratchBuilder.download(req.params.downloadId, req.params.name, req, res)
   } catch(e){
     console.log(e)
-    res.status(404).render('404', {user: req.session.user})
+    res.status(404).render('404', {user: req.session.user, csrfToken: req.csrfToken()})
   }
 })
 
@@ -1188,7 +1202,8 @@ app.get('/collections/:id', nocache, async function(req, res) {
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
   }
 })
@@ -1226,7 +1241,8 @@ app.get('/collections/:id/items', nocache, async function(req, res) {
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
   }
 })
@@ -1455,7 +1471,8 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
   if(resource[0]) {
     if(resource[0].deleted && !user.admin) {
       res.status(403).render('404', {
-        user: req.session.user
+        user: req.session.user,
+        csrfToken: req.csrfToken()
       })
 
       return
@@ -1513,7 +1530,8 @@ app.get(`/resources/:id`, nocache, async function(req, res) {
     })
   } else {
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
   }
 })
@@ -1538,12 +1556,14 @@ async function delResource(DEL, req, res) {
       res.json('success')
     } else {
       res.status(403).render('403', {
-        user: req.session.user
+        user: req.session.user,
+        csrfToken: req.csrfToken()
       })
     }
   } else {
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
   }
 }
@@ -1594,7 +1614,8 @@ app.get(`/resources/:id/raw`, async function(req, res) {
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
     return
   }
@@ -1614,7 +1635,8 @@ app.get(`/resources/:id/raw`, async function(req, res) {
     } catch(err){
       console.log(err)
       res.status(404).render('404', {
-        user: req.session.user
+        user: req.session.user,
+        csrfToken: req.csrfToken()
       })
     }
   } else {
@@ -1629,7 +1651,8 @@ app.get(`/resources/:id/download/:f?`, async function(req, res) {
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
     return
   }
@@ -1682,7 +1705,8 @@ app.get(`/resources/:id/cover`, async function(req, res) {
   } catch(err){
     console.log(err)
     res.status(404).render('404', {
-      user: req.session.user
+      user: req.session.user,
+      csrfToken: req.csrfToken()
     })
   }
 })
@@ -1705,7 +1729,7 @@ app.get('/admin', nocache, async function(req, res) {
   })
 
   if(!user || !user.admin) {
-    res.render('403', { user: req.session.user })
+    res.render('403', { user: req.session.user, csrfToken: req.csrfToken() })
     return
   }
 
@@ -1725,7 +1749,8 @@ app.get('/admin', nocache, async function(req, res) {
     lastPage: page - 1,
     nextPage: page + 1,
 
-    csrf: req.csrfToken()
+    csrf: req.csrfToken(),
+    csrfToken: req.csrfToken()
   })
 })
 
@@ -1761,7 +1786,7 @@ app.post('/comment', mustSignIn, async function(req, res) {
     await where.save()
     res.json('success')
   } else {
-    res.status(404).render('404', { user: req.session.user })
+    res.status(404).render('404', { user: req.session.user, csrfToken: req.csrfToken()})
   }
 })
 
@@ -1795,7 +1820,9 @@ app.get('/about', function(req, res) {
     res.render('md-page', {
       user: req.session.user,
       title: 'About',
-      markdown: file || 'Not found!'
+      markdown: file || 'Not found!',
+      unsafe: true,
+      csrfToken: req.csrfToken()
     })
   })
 })
@@ -1803,7 +1830,8 @@ app.get('/about', function(req, res) {
 app.get('/contact-us', function(req, res) {
   res.render('contact-us', {
     user: req.session.user,
-    title: 'Contact OpenSprites'
+    title: 'Contact OpenSprites',
+    csrfToken: req.csrfToken()
   })
 })
 
@@ -1814,7 +1842,8 @@ app.get('/dmca', function(req, res) {
     res.render('md-page', {
       user: req.session.user,
       title: 'DMCA',
-      markdown: file || 'Not found!'
+      markdown: file || 'Not found!',
+      csrfToken: req.csrfToken()
     })
   })
 })
@@ -1826,7 +1855,8 @@ app.get('/tos', function(req, res) {
     res.render('md-page', {
       user: req.session.user,
       title: 'Terms of Service',
-      markdown: file || 'Not found!'
+      markdown: file || 'Not found!',
+      csrfToken: req.csrfToken()
     })
   })
 })
@@ -1838,7 +1868,8 @@ app.get('/privacy', function(req, res) {
     res.render('md-page', {
       user: req.session.user,
       title: 'Privacy Policy',
-      markdown: file || 'Not found!'
+      markdown: file || 'Not found!',
+      csrfToken: req.csrfToken()
     })
   })
 })
@@ -1849,7 +1880,8 @@ app.use(express.static('public'))
 
 app.get('*', function(req, res) {
   res.status(404).render('404', {
-    user: req.session.user
+    user: req.session.user,
+    csrfToken: req.csrfToken()
   })
 })
 

@@ -1,3 +1,7 @@
 <main>
-  {{{md markdown}}}
+  {{#if unsafe}}
+    {{{unsafemd markdown}}}
+  {{else}}
+    {{{md markdown}}}
+  {{/if}}
 </main>
