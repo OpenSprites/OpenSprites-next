@@ -92,10 +92,12 @@ CollectionSchema.methods.isPermitted = async function (user, permission) {
   return this.permissions[group][permission]
 }
 
-CollectionSchema.methods.getItems = function (limit, maxDate) {
+CollectionSchema.methods.getItems = async function (limit, offset) {
+  let length = await Collection.aggregate([{$match: {_id: this._id}}, {$project: {items: {$size: '$items'}}}])
+  length = length[0].items
+  
   let populateParams = {
     path: 'items.item',
-    sort: '-when',
     select: {
       name: 1,
       audio: 1,
@@ -109,22 +111,26 @@ CollectionSchema.methods.getItems = function (limit, maxDate) {
       type: 1
     }
   }
-  if (limit) {
-    // see: http://stackoverflow.com/a/23640287/1021196
-    if (maxDate) {
-      populateParams.match = { when: {
-        $lt: maxDate
-      }}
-    }
-  }
   
   let retval = db.Collection.findOne({
     _id: this._id
-  }, 'items').populate(populateParams)
-  if(limit) 
-    retval = retval.slice('items', limit)
+  }).populate(populateParams)
+  
+  if(limit) {
+    offset = offset || 0
+    if(offset + limit > length) {
+      limit = length - offset
+      if(limit < 0) limit = 0
+    }
     
-  return retval
+    if(limit == 0) return {items: []}
+    retval = retval.slice('items', [- offset - limit, limit])
+  }
+  
+  let data = await retval
+  data.items.reverse()
+  data.length = length
+  return data
 }
 
 CollectionSchema.methods.getThumbnail = async function(){

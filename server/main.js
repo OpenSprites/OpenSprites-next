@@ -1171,6 +1171,8 @@ app.get('/collections/:id', nocache, async function(req, res) {
     collection.canSetAbout = await collection.isPermitted(req.session.user || '', 'setAbout')
     collection.canAddItems = await collection.isPermitted(req.session.user || '', 'addItems')
     collection.canRemoveItems = await collection.isPermitted(req.session.user || '', 'removeItems')
+    
+    collection.totalResources = rsRaw.length
 
     if(collection.isShared) {
       collection.canRemoveItems = false
@@ -1196,7 +1198,7 @@ app.get('/collections/:id/items', nocache, async function(req, res) {
     let collection = await Collection.findById(req.params.id)
     if(!collection) throw 'Collection not found'
     let limit = req.params.numItems || 30
-    let rsRaw = await collection.getItems(limit, req.params.maxDate)
+    let rsRaw = await collection.getItems(limit, parseInt(req.query.offset || 0))
     let rs = []
     for(let resource of rsRaw.items){
       let isResource = resource.kind == 'Resource'

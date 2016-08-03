@@ -16,6 +16,12 @@ function updateView(){
   if(hash == 'collection-remove' && (!OS.toRemoveIds || OS.toRemoveIds.length == 0)) {
     location.hash = '#_'
   }
+  
+  if(document.querySelectorAll('.resource').length < OS.collection.totalResources) {
+    document.querySelector('#collection-load-more').style.display = 'inline-block'
+  } else {
+    document.querySelector('#collection-load-more').style.display = 'none'
+  }
 }
 
 async function reloadResources() {
@@ -32,6 +38,24 @@ async function reloadResources() {
   updateView()
 }
 
+async function loadMore() {
+  let offset = document.querySelectorAll('.resource').length
+  let res = await ajax.get(location.pathname + '/items?offset=' + offset, {})
+  let data = new DOMParser().parseFromString(res.data, 'text/html')
+  
+  for(let resItem of data.querySelectorAll('.resource')) {
+    document.querySelector('.resources').appendChild(resItem)
+  }
+  
+  for (let el of document.querySelectorAll('.resource:not(.parsed)')) {
+    let ta = el.querySelector('.timeago')
+    ta.innerHTML = timeago(parseInt(ta.innerHTML))
+    ta.setAttribute('title', ta.innerHTML)
+  }
+  resourcesManager.parse()
+  attachResourceListeners()
+  updateView()
+}
 
 let firstSelectedItem
 function _doSelect(resource, e) {
@@ -455,6 +479,10 @@ module.exports = {
         document.querySelector('.collection-title ~ small').innerHTML = 'Error'
         console.log(err)
       }
+    })
+    
+    document.querySelector('#collection-load-more').addEventListener('click', function(){
+      loadMore()
     })
   }
 }

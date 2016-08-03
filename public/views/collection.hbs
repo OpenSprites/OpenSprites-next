@@ -52,6 +52,9 @@
     {{> collection_items this}}
   </div>
 </main>
+<div style='text-align:center'>
+  <button id='collection-load-more' class='btn flat'>load more</button>
+</div>
 
 <div class='collection-ui collection-dialog-container dialog-alert' id='collection-alert'>
   <div class='collection-ui collection-dialog'>
@@ -179,7 +182,8 @@
     name: {{{json collection.name}}},
     canAddItems: {{{json collection.canAddItems}}},
     canRemoveItems: {{{json collection.canRemoveItems}}},
-    youOwn: {{{json collection.youOwn}}}
+    youOwn: {{{json collection.youOwn}}},
+    totalResources: {{{json collection.totalResources}}}
   }
   
   var csrf = {{{json csrfToken}}};

@@ -6,9 +6,10 @@ module.exports = {
   parse: function parseResources() {
     if(document.querySelectorAll('.resources').length > 0) {
       // this page has resources in it somewhere
-      let resources = document.querySelectorAll('.resources > .resource')
+      let resources = document.querySelectorAll('.resources > .resource:not(.parsed)')
 
       for (let el of resources) {
+        el.classList.add('parsed')
         let id = el.id
         let audio = el.querySelector('.audio')
         let image = el.querySelector('.img:not(.script)')
