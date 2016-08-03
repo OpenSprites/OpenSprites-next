@@ -8,6 +8,7 @@
 const ajax = require('axios')
 const marked = require('marked')
 const htmldec = require('htmldec')
+const renderer = require('../../../server/utils/safe-md.js')
 
 let timeoutId
 
@@ -50,7 +51,8 @@ module.exports = function() {
       }, 2000)
       
       bio.innerHTML = marked(bio_raw, {
-        sanitize: true
+        sanitize: true,
+        renderer
       })
     } catch(err) {
       document.querySelector('.bio ~ small').innerHTML = 'Error'

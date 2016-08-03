@@ -50,6 +50,9 @@ project_id=115307769
 session_secret=thisandagainplsexplain
 server_port=3000
 
+# where are you running the server?
+hostname=opensprites.org
+
 #sendgrid_api_key=SG.ABCxyz
 ```
 

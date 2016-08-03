@@ -42,6 +42,8 @@ markedRenderer.heading = function (text, level) {
                   text + '</h' + level + '>';
 }
 
+const safeRenderer = require('./utils/safe-md')
+
 const sanitize = require('sanitize-filename')
 const shortid = require('shortid').generate
 const uniqid = require('uniqid').process
@@ -145,7 +147,7 @@ let exprhbsInst = exprhbs.create({
   partialsDir: 'public/views/partials/',
 
   helpers: {
-    md: raw => marked(raw || '', { sanitize: true, renderer: markedRenderer }),
+    md: raw => marked(raw || '', { sanitize: true, renderer: safeRenderer }),
     json: raw => JSON.stringify(raw),
     timeago: raw => `<span class='timeago'>${raw}</span>`,
 
