@@ -166,7 +166,7 @@ async function decomposeProjectFile(file) {
     if(res) {
       return res
     } else {
-      return "Unnamed Item"
+      return filename
     }
   }
   

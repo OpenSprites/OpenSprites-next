@@ -1893,6 +1893,6 @@ db.load().then(function() {
   const port = process.env.server_port || 3000
 
   app.listen(port, function() {
-    console.log('Listening on http://localhost:' + port + ' ' + tada)
+    console.log('Listening on https://' + process.env.hostname + ':' + port + ' ' + tada)
   })
 })
