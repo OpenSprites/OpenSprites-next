@@ -278,15 +278,21 @@ async function upload() {
   const resources = document.querySelectorAll('#file-uploads .resource:not(.done)')
 
   let toProcess = []
+  let totalSize = 0
+  let uploadedSize = 0
   for(let r = 0; r < resources.length; r++) {
     let resource = resources[r]
     const file = resource._attachmentFile
     if(!file) continue
+    
+    totalSize += file.size
 
     resource.style.pointerEvents = 'none'
     resource.querySelector('.overlay').style.display = 'block'
     toProcess.push(resource)
   }
+  
+  console.log("Total size to upload: " + totalSize)
   
   if(toProcess.length == 0) return
   
@@ -309,6 +315,7 @@ async function upload() {
     data.append('name', resource.querySelector('.file-upload-name').value)
     data.append('file', file)
     data.append('clientid', resource.dataset.id)
+    let thisFileSize = file.size
 
     try {
       let req = ajax.put('/share', data, {
@@ -318,6 +325,8 @@ async function upload() {
 
         progress: p => {
           let percent = Math.floor((p.loaded / p.total) * 100)
+          
+          document.querySelector('.share-progress').textContent = ' (Sharing ' + Math.floor(100 * (uploadedSize + ((p.loaded / p.total) * thisFileSize)) / totalSize) + '%)'
           resource.querySelector('.progress-text').innerText = (percent == 100 ? 'Processing' : percent + '%')
 
           let paths = resource.querySelectorAll('svg.progress path');
@@ -345,6 +354,8 @@ async function upload() {
       })
       
       let res = await req
+      
+      uploadedSize += thisFileSize
 
       let resourceDom = document.querySelector("[data-id=" + res.data.clientid + "]")
       if (res.data.success) {
@@ -368,6 +379,8 @@ async function upload() {
   Array.from(document.querySelectorAll("#file-uploads .resource:not(.done)")).forEach(item =>
     item.querySelector(".overlay").style.display = "none"
   );
+  
+  document.querySelector('.share-progress').textContent = ''
 }
 
 function updateLink(item) {

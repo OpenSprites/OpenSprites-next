@@ -40,6 +40,7 @@ function init() {
 }
 
 async function prepare(options) {
+  console.log("Preparing...")
   let zip = new NodeZip()
 
   let type = options.type
@@ -261,6 +262,8 @@ async function prepare(options) {
       if (seenResources.indexOf(item.item._id.toString()) > -1){
         return // don't upload dups
       }
+      
+      console.log("Prepare: " + name)
 
       if(!item.item.script) {
         seenResources.push(item.item._id.toString())
@@ -387,6 +390,8 @@ Contributors:
 
     await promise
 
+    console.log("Done preparing")
+    
     return id
   } catch(e) {
     console.log(e)
