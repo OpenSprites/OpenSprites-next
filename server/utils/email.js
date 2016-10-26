@@ -13,8 +13,8 @@ if(process.env.sendgrid_api_key) {
       const toEmail = new helper.Email(to)
       const html = new helper.Content('text/html', htmlContent)
       const text = new helper.Content('text/plain', textContent)
-      const mail = new helper.Mail(fromEmail, subject, toEmail, html)
-      mail.addContent(text)
+      const mail = new helper.Mail(fromEmail, subject, toEmail, text)
+      mail.addContent(html)
 
       const body = mail.toJSON()
       const req = sg.emptyRequest()
